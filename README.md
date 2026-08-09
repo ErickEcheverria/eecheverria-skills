@@ -17,3 +17,4 @@ git -C ~/.claude/skills pull --ff-only
 | `eecheverria-senior-dev` | Modo de operar como desarrollador senior: ritual de inicio, uso de subagentes para cuidar el contexto, flujo multi-proyecto y cierre con `CLAUDE.md`. Capa base que delega el detalle a las demás skills. |
 | `eecheverria-clean-code` | Principios de código limpio y simplificación agnósticos de stack: reducir complejidad sin cambiar el comportamiento, mejorar legibilidad y eliminar redundancia. |
 | `eecheverria-git-workflow` | Disciplina de git en el día a día: commits atómicos, conventional commits, ramas de vida corta (trunk-based), separar refactor de feature, worktrees e higiene pre-commit. |
+| `eecheverria-write-user-story` | Redacta historias de usuario (HU) del proyecto DPB con el formato "COMO Usuario QUIERO … PARA …", listas para copiar en Jira, con ponderación Scrum Poker. |

@@ -8,6 +8,7 @@
 !eecheverria-senior-dev/
 !eecheverria-clean-code/
 !eecheverria-git-workflow/
+!eecheverria-write-user-story/
 
 # Ruido común dentro de las skills versionadas:
 **/node_modules/
