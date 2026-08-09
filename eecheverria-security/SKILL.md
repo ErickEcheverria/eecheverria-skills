@@ -87,7 +87,7 @@ type Envelope<T> =
   | { success: true; data: T; error: null }
   | { success: false; data: null; error: { code: string; message: string; details?: unknown } };
 
-// Códigos usados aquí: FORBIDDEN (403), VALIDATION_ERROR (422), UNAUTHORIZED (401)
+// Códigos usados aquí: FORBIDDEN (403), VALIDATION_ERROR (422), UNAUTHORIZED (401), NOT_FOUND (404)
 ```
 
 ## Patrones de prevención OWASP Top 10
@@ -171,6 +171,16 @@ Autenticación (¿quién eres?) no es autorización (¿puedes hacer esto?). Veri
 tasks.patch('/:id', authenticate, async (c) => {
   const user = c.get('user');
   const task = await taskService.findById(c.req.param('id'));
+
+  // 'no encontrado' primero: evita el crash de task.ownerId cuando el id no existe. Nota: devolver
+  // 403 cuando el recurso existe pero no es tuyo REVELA que existe; en superficies sensibles conviene
+  // devolver 404 tanto para inexistente como para ajeno, para no filtrar existencia.
+  if (!task) {
+    return c.json(
+      { success: false, data: null, error: { code: 'NOT_FOUND', message: 'Tarea no encontrada' } },
+      404,
+    );
+  }
 
   if (task.ownerId !== user.id) {
     return c.json(
@@ -279,8 +289,11 @@ import type Joi from 'joi';
 
 export const validate = (schema: Joi.ObjectSchema) =>
   createMiddleware(async (c, next) => {
+    // si el body no es JSON válido, no revientes con 500: trátalo como vacío y deja que Joi
+    // responda 422 con el envelope (input malformado es justo lo que manda un atacante)
+    const body = await c.req.json().catch(() => ({}));
     // abortEarly: false junta todos los errores; stripUnknown descarta campos no declarados
-    const { value, error } = schema.validate(await c.req.json(), { abortEarly: false, stripUnknown: true });
+    const { value, error } = schema.validate(body, { abortEarly: false, stripUnknown: true });
     if (error) {
       const details = error.details.map((d) => ({ path: d.path, message: d.message }));
       return c.json(
@@ -346,19 +359,20 @@ Reglas de supply-chain (OWASP **A06** / **LLM03**):
 ```typescript
 import { rateLimiter } from 'hono-rate-limiter';
 
-// límite general de la API
-app.use('/api/*', rateLimiter({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  limit: 100,
-  keyGenerator: (c) => c.req.header('x-forwarded-for') ?? 'anon',
-}));
+// La clave del rate limit debe ser una identidad que el cliente NO pueda falsificar.
+// `x-forwarded-for` lo setea el propio cliente: confía en él SOLO si estás detrás de un proxy/
+// balanceador conocido que lo sobreescribe (y toma la primera IP, no toda la cadena). Si no hay
+// proxy de confianza, usa la IP real del socket según el runtime — de lo contrario el atacante
+// rota el header y evade el límite (el control que aquí protege contra fuerza bruta).
+const TRUST_PROXY = process.env.TRUST_PROXY === 'true';
+const clientKey = (c) =>
+  (TRUST_PROXY ? c.req.header('x-forwarded-for')?.split(',')[0]?.trim() : c.env?.remoteAddr) ?? 'anon';
 
-// límite más estricto en auth: frena fuerza bruta y credential stuffing
-app.use('/api/auth/*', rateLimiter({
-  windowMs: 15 * 60 * 1000,
-  limit: 10, // 10 intentos por 15 min
-  keyGenerator: (c) => c.req.header('x-forwarded-for') ?? 'anon',
-}));
+// límite general de la API
+app.use('/api/*', rateLimiter({ windowMs: 15 * 60 * 1000, limit: 100, keyGenerator: clientKey }));
+
+// límite más estricto en auth: frena fuerza bruta y credential stuffing (10 intentos / 15 min)
+app.use('/api/auth/*', rateLimiter({ windowMs: 15 * 60 * 1000, limit: 10, keyGenerator: clientKey }));
 ```
 
 ## Manejo de secretos
