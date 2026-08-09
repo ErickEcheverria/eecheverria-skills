@@ -9,7 +9,7 @@ description: >-
   "esta función está gigante", "refactoriza esto sin romper nada", "aplica clean code", "esto tiene
   mucho anidamiento", "renombra para que se entienda", o cuando en un code review se marquen problemas
   de legibilidad, nombres, duplicación o código muerto. Es la capa de CALIDAD transversal que
-  complementa a las skills de stack (Angular/PrimeNG, Hono/Drizzle) y al modo de trabajo senior. Si
+  complementa a las skills de stack (React, Hono/Drizzle) y al modo de trabajo senior. Si
   dudas entre activarla ante una tarea de refactor o limpieza de código, actívala.
 ---
 
@@ -24,7 +24,7 @@ pasa una prueba simple: *"¿un compañero nuevo entendería esto más rápido qu
 respuesta es no, no es una simplificación: es ruido.
 
 Es la **capa de calidad transversal**: aplica sobre cualquier stack. El *cómo trabajas* lo pone
-`eecheverria-senior-dev`; el *patrón concreto* de cada stack lo ponen las skills de Angular/PrimeNG o
+`eecheverria-senior-dev`; el *patrón concreto* de cada stack lo ponen las skills de React o
 Hono/Drizzle; esta skill pone el **criterio de limpieza** que atraviesa a todas.
 
 ## Skill viva — no te auto-edites
@@ -255,13 +255,12 @@ def process(data):
     return do_work(data)
 ```
 
-### Componentes (Angular / React)
+### Componentes (React)
 
-El mismo criterio aplica en plantillas y componentes: extrae variables con nombre en vez de expresiones
-densas en el template, y saca a un método/`computed` la lógica que el markup no debería cargar. El
-*prop/input drilling* a través de componentes intermedios es una señal — pero refactorizarlo (contexto,
-composición, un servicio con signals) es una decisión de diseño: **márcala y coméntala, no la
-refactorices en automático**.
+El mismo criterio aplica en JSX y componentes: extrae variables con nombre en vez de expresiones densas
+en el markup, y saca a un hook o a un `useMemo` la lógica que la vista no debería cargar. El *prop
+drilling* a través de componentes intermedios es una señal — pero refactorizarlo (context, composición,
+un store) es una decisión de diseño: **márcala y coméntala, no la refactorices en automático**.
 
 ## Racionalizaciones comunes (y la realidad)
 
@@ -285,6 +284,24 @@ refactorices en automático**.
 - Simplificar código que no entiendes del todo.
 - Batchear muchas simplificaciones en un solo commit gigante e irrevisable.
 - Refactorizar código fuera del alcance de la tarea sin que te lo pidan.
+
+## Reportar hallazgos por severidad
+
+Cuando revises código (propio o ajeno) y produzcas una lista de mejoras, **clasifica cada hallazgo por
+severidad** y **empieza por lo que importa**. Un muro de nits al mismo nivel que un bug real hace que lo
+crítico se pierda y agota a quien revisa.
+
+| Severidad | Qué es | Qué esperar |
+|---|---|---|
+| **Crítico** | Rompe correctness, seguridad o datos | Bloquea: se arregla antes de mergear |
+| **Necesario** | Debe cambiar para cumplir el estándar del proyecto | Se corrige en este cambio |
+| **Nit** | Detalle menor de estilo/claridad | Opcional, a criterio del autor |
+| **Opcional** | Sugerencia de mejora, no obligatoria | Tómalo o déjalo |
+| **FYI** | Contexto o aprendizaje, sin acción | Solo informativo |
+
+Etiqueta cada punto con su severidad y ordena de mayor a menor; separa lo que **bloquea** de lo que es
+preferencia, para que el autor sepa qué es negociable. (Para juzgar a fondo una decisión de diseño de
+alto riesgo, `eecheverria-doubt-driven`; para revisar el diff automáticamente, el comando `/code-review`.)
 
 ## Verificación (antes de decir "listo")
 

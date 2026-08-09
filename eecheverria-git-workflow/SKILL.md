@@ -228,6 +228,20 @@ proyecto usa `lint-staged` + `husky`, deja que el hook haga el trabajo — no lo
   migraciones de Drizzle en `db/migrations/`).
 - **No commitees** salida de build, archivos de entorno (`.env`) ni config personal del IDE.
 
+## Disciplina de dependencias
+
+Agregar o subir una dependencia es un cambio con riesgo propio; trátalo con el mismo cuidado que el
+código. Es código de otros que pasa a correr en tu app.
+
+- **Antes de agregar una:** ¿de verdad hace falta? (¿lo resuelve la stdlib o algo que ya está?) Revisa
+  su mantenimiento, peso y superficie de ataque.
+- **Un upgrade por commit/PR, no en lote.** Si subes varias a la vez y algo se rompe, no sabes cuál fue.
+  Sube una, corre tests, commitea.
+- **Lee el changelog** de la versión destino — sobre todo en *majors* (breaking changes).
+- **Revisa el diff del lockfile** (`package-lock.json` / `pnpm-lock.yaml`): un salto inesperado de
+  muchas transitivas es señal de alerta.
+- **No mezcles** el bump de dependencias con un feature en el mismo commit (es otro *concern*).
+
 ## Git para depurar
 
 ```bash

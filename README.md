@@ -28,6 +28,8 @@ flowchart TD
         AD["📐 api-design"]
         SR["📚 source-driven"]
         DD["🕵️ doubt-driven"]
+        SEC["🔒 security"]
+        PERF["⚡ performance"]
     end
 
     subgraph S["🎯 Stack"]
@@ -67,6 +69,8 @@ flowchart TD
 | **`eecheverria-api-design`** | Diseño de contratos e interfaces antes de implementar: Ley de Hyrum, versionado, semántica de errores, validar en fronteras, patrones REST y TypeScript. |
 | **`eecheverria-source-driven`** | Fundamentar el código específico de un framework/versión en su documentación oficial (DETECT → FETCH → IMPLEMENT → CITE). Clave con stacks recientes. |
 | **`eecheverria-doubt-driven`** | Revisión adversarial de contexto fresco para decisiones no triviales o de alto riesgo (CLAIM → EXTRACT → DOUBT → RECONCILE → STOP). |
+| **`eecheverria-security`** | Seguridad security-first: threat modeling (STRIDE), OWASP Top 10, SSRF, validación en fronteras, secretos, rate limiting y seguridad de features con LLM. Adaptada a Hono/Joi/JWT. |
+| **`eecheverria-performance`** | Optimización con disciplina de medición (MEASURE → IDENTIFY → FIX → VERIFY → GUARD): N+1, paginación, re-renders, bundle. Rechaza la optimización prematura. |
 
 ### 🎯 Stack — específicas por tecnología
 
