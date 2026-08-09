@@ -9,7 +9,7 @@ description: Construye UI de calidad de producción en React (React + Tailwind) 
 
 Construir interfaces de calidad de producción en **React + Tailwind**: accesibles, responsivas y visualmente pulidas. La meta es que la UI parezca hecha por un ingeniero senior con criterio de diseño en una empresa top — **no** que parezca generada por una IA. Eso significa adherencia real a un design system, accesibilidad correcta, patrones de interacción pensados y cero "estética de IA".
 
-El usuario abandonó Angular; de ahora en adelante **todo el frontend es React**. Esta skill absorbe tanto la ingeniería de UI como el criterio de design system / estética minimalista.
+El stack de frontend del usuario es **React**. Esta skill absorbe tanto la ingeniería de UI como el criterio de design system / estética minimalista.
 
 ## Skill viva — no te auto-edites
 
@@ -93,24 +93,54 @@ El porqué: el componente de presentación se vuelve trivial de probar (recibe p
 // Contenedor: maneja los datos y los estados
 export function TaskListContainer() {
   const { tasks, isLoading, error, refetch } = useTasks();
+  const toggle = useToggleTask();
+  const remove = useDeleteTask();
 
   if (isLoading) return <TaskListSkeleton />;
   if (error) return <ErrorState message="No se pudieron cargar las tareas" onRetry={refetch} />;
   if (tasks.length === 0) return <EmptyState message="Aún no tienes tareas" />;
 
-  return <TaskList tasks={tasks} />;
+  return <TaskList tasks={tasks} onToggle={toggle.mutate} onDelete={remove.mutate} />;
 }
 
-// Presentación: solo pinta
-export function TaskList({ tasks }: { tasks: Task[] }) {
+// Presentación: solo pinta. Recibe los handlers y los reenvía a cada item,
+// que los declara como obligatorios (TaskItemProps) — nada queda sin tipar.
+type TaskListProps = {
+  tasks: Task[];
+  onToggle: (id: string) => void;
+  onDelete: (id: string) => void;
+};
+
+export function TaskList({ tasks, onToggle, onDelete }: TaskListProps) {
   return (
     <ul role="list" className="divide-y">
       {tasks.map((task) => (
-        <TaskItem key={task.id} task={task} />
+        <TaskItem key={task.id} task={task} onToggle={onToggle} onDelete={onDelete} />
       ))}
     </ul>
   );
 }
+```
+
+### Props tipadas (cero `any`)
+
+El porqué: en React casi todo bug de UI es un dato con una forma que no esperabas. Un tipo en la
+frontera del componente lo caza en compilación, no en runtime frente al usuario.
+
+- Declara un `type` explícito para las props de cada componente; nada de `any` ni props implícitas.
+- Modela los estados mutuamente excluyentes con **uniones discriminadas**, no con banderas booleanas
+  sueltas que permiten combinaciones imposibles.
+- Deriva los tipos del contrato de la API (ver `eecheverria-api-design`) en vez de redefinirlos a mano.
+
+```tsx
+// MAL: banderas que permiten estados imposibles (isLoading && error a la vez)
+type Props = { isLoading: boolean; error?: string; data?: Task[] };
+
+// BIEN: unión discriminada — el estado es uno y solo uno
+type TaskListState =
+  | { status: "loading" }
+  | { status: "error"; message: string }
+  | { status: "ready"; tasks: Task[] };
 ```
 
 ## Gestión de estado
@@ -129,6 +159,53 @@ Store global (Zustand / Redux)       → Estado de cliente complejo compartido e
 **Datos remotos = estado de servidor, no `useState` + `useEffect`.** El porqué: TanStack Query (o similar) te da caché, dedupe, revalidación en foco, reintentos y estados `isLoading`/`error` gratis; reimplementar eso a mano siempre sale peor.
 
 **Evita el prop drilling de más de 3 niveles.** Si pasas props por componentes que no las usan, introduce context o reestructura el árbol.
+
+## Formularios (React Hook Form + Zod)
+
+El porqué: un formulario sin tipos ni validación por esquema es una fuente de bugs en runtime. Con
+**React Hook Form** (rendimiento, menos re-renders) + **Zod** (un esquema único que valida *y* deriva el
+tipo) tienes una sola fuente de verdad para la forma de los datos y sus reglas.
+
+```tsx
+const taskSchema = z.object({
+  title: z.string().min(1, "El título es obligatorio").max(120),
+  dueDate: z.coerce.date().optional(),
+});
+type TaskForm = z.infer<typeof taskSchema>; // el tipo sale del esquema, no se duplica
+
+function TaskFormView({ onSubmit }: { onSubmit: (data: TaskForm) => void }) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<TaskForm>({ resolver: zodResolver(taskSchema) });
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} noValidate>
+      <label htmlFor="title">Título</label>
+      <input
+        id="title"
+        {...register("title")}
+        aria-invalid={!!errors.title}
+        aria-describedby={errors.title ? "title-error" : undefined}
+      />
+      {/* Error asociado al campo y anunciado a lectores de pantalla */}
+      {errors.title && (
+        <p id="title-error" role="alert" className="text-sm text-danger">
+          {errors.title.message}
+        </p>
+      )}
+
+      <button type="submit" disabled={isSubmitting}>Guardar</button>
+    </form>
+  );
+}
+```
+
+Reglas: valida en el submit **y también en el servidor** (el cliente no es autoridad); asocia cada error
+a su campo con `aria-invalid` + `aria-describedby` y no dependas solo del color (ver Accesibilidad →
+Formularios); no dejes el submit sin estado `disabled`/carga mientras envía. Reutiliza el mismo esquema
+Zod en cliente y servidor cuando compartan tipos con el backend (ver `eecheverria-api-design`).
 
 ## Design system y estética minimalista
 
@@ -151,7 +228,7 @@ La UI generada por IA tiene patrones reconocibles. Evítalos todos: delatan trab
 
 Usa una escala de espaciado consistente. No inventes valores. El porqué: los valores fuera de escala rompen el ritmo visual y son imposibles de mantener coherentes entre pantallas.
 
-```jsx
+```tsx
 {/* Usa la escala (incrementos de 0.25rem, o la que use el proyecto) */}
 {/* BIEN */}  <div className="p-4 gap-3" />   {/* 16px / 12px */}
 {/* MAL  */}  <div style={{ padding: 13, marginTop: "2.3rem" }} />  {/* fuera de escala */}
@@ -229,16 +306,23 @@ El porqué: cuando aparece contenido (modal, panel), el foco debe ir ahí y qued
 
 ```tsx
 function Dialog({ isOpen, onClose }: DialogProps) {
-  const closeRef = useRef<HTMLButtonElement>(null);
+  const ref = useRef<HTMLDialogElement>(null);
 
+  // showModal() abre el <dialog> como MODAL real: atrapa el foco dentro,
+  // pinta el backdrop y devuelve el foco al disparador al cerrar. El atributo
+  // `open` NO hace nada de esto (queda no-modal); por eso se controla por ref.
   useEffect(() => {
-    if (isOpen) closeRef.current?.focus(); // mueve el foco al abrir
+    const el = ref.current;
+    if (!el) return;
+    if (isOpen) el.showModal();
+    else el.close();
   }, [isOpen]);
 
   return (
-    <dialog open={isOpen} aria-modal="true" aria-labelledby="dialog-title">
+    // onCancel captura el cierre con Escape (nativo del <dialog> modal)
+    <dialog ref={ref} aria-labelledby="dialog-title" onClose={onClose} onCancel={onClose}>
       <h2 id="dialog-title">Confirmar</h2>
-      <button ref={closeRef} onClick={onClose}>Cerrar</button>
+      <button onClick={onClose}>Cerrar</button>
       {/* contenido del diálogo */}
     </dialog>
   );
@@ -306,12 +390,11 @@ Antes reference externo; ahora vive aquí. Recórrelo al terminar cualquier UI.
 Diseña primero para móvil y luego expande. El porqué: retroadaptar un layout de escritorio a móvil cuesta ~3x más que hacerlo mobile-first desde el inicio; el móvil te obliga a priorizar contenido.
 
 ```tsx
-<div className="
-  grid grid-cols-1   {/* Móvil: una columna */}
-  sm:grid-cols-2     {/* Pequeño: 2 columnas */}
-  lg:grid-cols-3     {/* Grande: 3 columnas */}
-  gap-4
-">
+{/* Móvil: 1 columna · sm: 2 · lg: 3. Los comentarios van FUERA del className,
+    nunca dentro del string de clases (romperían las clases). */}
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+  {/* … cards … */}
+</div>
 ```
 
 Prueba en estos breakpoints: **320px, 768px, 1024px, 1440px**.
