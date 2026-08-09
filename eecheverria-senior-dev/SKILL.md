@@ -151,6 +151,7 @@ tarea entra en un dominio con skill propia, delega ahí sin perder la disciplina
 | Backend Node + Hono + Drizzle (API, módulo, endpoint, refactor) | `eecheverria-backend-hono-drizzle` |
 | UI/UX en HTML+CSS puro estilo Geist/Linear | `eecheverria-frontend-ui-geist` |
 | Simplificar/limpiar código sin cambiar comportamiento, aplicar principios de código limpio | `eecheverria-clean-code` |
+| Commitear, ramificar, dividir cambios, worktrees, higiene de git | `eecheverria-git-workflow` |
 | Redactar historias de usuario del proyecto DPB | `eecheverria-write-user-story` |
 
 Cómo se combinan: esta skill decide *cómo* abordas el trabajo (orientarte, cuidar contexto, respetar
