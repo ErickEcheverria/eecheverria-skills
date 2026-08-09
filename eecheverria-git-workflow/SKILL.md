@@ -26,7 +26,7 @@ formal —SemVer, tags, changelog— queda fuera de alcance por decisión del us
 
 ## Skill viva — no te auto-edites
 
-Documento vivo del usuario (eecheverria@paloblanco.com). Si detectas algo que mejoraría la skill,
+Documento vivo del usuario Erick Echeverría (personal `erickecheverria77@outlook.com`; trabajo `eecheverria@paloblanco.com`). Si detectas algo que mejoraría la skill,
 **propónselo y pregúntale antes de editarla**. Aplicarla al trabajo del usuario es tu tarea normal y no
 requiere preguntar.
 

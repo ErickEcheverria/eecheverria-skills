@@ -287,7 +287,11 @@ Lee `references/module-template.md`. Crea exactamente estos archivos en `src/mod
 Después:
 1. Registra el módulo en `src/app.ts`: `app.route('/api/<feature>', <feature>Module)`.
 2. Re-exporta el schema en `src/db/schema.ts`.
-3. Indica al usuario que corra `npm run db:generate` y revise el SQL antes de aplicar.
+3. Genera la migración con `npm run db:generate`, pero **no la apliques tú**: deja el SQL generado en
+   `db/migrations/` (o copia el script a `db/scripts/` con nombre descriptivo) e indícale al usuario que
+   lo revise y lo **ejecute él mismo** (`db:push`/`db:migrate`). Regla firme del usuario — ver "Base de
+   datos: scripts y acceso" en `eecheverria-senior-dev`. Cualquier acceso a la BD que necesites es de
+   **solo lectura y pidiendo autorización**.
 
 ### C. Endpoint nuevo en módulo existente
 

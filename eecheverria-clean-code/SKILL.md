@@ -29,7 +29,7 @@ Hono/Drizzle; esta skill pone el **criterio de limpieza** que atraviesa a todas.
 
 ## Skill viva — no te auto-edites
 
-Documento vivo del usuario (eecheverria@paloblanco.com). Si detectas algo que mejoraría la skill
+Documento vivo del usuario Erick Echeverría (personal `erickecheverria77@outlook.com`; trabajo `eecheverria@paloblanco.com`). Si detectas algo que mejoraría la skill
 (`SKILL.md` y `references/`), **propónselo y pregúntale antes de editarla**. Aplicar la skill al código
 del usuario es tu trabajo normal y no requiere preguntar.
 

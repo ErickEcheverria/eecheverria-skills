@@ -405,10 +405,11 @@ Después de crear los 8 archivos:
    export * from '@/modules/<feature>/<feature>.schema';
    ```
 
-3. Recuérdale al usuario:
-   - `npm run db:generate` para crear la migración SQL.
+3. Genera el SQL, pero **no apliques la migración tú** — el usuario la ejecuta él mismo (regla de BD en
+   `eecheverria-senior-dev`). Recuérdale:
+   - `npm run db:generate` para crear la migración SQL (esto sí puedes correrlo; solo genera el archivo).
    - **Revisar el SQL generado antes de aplicar** (sobre todo en PlanetScale: sin `ALTER TABLE ... DROP COLUMN` en producción sin deploy request).
-   - `npm run db:push` (dev) o aplicar la migración manualmente (prod).
+   - Que **él** corra `npm run db:push` (dev) o aplique la migración manualmente (prod). Tú deja el SQL listo en `db/migrations/` (o `db/scripts/`), no lo apliques.
 
 ## Ejemplo completo: módulo `products`
 

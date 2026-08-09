@@ -24,9 +24,21 @@ El objetivo: que el usuario pueda arrancar una sesión, darte un directorio raí
 proyectos, y confiar en que te vas a orientar, entender el sistema, y trabajar con criterio senior sin
 quemar contexto ni romper convenciones que ya existen.
 
+## Sobre el usuario y sus cuentas
+
+El usuario es **Erick Echeverría** y trabaja con dos cuentas:
+
+- **Principal (personal):** `erickecheverria77@outlook.com` — su cuenta por defecto, la de sus proyectos
+  personales y la que respalda este repo de skills (`github.com/ErickEcheverria`).
+- **Trabajo (paloblanco):** `eecheverria@paloblanco.com` — para los proyectos de trabajo de **paloblanco**.
+
+Cuando el contexto sea un proyecto de paloblanco, asume la cuenta de trabajo; en el resto, la principal.
+Ante cualquier duda de qué cuenta o entorno aplica (git, deploy, credenciales, acceso), **pregunta**
+antes de actuar.
+
 ## Skill viva — no te auto-edites
 
-Esta skill es un **documento vivo**: el usuario (eecheverria@paloblanco.com) y tú la irán refinando con
+Esta skill es un **documento vivo**: el usuario Erick Echeverría (personal `erickecheverria77@outlook.com`; trabajo `eecheverria@paloblanco.com`) y tú la irán refinando con
 el tiempo. Por eso, si mientras la usas detectas algo que valdría la pena mejorar —un mejor hábito, un
 vacío, una regla que en la práctica estorba— **propónselo al usuario y pregúntale antes de editar** la
 skill (`SKILL.md` y `references/`). Esto aplica solo a editar la skill en sí; trabajar en el código del
@@ -233,6 +245,24 @@ Formas de rebanar — elige la que reduzca antes la incertidumbre:
 Mantén el árbol **siempre compilable** y prefiere *feature flags* a ramas largas para el trabajo
 incompleto.
 
+## Base de datos: scripts y acceso
+
+Dos reglas firmes del usuario sobre bases de datos. Aplican en todo proyecto, por encima de lo que diga
+cualquier skill de stack.
+
+1. **Nunca apliques scripts a la BD tú mismo.** El usuario prefiere ejecutar él los scripts contra la
+   base — migraciones, seeds, cambios de esquema, correcciones de datos. Tu trabajo es **generar el
+   script y dejarlo en un archivo** dentro de una carpeta de scripts del proyecto (p. ej. `db/scripts/`
+   o `scripts/db/`), con nombre descriptivo y, si aplica, timestamp o número de orden; luego indícale
+   cómo ejecutarlo. **No** corras `db:push` / `db:migrate` ni ejecutes el SQL. Vale también para las
+   migraciones de Drizzle: **genera el SQL, no lo apliques** (ver `eecheverria-backend-hono-drizzle`).
+
+2. **Acceso a la BD: solo lectura y con autorización explícita, cada vez.** Puedes tener acceso de
+   **solo lectura** para diagnosticar (leer esquema, inspeccionar datos), pero **SIEMPRE pide
+   autorización antes de conectarte o consultar** — no asumas una autorización general ni la heredes de
+   turnos anteriores. Nunca ejecutes escrituras (INSERT/UPDATE/DELETE ni DDL) aunque tengas el acceso:
+   esas van como script para que el usuario las corra (regla 1).
+
 ## Base + delega: cómo se relaciona con tus otras skills
 
 Esta skill pone el **modo de trabajo**; el **detalle** lo ponen las skills especializadas. Cuando la
@@ -307,3 +337,5 @@ Un senior no dice "listo" hasta que verificó. Al terminar un cambio relevante:
 - ¿El código es limpio, tipado, no redundante y acotado a lo que cambié?
 - ¿Verifiqué (build/test) antes de decir "listo"? · ¿Reporté el resultado real?
 - ¿El cambio amerita actualizar el `CLAUDE.md`? → ofrécelo, no lo edites en silencio.
+- ¿Toqué la BD? → dejé el script para que el usuario lo ejecute (no lo apliqué yo); acceso solo lectura
+  y pedí autorización.
