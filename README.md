@@ -35,8 +35,10 @@ flowchart TD
         HN["⚙️ backend-hono-drizzle"]
     end
 
-    subgraph U["📝 Utilidad"]
+    subgraph U["📝 Producto y utilidad"]
+        IR["💡 idea-refine"]
         US["write-user-story"]
+        IR --> US
     end
 
     SD --> T
@@ -73,10 +75,11 @@ flowchart TD
 | **`eecheverria-frontend-react`** | UI de calidad de producción en React + Tailwind: arquitectura de componentes, estado, design system minimalista, accesibilidad WCAG y estados de carga/vacío/error. |
 | **`eecheverria-backend-hono-drizzle`** | Backend senior con Node + Hono + Drizzle (MySQL/PlanetScale) + Joi + JWT + Swagger, arquitectura modular. |
 
-### 📝 Utilidad
+### 📝 Producto y utilidad
 
 | Skill | Qué hace |
 |---|---|
+| **`eecheverria-idea-refine`** | Afina una idea cruda o a medio cocinar antes de escribir HU o código: la reformula, saca supuestos, define alcance y el "qué NO hacer". Ajusta su profundidad a la madurez de la idea. Entrega a `write-user-story`. |
 | **`eecheverria-write-user-story`** | Historias de usuario (HU) del proyecto DPB con el formato "COMO Usuario QUIERO … PARA …", listas para Jira, con ponderación Scrum Poker. |
 
 ---
