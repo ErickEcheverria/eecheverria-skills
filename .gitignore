@@ -1,16 +1,13 @@
-# Lista blanca: ignorar todo en la raíz y versionar solo lo que se comparte.
+# Lista blanca: versionar solo README, config y todas las skills eecheverria-*.
+# (skill-creator queda fuera: es de Anthropic, no del usuario.)
 /*
 
-# Permitir estos archivos y skills:
 !.gitignore
 !.gitattributes
 !README.md
-!eecheverria-senior-dev/
-!eecheverria-clean-code/
-!eecheverria-git-workflow/
-!eecheverria-write-user-story/
+!eecheverria-*/
 
-# Ruido común dentro de las skills versionadas:
+# Ruido dentro de las skills versionadas:
 **/node_modules/
 **/__pycache__/
 **/.DS_Store
