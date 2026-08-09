@@ -3,6 +3,7 @@
 
 # Permitir estos archivos y skills:
 !.gitignore
+!.gitattributes
 !README.md
 !eecheverria-senior-dev/
 !eecheverria-clean-code/
