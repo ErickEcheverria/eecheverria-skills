@@ -1,0 +1,14 @@
+# Lista blanca: ignorar todo en la raíz y versionar solo lo que se comparte.
+/*
+
+# Permitir estos archivos y skills:
+!.gitignore
+!README.md
+!eecheverria-senior-dev/
+!eecheverria-clean-code/
+
+# Ruido común dentro de las skills versionadas:
+**/node_modules/
+**/__pycache__/
+**/.DS_Store
+**/*-workspace/
