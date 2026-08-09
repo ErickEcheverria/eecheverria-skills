@@ -30,6 +30,7 @@ flowchart TD
         DD["🕵️ doubt-driven"]
         SEC["🔒 security"]
         PERF["⚡ performance"]
+        OBS["📈 observability"]
     end
 
     subgraph S["🎯 Stack"]
@@ -71,6 +72,7 @@ flowchart TD
 | **`eecheverria-doubt-driven`** | Revisión adversarial de contexto fresco para decisiones no triviales o de alto riesgo (CLAIM → EXTRACT → DOUBT → RECONCILE → STOP). |
 | **`eecheverria-security`** | Seguridad security-first: threat modeling (STRIDE), OWASP Top 10, SSRF, validación en fronteras, secretos, rate limiting y seguridad de features con LLM. Adaptada a Hono/Joi/JWT. |
 | **`eecheverria-performance`** | Optimización con disciplina de medición (MEASURE → IDENTIFY → FIX → VERIFY → GUARD): N+1, paginación, re-renders, bundle. Rechaza la optimización prematura. |
+| **`eecheverria-observability`** | Instrumentar para producción: logging estructurado (pino + correlation IDs), métricas RED, tracing (OpenTelemetry), alertas sobre síntomas y health checks. Adaptada a Hono/Drizzle. |
 
 ### 🎯 Stack — específicas por tecnología
 

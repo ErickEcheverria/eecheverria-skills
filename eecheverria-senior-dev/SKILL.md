@@ -279,6 +279,7 @@ tarea entra en un dominio con skill propia, delega ahí sin perder la disciplina
 | Commitear, ramificar, dividir cambios, worktrees, higiene de git | `eecheverria-git-workflow` |
 | Revisar/asegurar seguridad (OWASP, secretos, SSRF, auth, seguridad de features LLM) | `eecheverria-security` |
 | Diagnosticar y optimizar rendimiento midiendo primero (N+1, bundle, re-renders) | `eecheverria-performance` |
+| Instrumentar para producción: logs estructurados, métricas RED, trazas, alertas, health checks | `eecheverria-observability` |
 | Afinar/pulir una idea vaga o a medio cocinar antes de escribir HU o código | `eecheverria-idea-refine` |
 | Generar/redactar historias de usuario (HU) de un feature o fix (proyecto DPB) | `eecheverria-write-user-story` |
 
