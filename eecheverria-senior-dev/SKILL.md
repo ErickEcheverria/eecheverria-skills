@@ -271,6 +271,7 @@ tarea entra en un dominio con skill propia, delega ahí sin perder la disciplina
 | Cuando la tarea es… | Apóyate en… |
 | --- | --- |
 | Frontend en React (app, vista, componente, form, tabla, dashboard; UI, estados, accesibilidad) | `eecheverria-frontend-react` |
+| Construir UI en un proyecto con el design system **Untitled UI React** (catálogo, CLI `add`, tokens semánticos) | `eecheverria-untitled-ui` |
 | Backend Node + Hono + Drizzle (API, módulo, endpoint, refactor) | `eecheverria-backend-hono-drizzle` |
 | Diseñar el contrato/forma de una API o interfaz (versionado, errores, tipos) antes de implementar | `eecheverria-api-design` |
 | Escribir código específico de un framework/versión verificando contra su doc oficial | `eecheverria-source-driven` |

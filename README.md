@@ -35,7 +35,9 @@ flowchart TD
 
     subgraph S["🎯 Stack"]
         RE["⚛️ frontend-react"]
+        UUI["🎨 untitled-ui"]
         HN["⚙️ backend-hono-drizzle"]
+        RE --> UUI
     end
 
     subgraph U["📝 Producto y utilidad"]
@@ -79,6 +81,7 @@ flowchart TD
 | Skill | Qué hace |
 |---|---|
 | **`eecheverria-frontend-react`** | UI de calidad de producción en React + Tailwind: arquitectura de componentes, estado, design system minimalista, accesibilidad WCAG y estados de carga/vacío/error. |
+| **`eecheverria-untitled-ui`** | El design system **Untitled UI React** (React 19 + Tailwind v4 + React Aria): busca en el catálogo antes de escribir, trae con el CLI (`add`/`search`), estiliza solo con tokens semánticos y respeta la frontera free (MIT) vs PRO. Incluye el catálogo completo y los patrones de uso por componente. |
 | **`eecheverria-backend-hono-drizzle`** | Backend senior con Node + Hono + Drizzle (MySQL/PlanetScale) + Joi + JWT + Swagger, arquitectura modular. |
 
 ### 📝 Producto y utilidad

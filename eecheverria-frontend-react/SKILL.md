@@ -209,6 +209,12 @@ Zod en cliente y servidor cuando compartan tipos con el backend (ver `eecheverri
 
 ## Design system y estética minimalista
 
+> **Si el proyecto usa Untitled UI React**, el design system ya está resuelto: los tokens de color,
+> tipografía, espaciado, radios y dark mode —y la accesibilidad de los componentes del catálogo, que
+> React Aria aporta— los manda **`eecheverria-untitled-ui`**. Búscalo en el catálogo antes de escribir
+> el componente. Esta skill conserva lo demás: arquitectura de componentes, estado, formularios,
+> responsive, estados de vacío/carga/error y la accesibilidad de la UI propia fuera del catálogo.
+
 ### Evita la "estética de IA"
 
 La UI generada por IA tiene patrones reconocibles. Evítalos todos: delatan trabajo de baja calidad y hacen que toda app se vea igual.
