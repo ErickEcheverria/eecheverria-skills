@@ -215,6 +215,11 @@ Zod en cliente y servidor cuando compartan tipos con el backend (ver `eecheverri
 > el componente. Esta skill conserva lo demás: arquitectura de componentes, estado, formularios,
 > responsive, estados de vacío/carga/error y la accesibilidad de la UI propia fuera del catálogo.
 
+> **El criterio de UX lo pone `eecheverria-ux-laws`**: cuántas opciones mostrar, qué ve primero el
+> usuario, cómo agrupar, dónde va cada acción y cuánto puede tardar. Esa skill decide **qué debe pasar
+> en pantalla y por qué** (Hick, Fitts, Gestalt, Umbral de Doherty); esta decide **cómo se implementa en
+> React**. Al diseñar una vista nueva, invócalas en cadena: primero el criterio, después el código.
+
 ### Evita la "estética de IA"
 
 La UI generada por IA tiene patrones reconocibles. Evítalos todos: delatan trabajo de baja calidad y hacen que toda app se vea igual.

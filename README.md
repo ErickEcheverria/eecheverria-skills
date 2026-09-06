@@ -31,6 +31,7 @@ flowchart TD
         SEC["🔒 security"]
         PERF["⚡ performance"]
         OBS["📈 observability"]
+        UXL["🧭 ux-laws"]
     end
 
     subgraph S["🎯 Stack"]
@@ -49,6 +50,7 @@ flowchart TD
     SD --> T
     SD --> S
     SD --> U
+    UXL --> RE
 
     classDef base fill:#0f172a,stroke:#38bdf8,stroke-width:3px,color:#fff;
 ```
@@ -75,6 +77,7 @@ flowchart TD
 | **`eecheverria-security`** | Seguridad security-first: threat modeling (STRIDE), OWASP Top 10, SSRF, validación en fronteras, secretos, rate limiting y seguridad de features con LLM. Adaptada a Hono/Joi/JWT. |
 | **`eecheverria-performance`** | Optimización con disciplina de medición (MEASURE → IDENTIFY → FIX → VERIFY → GUARD): N+1, paginación, re-renders, bundle. Rechaza la optimización prematura. |
 | **`eecheverria-observability`** | Instrumentar para producción: logging estructurado (pino + correlation IDs), métricas RED, tracing (OpenTelemetry), alertas sobre síntomas y health checks. Adaptada a Hono/Drizzle. |
+| **`eecheverria-ux-laws`** | Criterio de UX al diseñar interfaces: convierte cada ley de [Laws of UX](https://lawsofux.com/es/) en una consecuencia concreta de la UI (Hick, Fitts, Jakob, Gestalt, Umbral de Doherty, Von Restorff, Tesler/Occam/Pareto). Incluye el catálogo de las 30 leyes y cómo resolver los conflictos entre ellas. |
 
 ### 🎯 Stack — específicas por tecnología
 

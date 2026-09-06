@@ -270,6 +270,7 @@ tarea entra en un dominio con skill propia, delega ahí sin perder la disciplina
 
 | Cuando la tarea es… | Apóyate en… |
 | --- | --- |
+| Diseñar o revisar la UI antes de implementarla: cuántas opciones, jerarquía, agrupación, targets, esperas (criterio de UX) | `eecheverria-ux-laws` |
 | Frontend en React (app, vista, componente, form, tabla, dashboard; UI, estados, accesibilidad) | `eecheverria-frontend-react` |
 | Construir UI en un proyecto con el design system **Untitled UI React** (catálogo, CLI `add`, tokens semánticos) | `eecheverria-untitled-ui` |
 | Backend Node + Hono + Drizzle (API, módulo, endpoint, refactor) | `eecheverria-backend-hono-drizzle` |
