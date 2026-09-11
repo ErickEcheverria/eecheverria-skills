@@ -150,7 +150,13 @@ skills/
 Claude Code descubre las skills en `<raíz-del-plugin>/skills/`, por eso viven ahí.
 
 Para **agregar** una skill: carpeta nueva bajo `skills/` con su `SKILL.md`, y push. Para **quitarla**:
-se borra. En ambos casos conviene subir `version` en los dos manifiestos.
+se borra.
+
+> ⚠️ **Sube `version` en los DOS manifiestos en cada cambio** — `.claude-plugin/plugin.json` y la entrada
+> del plugin en `.claude-plugin/marketplace.json`. No es cosmético: si la versión no cambia, quien ya
+> tiene el plugin instalado **no recibe la actualización** aunque corra `claude plugin marketplace
+> update paloblanco`. El catálogo se refresca, pero su copia local del plugin se queda como estaba y la
+> única salida es desinstalar y reinstalar. Ya pasó al mergear los PRs #2 y #3.
 
 Un mismo marketplace admite varios plugins, así que más adelante esto se puede partir
 (`pb-core` / `pb-frontend` / `pb-backend`) sin que nadie cambie su comando de instalación.
