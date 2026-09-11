@@ -1,0 +1,23 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "paloblanco",
+  "description": "Skills estándar de Desarrollos Palo Blanco para Claude Code",
+  "owner": {
+    "name": "Erick Echeverría",
+    "email": "eecheverria@paloblanco.com"
+  },
+  "plugins": [
+    {
+      "name": "pb-skills",
+      "source": "./",
+      "version": "1.0.0",
+      "category": "productivity",
+      "description": "Capa base senior-dev + transversales (clean-code, git-workflow, api-design, source-driven, doubt-driven, security, performance, observability, ux-laws), stack (frontend-react, untitled-ui, backend-hono-drizzle) y producto (idea-refine, write-user-story).",
+      "author": {
+        "name": "Erick Echeverría",
+        "email": "eecheverria@paloblanco.com"
+      },
+      "homepage": "https://github.com/ErickEcheverria/eecheverria-skills"
+    }
+  ]
+}

@@ -1,13 +1,14 @@
 # 🛠️ eecheverria-skills
 
-Skills personales de [**eecheverria**](mailto:eecheverria@paloblanco.com) para **Claude Code**,
-compartidas entre varias computadoras.
+Skills de [**eecheverria**](mailto:eecheverria@paloblanco.com) para **Claude Code**, empaquetadas como
+**plugin** y distribuidas por el marketplace `paloblanco`.
 
-Este repositorio se clona en `~/.claude/skills` de cada máquina y es la **fuente de verdad**. Al iniciar
-una sesión de trabajo se baja lo último:
+Este repositorio es la **fuente de verdad**. Se instala una vez por máquina y Claude Code lo mantiene al
+día: ya no hace falta clonarlo en `~/.claude/skills` ni hacer `git pull` en cada sesión.
 
 ```bash
-git -C ~/.claude/skills pull --ff-only
+claude plugin marketplace add ErickEcheverria/eecheverria-skills
+claude plugin install pb-skills@paloblanco
 ```
 
 ---
@@ -99,11 +100,57 @@ flowchart TD
 ## 💻 Uso en una computadora nueva
 
 ```bash
-git clone https://github.com/ErickEcheverria/eecheverria-skills.git ~/.claude/skills
+claude plugin marketplace add ErickEcheverria/eecheverria-skills
+claude plugin install pb-skills@paloblanco
 ```
 
-Y en cada sesión, para mantenerte al día:
+Lo mismo desde una sesión de Claude Code: `/plugin marketplace add …` y `/plugin install …`.
+
+Para traer la última versión:
 
 ```bash
-git -C ~/.claude/skills pull --ff-only
+claude plugin marketplace update paloblanco
 ```
+
+Ventaja sobre clonar directo en `~/.claude/skills`: ese directorio queda libre para las skills
+personales de cada quien, y las de este repo llegan namespaceadas bajo el plugin, sin chocar.
+
+---
+
+## 🏢 Uso por repositorio (equipo)
+
+Para que un repositorio entregue estas skills automáticamente a quien lo clone, se commitea
+`.claude/settings.json` (versionado — **no** `settings.local.json`):
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "paloblanco": {
+      "source": { "source": "github", "repo": "ErickEcheverria/eecheverria-skills" }
+    }
+  },
+  "enabledPlugins": { "pb-skills@paloblanco": true }
+}
+```
+
+Quien clone ese repo abre Claude Code y ya tiene las skills, sin instalar nada a mano.
+
+---
+
+## 🧱 Estructura del repo
+
+```
+.claude-plugin/
+├── marketplace.json   catálogo (marketplace `paloblanco`)
+└── plugin.json        manifiesto del plugin `pb-skills`
+skills/
+└── eecheverria-*/     una carpeta por skill, con su SKILL.md
+```
+
+Claude Code descubre las skills en `<raíz-del-plugin>/skills/`, por eso viven ahí.
+
+Para **agregar** una skill: carpeta nueva bajo `skills/` con su `SKILL.md`, y push. Para **quitarla**:
+se borra. En ambos casos conviene subir `version` en los dos manifiestos.
+
+Un mismo marketplace admite varios plugins, así que más adelante esto se puede partir
+(`pb-core` / `pb-frontend` / `pb-backend`) sin que nadie cambie su comando de instalación.
