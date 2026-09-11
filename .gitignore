@@ -1,11 +1,14 @@
-# Lista blanca: versionar solo README, config y todas las skills eecheverria-*.
-# (skill-creator queda fuera: es de Anthropic, no del usuario.)
+# Lista blanca: versionar solo README, los manifiestos del plugin y las skills.
 /*
 
 !.gitignore
 !.gitattributes
 !README.md
-!eecheverria-*/
+!.claude-plugin/
+!skills/
+
+# skill-creator queda fuera: es de Anthropic, no del usuario.
+skills/skill-creator/
 
 # Ruido dentro de las skills versionadas:
 **/node_modules/

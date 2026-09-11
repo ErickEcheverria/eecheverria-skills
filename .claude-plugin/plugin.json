@@ -1,0 +1,11 @@
+{
+  "name": "pb-skills",
+  "description": "Skills estándar de Desarrollos Palo Blanco: capa base senior-dev que delega en transversales, stack y producto.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Erick Echeverría",
+    "email": "eecheverria@paloblanco.com"
+  },
+  "homepage": "https://github.com/ErickEcheverria/eecheverria-skills",
+  "repository": "https://github.com/ErickEcheverria/eecheverria-skills"
+}
