@@ -47,25 +47,34 @@ usuario siguiendo la skill es tu trabajo normal y no requiere preguntar.
 ## Skills sincronizadas entre computadoras
 
 Estas skills son **compartidas**: el usuario las usa en varias computadoras y las mantiene en un
-repositorio personal de GitHub (`https://github.com/ErickEcheverria/eecheverria-skills`) clonado en
-`~/.claude/skills`. La fuente de verdad es el repo, no la copia local de una máquina en particular.
+repositorio personal de GitHub (`https://github.com/ErickEcheverria/eecheverria-skills`). La fuente
+de verdad es el repo, no la copia local de una máquina en particular.
 
-Por eso, **lo primero de cada sesión** —antes de mapear proyectos y leer `CLAUDE.md`— es **bajar los
-últimos cambios del repo** para no trabajar con skills desactualizadas:
+El repo se distribuye como **plugin de Claude Code** — `pb-skills`, del marketplace `paloblanco` —,
+no como un clon en `~/.claude/skills`. Se instala una sola vez por máquina:
 
 ```bash
-git -C ~/.claude/skills pull --ff-only
+claude plugin marketplace add ErickEcheverria/eecheverria-skills
+claude plugin install pb-skills@paloblanco
 ```
+
+De ahí en adelante Claude Code lo mantiene al día, así que **ya no hay que hacer `git pull` al
+arrancar cada sesión**.
 
 Notas de criterio:
 
-- Hazlo (u ofrécelo) al arrancar. Si el `pull` trae cambios en las skills, ten presente que las
-  versiones ya cargadas en esta sesión pueden estar desfasadas; avísale al usuario si algo relevante
-  cambió, para que reinicie la sesión si hace falta que tome efecto.
-- Si el `pull` falla (sin conexión, conflicto, o no es un repo git en esa máquina todavía), **no te
-  bloquees**: dilo brevemente y sigue con la sesión usando las skills locales.
+- Si sospechas que las skills están desfasadas, `claude plugin update pb-skills@paloblanco` las pone
+  al día. Una actualización toma efecto en la **siguiente** sesión: las que ya se cargaron en esta
+  siguen siendo las viejas, así que si cambió algo relevante, dile al usuario que reinicie.
+- Si en una máquina el plugin no está instalado —las skills sencillamente no aparecen—, dilo y
+  ofrece instalarlo con los dos comandos de arriba. No te bloquees por eso.
+- `~/.claude/skills` queda para las skills **locales** de esa máquina, como `skill-creator`, que es
+  de Anthropic y por eso no vive en el repo. **No pongas ahí un clon del repo**: con el formato de
+  plugin las skills quedarían en `~/.claude/skills/skills/`, un nivel más abajo de donde Claude Code
+  las busca, y no se descubriría ninguna.
 - Cuando el usuario **cree o edite una skill**, recuérdale al cerrar que conviene commitear y hacer
-  `push` para que la mejora llegue a sus otras computadoras. Ver "Cierre de una tarea".
+  `push` al repo: hasta que el cambio no esté ahí, el plugin no se lo lleva a sus otras
+  computadoras. Ver "Cierre de una tarea".
 
 ## Ritual de inicio de sesión
 
@@ -79,8 +88,9 @@ proyectos** (típicamente un backend y un frontend, a veces más). Su mensaje de
 
 Cuando recibas un mensaje así (o cualquier variante), haz esto **antes** de esperar la tarea concreta:
 
-1. **Sincroniza las skills** con el repo personal (`git -C ~/.claude/skills pull --ff-only`) — ver
-   "Skills sincronizadas entre computadoras". Es el primer paso para no trabajar con versiones viejas.
+1. **Confirma que las skills están al día.** Vienen del plugin `pb-skills@paloblanco`, que Claude Code
+   actualiza solo — ver "Skills sincronizadas entre computadoras". Solo tienes que actuar si notas que
+   faltan skills o que están desfasadas; ya no se hace `git pull` al arrancar.
 
 2. **Adopta el modo senior para toda la sesión.** No es un rol de un solo turno: cada decisión que
    tomes de aquí en adelante se mide con la vara de "¿esto lo firmaría un senior en code review?".
@@ -324,9 +334,11 @@ Un senior no dice "listo" hasta que verificó. Al terminar un cambio relevante:
    de carpetas, convenciones, nuevos patrones/módulos, dependencias, comandos— **recuérdaselo al usuario
    y ofrécele actualizarlo**, resumiendo qué secciones tocarías. Pregunta antes de editar el `CLAUDE.md`;
    no lo modifiques en silencio. Si el proyecto ya creció y no tiene `CLAUDE.md`, sugiere crear uno.
-3. **Si creaste o editaste una skill**, recuérdale al usuario commitear y hacer `push` al repo personal
-   (`git -C ~/.claude/skills add … && git commit && git push`) para que la mejora quede sincronizada en
-   sus otras computadoras. La skill no está "terminada" hasta que vive en el repo.
+3. **Si creaste o editaste una skill**, hazlo sobre un **clon del repo**, nunca sobre la copia que
+   instaló el plugin (`~/.claude/plugins/cache/paloblanco/…`): esa la sobrescribe Claude Code en la
+   siguiente actualización y el trabajo se pierde. Al cerrar, recuérdale al usuario commitear y hacer
+   `push` para que el plugin lleve la mejora a sus otras computadoras. La skill no está "terminada"
+   hasta que vive en el repo.
 
 4. **Reporta con honestidad.** Qué se hizo, qué se verificó, qué quedó pendiente. Sin exageraciones.
 
