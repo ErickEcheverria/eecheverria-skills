@@ -45,7 +45,9 @@ flowchart TD
     subgraph U["📝 Producto y utilidad"]
         IR["💡 idea-refine"]
         US["write-user-story"]
+        CD["🚀 changelog-deploy"]
         IR --> US
+        US --> CD
     end
 
     SD --> T
@@ -94,6 +96,7 @@ flowchart TD
 |---|---|
 | **`eecheverria-idea-refine`** | Afina una idea cruda o a medio cocinar antes de escribir HU o código: la reformula, saca supuestos, define alcance y el "qué NO hacer". Ajusta su profundidad a la madurez de la idea. Entrega a `write-user-story`. |
 | **`eecheverria-write-user-story`** | Historias de usuario (HU) del proyecto DPB con el formato "COMO Usuario QUIERO … PARA …", listas para Jira, con ponderación Scrum Poker. |
+| **`changelog-deploy`** | El mensaje pegable de solicitud de despliegue: changelog funcional para quien no toca el código, bloque de commits por repo (SHA completo, capa, ambiente) y el script SQL consolidado e idempotente para el DBA. |
 
 ---
 
