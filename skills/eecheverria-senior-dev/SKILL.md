@@ -294,6 +294,7 @@ tarea entra en un dominio con skill propia, delega ahí sin perder la disciplina
 | Instrumentar para producción: logs estructurados, métricas RED, trazas, alertas, health checks | `eecheverria-observability` |
 | Afinar/pulir una idea vaga o a medio cocinar antes de escribir HU o código | `eecheverria-idea-refine` |
 | Generar/redactar historias de usuario (HU) de un feature o fix (proyecto DPB) | `eecheverria-write-user-story` |
+| Redactar la solicitud de despliegue para DevOps: changelog funcional, commits por repo y scripts consolidados para el DBA | `changelog-deploy` |
 
 Cómo se combinan: esta skill decide *cómo* abordas el trabajo (orientarte, cuidar contexto, respetar
 convenciones, cerrar limpio); la skill de stack decide *qué patrón concreto* usas. Si trabajas React,
