@@ -246,7 +246,7 @@ Estos son comportamientos comprobados contra el DPB real, no suposiciones. Ignor
   ```javascript
   mcp__claude_ai_Atlassian__editJiraIssue({ issueIdOrKey: "DPB-1234", fields: { customfield_10020: 7853 } })
   ```
-- **Story Points (`customfield_10016`)**: tampoco está en la pantalla de creación. Se setea después, igual, con `editJiraIssue`.
+- **Story Points**: tampoco están en la pantalla de creación; se setean después con `editJiraIssue`. **Para LEERLOS usa `customfield_10034`**: es el campo que alimenta el badge del backlog. En los issues reales del sprint `customfield_10016` viene `null`, así que pedir solo ese campo devuelve puntos vacíos y hace creer que las HU no están ponderadas.
 - **Estado inicial distinto de "Por hacer"**: se pasa `transition` en la **propia creación** (ej. `{"id": "41"}` para "Control de calidad"). Funciona en un solo paso.
 - **Verificar al cerrar**: `editJiraIssue` devuelve solo los campos por defecto, así que **no muestra** sprint ni puntos. Confirma con `getJiraIssue` pidiéndolos explícitamente **antes de dar el trabajo por hecho**.
 
@@ -285,21 +285,30 @@ Si el usuario no dio los tiempos, **pídelos**: los bloques exactos, o el total 
 ### 7.3 Formato de la entrada
 
 - **Descripción**: `[DPB-1234]: COMO <rol> QUIERO <objetivo> PARA <beneficio>.` — **la historia completa**, la misma frase que el título del issue en Jira. No un título corto resumido: aunque haya entradas viejas con títulos cortos, la convención es la historia entera.
-- **Etiquetas**: **siempre tres** — tipo (`Historia`, o el que corresponda) + una de **tema** + **`pts-N`**.
-- **Proyecto**: hay dos patrones en uso. **Pregunta cuál**, no elijas por default.
+- **Etiquetas**: **una sola**, la del tipo (`Historia`, o el que corresponda). Verificado contra las 75 entradas de las semanas 36 y 37 de 2026: todas llevan exactamente `['Historia']`, ninguna lleva tema ni `pts-N`. No agregues etiquetas que el histórico no usa.
+- **Tarea**: cada entrada va ligada a una **tarea del proyecto cuyo nombre es el key de Jira** (`DPB-2528`). No basta con el proyecto: el histórico tiene `taskId` en el 100% de las entradas. Si la tarea no existe, **créala antes** (§7.4).
+- **Proyecto**: **pregunta cuál**, no elijas por default. En las semanas 36 y 37 fue `Desarrollo - Palo blanco` (`6a316bb96829c53fd93088a3`) en el 100% de las entradas.
+- **Facturable**: `billable: false` — así está todo el histórico.
 
-**`pts-N` es etiqueta de CLOCKIFY, no label de Jira.** En Jira los puntos van en `customfield_10016`.
+**`pts-N` es etiqueta de CLOCKIFY, no label de Jira**, y hoy no se usa. Si el usuario pide ponderación en Clockify, las etiquetas `pts-1/2/3/5/8` existen en el workspace (no hay `pts-13`).
 
-**Las etiquetas ya existen: no crees ninguna.** Lista las del workspace y elige de ahí (hay `pts-1/2/3/5/8`, tipos y temas). Si ninguna encaja, **pregunta** antes de crear una.
+**Las etiquetas ya existen: no crees ninguna.** Lista las del workspace y elige de ahí. Si ninguna encaja, **pregunta** antes de crear una. Las **tareas** sí se crean, porque son una por historia.
 
 ### 7.4 API (verificado)
 
-`https://api.clockify.me/api/v1`, header **`X-Auth-Token`**. El workspace y el usuario salen de la sesión del navegador.
+`https://api.clockify.me/api/v1`, header **`x-api-key`** (la API key sale de Clockify → *Profile settings* → *API*).
 
-- Leer: `GET /workspaces/{ws}/user/{usr}/time-entries?start=&end=&page-size=200`
-- Crear: `POST /workspaces/{ws}/time-entries` con `{start, end, description, projectId, tagIds, billable}`
+> **`X-Auth-Token` ya no sirve**: devuelve `401 {"message":"Token is not valid","code":4017}`. Verificado el 21/09/2026.
+
+- Quién soy: `GET /user` → devuelve `id` (usuario) y `activeWorkspace`
+- Leer: `GET /workspaces/{ws}/user/{usr}/time-entries?start=&end=&page-size=200&hydrated=true`
+  (`hydrated=true` es lo que trae `project` y `task` con su nombre; sin él solo vienen los ids)
+- Crear: `POST /workspaces/{ws}/time-entries` con `{start, end, description, projectId, taskId, tagIds, billable}`
 - Actualizar: `PUT /workspaces/{ws}/time-entries/{id}` — **manda el cuerpo completo**, no solo los campos que cambian
 - Etiquetas: `GET /workspaces/{ws}/tags?page-size=200&archived=false`
+- Tareas del proyecto: `GET /workspaces/{ws}/projects/{pj}/tasks?page-size=200&page=N`
+  **Pagina hasta agotar** antes de dar una tarea por inexistente: el proyecto de desarrollo ya pasa de 1 350 tareas.
+- Crear tarea: `POST /workspaces/{ws}/projects/{pj}/tasks` con `{"name": "DPB-1234", "status": "ACTIVE"}`
 
 **Los tiempos van en UTC.** Guatemala es UTC−6 sin horario de verano: hora local + 6 h. O sea 08:00 local = `14:00Z`, 13:00 = `19:00Z`, 14:00 = `20:00Z`, 17:00 = `23:00Z`.
 
@@ -340,7 +349,8 @@ Igual que con Jira (§6.1): muestra las entradas (día, franja, duración, descr
 - [ ] Las horas las dio el usuario; no se inventó ninguna.
 - [ ] Solo días hábiles, sin tocar 13:00–14:00.
 - [ ] Se leyeron las entradas existentes y no hay solape.
-- [ ] Tres etiquetas por entrada, todas preexistentes.
+- [ ] Una etiqueta por entrada (`Historia`), preexistente.
+- [ ] Cada entrada lleva su `taskId`; las tareas que faltaban se crearon con el key como nombre.
 - [ ] Se preguntó el proyecto destino.
 - [ ] Preview aprobada antes de escribir, y verificación leyendo de vuelta.
 
