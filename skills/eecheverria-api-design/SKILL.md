@@ -1,6 +1,18 @@
 ---
 name: eecheverria-api-design
-description: Capa de DISEÑO de contratos e interfaces (agnóstica de stack) para eecheverria: cómo dar forma a APIs, endpoints y tipos ANTES de implementarlos. Cubre Ley de Hyrum, una sola versión de la verdad, contract-first, semántica de errores consistente, validar en las fronteras, cambios aditivos vs. rompientes (backward-compat), naming predecible, patrones REST (recursos, paginación, filtros, PATCH parcial) y patrones TypeScript (uniones discriminadas, separación input/output, branded types). Actívate SIEMPRE que el usuario diga frases como "diseña este endpoint", "cómo versiono la API", "el contrato entre front y back", "qué forma le doy a esta respuesta", "diseño de errores de la API", "cómo pagino", "qué campos expongo", "esto rompe a los consumidores?", o cuando esté por definir una interfaz pública, prop de componente o frontera entre módulos. Complementa a eecheverria-senior-dev (disciplina de trabajo) y a eecheverria-backend-hono-drizzle (implementación en Hono/Drizzle, que DELEGA en esta el "cómo diseñar el contrato" antes de escribir código). Si dudas ante una decisión de diseño de API o contrato, actívala.
+description: >-
+  Capa de DISEÑO de contratos e interfaces (agnóstica de stack) para eecheverria: cómo dar forma a
+  APIs, endpoints y tipos ANTES de implementarlos. Cubre Ley de Hyrum, una sola versión de la
+  verdad, contract-first, semántica de errores consistente, validar en las fronteras, cambios
+  aditivos vs. rompientes (backward-compat), naming predecible, patrones REST (recursos, paginación,
+  filtros, PATCH parcial) y patrones TypeScript (uniones discriminadas, separación input/output,
+  branded types). Actívate SIEMPRE que el usuario diga frases como "diseña este endpoint", "cómo
+  versiono la API", "el contrato entre front y back", "qué forma le doy a esta respuesta", "diseño
+  de errores de la API", "cómo pagino", "qué campos expongo", "esto rompe a los consumidores?", o
+  cuando esté por definir una interfaz pública, prop de componente o frontera entre módulos.
+  Complementa a eecheverria-senior-dev (disciplina de trabajo) y a eecheverria-backend-hono-drizzle
+  (implementación en Hono/Drizzle, que DELEGA en esta el "cómo diseñar el contrato" antes de
+  escribir código). Si dudas ante una decisión de diseño de API o contrato, actívala.
 ---
 
 # Diseño de APIs e Interfaces (eecheverria)
