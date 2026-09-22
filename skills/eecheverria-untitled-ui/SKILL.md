@@ -1,6 +1,20 @@
 ---
 name: eecheverria-untitled-ui
-description: Construye UI con Untitled UI React — el design system de untitledui.com (React 19 + Tailwind v4 + React Aria) del que COPIAS el código a tu proyecto en vez de importar una librería. Tesis — el catálogo ya tiene el componente: búscalo antes de escribirlo, y estílalo SOLO con tokens semánticos (bg-brand-solid, text-primary, fg-error-primary), nunca con clases genéricas de Tailwind. Cubre el CLI (init/add/search/example), el catálogo completo con slug y URL de cada componente, las reglas de uso (imports Aria*, cx/sortCx, componentes compuestos, iconos @untitledui/icons, dark mode con .dark-mode), la integración con React Hook Form y la frontera free (MIT) vs PRO. Actívate SIEMPRE que el proyecto use Untitled UI o el usuario diga frases como "usa Untitled UI", "agrega un componente de untitledui", "npx untitledui", "necesito una tabla con filtros y paginación", "un modal de confirmación", "un formulario con selects", "esto no respeta los tokens", "ponle el color de marca", "inicializa el proyecto con untitledui" o "descarga el AGENT.md". Complementa a eecheverria-frontend-react (que conserva arquitectura de componentes, estado, formularios y responsive) y a eecheverria-source-driven (verificación por versión). Si el proyecto tiene un components.json de Untitled UI o una carpeta components/base, actívala.
+description: >-
+  Construye UI con Untitled UI React — el design system de untitledui.com (React 19 + Tailwind v4 +
+  React Aria) del que COPIAS el código a tu proyecto en vez de importar una librería. Tesis — el
+  catálogo ya tiene el componente: búscalo antes de escribirlo, y estílalo SOLO con tokens
+  semánticos (bg-brand-solid, text-primary, fg-error-primary), nunca con clases genéricas de
+  Tailwind. Cubre el CLI (init/add/search/example), el catálogo completo con slug y URL de cada
+  componente, las reglas de uso (imports Aria*, cx/sortCx, componentes compuestos, iconos
+  @untitledui/icons, dark mode con .dark-mode), la integración con React Hook Form y la frontera
+  free (MIT) vs PRO. Actívate SIEMPRE que el proyecto use Untitled UI o el usuario diga frases como
+  "usa Untitled UI", "agrega un componente de untitledui", "npx untitledui", "necesito una tabla con
+  filtros y paginación", "un modal de confirmación", "un formulario con selects", "esto no respeta
+  los tokens", "ponle el color de marca", "inicializa el proyecto con untitledui" o "descarga el
+  AGENT.md". Complementa a eecheverria-frontend-react (que conserva arquitectura de componentes,
+  estado, formularios y responsive) y a eecheverria-source-driven (verificación por versión). Si el
+  proyecto tiene un components.json de Untitled UI o una carpeta components/base, actívala.
 ---
 
 # eecheverria-untitled-ui

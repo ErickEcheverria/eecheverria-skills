@@ -3,7 +3,7 @@ name: eecheverria-write-user-story
 description: Redacta historias de usuario (HU) para el proyecto DPB con el formato narrativo obligatorio "COMO <rol> QUIERO <acción> PARA <valor>". Por defecto DEVUELVE SOLO TEXTO listo para copiar y pegar en Jira — el título de la épica y los títulos de las HU con su ponderación (Scrum Poker 1,2,3,5,8,13) y el total — SIN crear nada por API. Solo crea o sube las HU a Jira si el usuario lo pide explícitamente, y en ese caso siempre con preview y aprobación previa. También registra el tiempo trabajado en Clockify cuando se pida. Usar cuando el usuario pida crear, redactar, desglosar o ponderar historias de usuario / HU / stories a partir de una épica o análisis funcional, cuando pida crear o asignar issues de DPB, o cuando pida registrar horas en Clockify.
 user-invocable: true
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash, WebFetch, mcp__claude_ai_Atlassian__createJiraIssue, mcp__claude_ai_Atlassian__editJiraIssue, mcp__claude_ai_Atlassian__getJiraIssue, mcp__claude_ai_Atlassian__createIssueLink, mcp__claude_ai_Atlassian__searchJiraIssuesUsingJql, mcp__claude_ai_Atlassian__getJiraIssueTypeMetaWithFields
-argument-hint: "<descripción breve del scope o análisis>" [epic-key opcional]
+argument-hint: '"<descripción breve del scope o análisis>" [epic-key opcional]'
 ---
 
 # Skill: Redactar Historias de Usuario (HU) para Jira

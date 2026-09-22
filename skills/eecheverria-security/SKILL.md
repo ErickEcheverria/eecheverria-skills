@@ -1,6 +1,18 @@
 ---
 name: eecheverria-security
-description: Capa de SEGURIDAD security-first para apps web (agnóstica de stack, con ejemplos en el stack real del usuario: Hono + Drizzle + Joi + JWT). Endurece código contra vulnerabilidades tratando todo input externo como hostil. Cubre threat modeling (STRIDE, fronteras de confianza, abuse cases), sistema de tres niveles (Siempre / Preguntar primero / Nunca), OWASP Top 10, validación por esquema en fronteras, subida de archivos, higiene de dependencias (supply-chain), rate limiting, manejo de secretos y seguridad de features con LLM (OWASP LLM Top 10). Actívate SIEMPRE que el usuario diga o pienses frases como "¿esto es seguro?", "revisa la seguridad de este endpoint", "cómo protejo esto", "valida este input", "manejo de secretos/tokens", "esto es vulnerable a X", "asegura este upload", "seguridad del agente/LLM", o cuando trabaje con input de usuario, auth, almacenamiento de datos sensibles, integraciones externas, webhooks o features con LLM. Complementa a eecheverria-senior-dev (disciplina de trabajo) y a eecheverria-backend-hono-drizzle (que DELEGA aquí la parte de seguridad). Si hay cualquier duda de seguridad, actívala.
+description: >-
+  Capa de SEGURIDAD security-first para apps web (agnóstica de stack, con ejemplos en el stack real
+  del usuario: Hono + Drizzle + Joi + JWT). Endurece código contra vulnerabilidades tratando todo
+  input externo como hostil. Cubre threat modeling (STRIDE, fronteras de confianza, abuse cases),
+  sistema de tres niveles (Siempre / Preguntar primero / Nunca), OWASP Top 10, validación por
+  esquema en fronteras, subida de archivos, higiene de dependencias (supply-chain), rate limiting,
+  manejo de secretos y seguridad de features con LLM (OWASP LLM Top 10). Actívate SIEMPRE que el
+  usuario diga o pienses frases como "¿esto es seguro?", "revisa la seguridad de este endpoint",
+  "cómo protejo esto", "valida este input", "manejo de secretos/tokens", "esto es vulnerable a X",
+  "asegura este upload", "seguridad del agente/LLM", o cuando trabaje con input de usuario, auth,
+  almacenamiento de datos sensibles, integraciones externas, webhooks o features con LLM.
+  Complementa a eecheverria-senior-dev (disciplina de trabajo) y a eecheverria-backend-hono-drizzle
+  (que DELEGA aquí la parte de seguridad). Si hay cualquier duda de seguridad, actívala.
 ---
 
 # Seguridad y Hardening (eecheverria)
