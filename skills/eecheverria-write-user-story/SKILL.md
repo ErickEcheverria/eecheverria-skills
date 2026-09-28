@@ -246,7 +246,8 @@ Estos son comportamientos comprobados contra el DPB real, no suposiciones. Ignor
   ```javascript
   mcp__claude_ai_Atlassian__editJiraIssue({ issueIdOrKey: "DPB-1234", fields: { customfield_10020: 7853 } })
   ```
-- **Story Points**: tampoco están en la pantalla de creación; se setean después con `editJiraIssue`. **Para LEERLOS usa `customfield_10034`**: es el campo que alimenta el badge del backlog. En los issues reales del sprint `customfield_10016` viene `null`, así que pedir solo ese campo devuelve puntos vacíos y hace creer que las HU no están ponderadas.
+- **Story Points**: tampoco están en la pantalla de creación; se setean después con `editJiraIssue`. **Para leerlos Y para escribirlos usa `customfield_10034`**: es el campo que alimenta el badge del backlog (`editJiraIssue({ fields: { customfield_10034: 5 } })`, verificado el 28/09/2026). En los issues reales del sprint `customfield_10016` viene `null`, así que pedir solo ese campo devuelve puntos vacíos y hace creer que las HU no están ponderadas.
+- **Los `Error` no se pueden ponderar en el tablero.** Ese tipo no tiene `customfield_10034`: escribirlo responde `Field 'customfield_10034' cannot be set. It is not on the appropriate screen`. `customfield_10016` (*Story point estimate*) **sí acepta el valor, pero el badge del backlog no lo muestra** (sigue en «-»): no sirve. Verificado el 28/09/2026 con DPB-2772 y DPB-2798…2801, que quedaron con ese valor oculto en `10016`. No reintentes ni pruebes otros campos: los `Error` quedan sin puntos en Jira y así se reporta al usuario.
 - **Estado inicial distinto de "Por hacer"**: se pasa `transition` en la **propia creación** (ej. `{"id": "41"}` para "Control de calidad"). Funciona en un solo paso.
 - **Verificar al cerrar**: `editJiraIssue` devuelve solo los campos por defecto, así que **no muestra** sprint ni puntos. Confirma con `getJiraIssue` pidiéndolos explícitamente **antes de dar el trabajo por hecho**.
 
@@ -274,6 +275,16 @@ Las tareas se reparten en **horas trabajadas** dentro de dos bloques:
 
 Capacidad = **8 h por día**.
 
+**Los bordes no son exactos: sigue el patrón del histórico.** Las 114 entradas de las semanas 36–38 de 2026 no arrancan ni cierran en punto, y una semana con todo a las 08:00/14:00/17:00 exactas desentona con el resto:
+
+- Entrada entre **07:50 y 08:06**, distinta cada día.
+- La mañana cierra a las **13:00**; el regreso es entre **14:01 y 14:04**.
+- Salida entre **17:00 y 17:26**; el día suma entre **7 h 51 m y 8 h 22 m**, no 8 h clavadas.
+- Las entradas van **seguidas, sin huecos** entre una y otra (semana 38), con minutos redondos (sin segundos).
+- Una tarea que no cabe antes del almuerzo o del cierre se **parte en dos entradas** con la misma descripción y tarea. Evita fragmentos de menos de ~8 min: la tarea vecina los absorbe.
+
+Antes de proponer horarios, **lee las 2–3 semanas previas** del usuario y confirma que el patrón sigue vigente; si cambió, manda el histórico sobre esta lista.
+
 **Solo de lunes a viernes.** Nunca registrar en sábado ni domingo, aunque el trabajo se haya hecho o el rango del sprint los incluya. Si las horas no caben en los días hábiles disponibles, **dilo** en vez de desbordar al fin de semana.
 
 **No chocar con lo ya registrado.** Antes de escribir, lee las entradas existentes de los días destino y acomoda las nuevas **solo en las franjas libres**. Si un span ya está ocupado, corre la tarea a la siguiente franja libre — nunca solapes dos entradas ni escribas encima de una existente.
@@ -282,10 +293,15 @@ Capacidad = **8 h por día**.
 
 Si el usuario no dio los tiempos, **pídelos**: los bloques exactos, o el total y los días sobre los que repartir. Un registro de tiempo es dato de facturación y de reporte — no es un campo que se pueda rellenar a ojo. Vale lo mismo para el encabezado de horas que llevan las descripciones de las historias del equipo (`Semana N · <día> · HH:MM–HH:MM · X h`).
 
+**Si el usuario pide repartir un sprint completo sobre la semana** (sin dar tiempos por tarea), la escala del §1.5 no sirve para medir horas: un sprint real suma cientos de puntos y no cabe en 40 h. Propón —y confirma antes de usarlo— repartir las horas libres **en proporción a los puntos**, en el orden del backlog:
+
+- Las tareas **sin puntos en Jira** se ponderan primero con el §1.5 y se muestran en la preview como ponderadas por ti. Una vez aprobados, **esos puntos se suben también a Jira** para que el backlog y Clockify cuadren: el reparto de horas sale de ellos. Solo aplica a `Historia` (`customfield_10034`): los `Error` no se pueden ponderar en el tablero (§6.3); en Clockify cuentan con su ponderación, pero en Jira quedan sin puntos.
+- Una tarea que **ya tiene entrada** en la semana se respeta y no recibe otra.
+
 ### 7.3 Formato de la entrada
 
-- **Descripción**: `[DPB-1234]: COMO <rol> QUIERO <objetivo> PARA <beneficio>.` — **la historia completa**, la misma frase que el título del issue en Jira. No un título corto resumido: aunque haya entradas viejas con títulos cortos, la convención es la historia entera.
-- **Etiquetas**: **una sola**, la del tipo (`Historia`, o el que corresponda). Verificado contra las 75 entradas de las semanas 36 y 37 de 2026: todas llevan exactamente `['Historia']`, ninguna lleva tema ni `pts-N`. No agregues etiquetas que el histórico no usa.
+- **Descripción**: `[DPB-1234]: COMO <rol> QUIERO <objetivo> PARA <beneficio>` — **la historia completa**, la misma frase que el título del issue en Jira, **sin punto final** (ninguna de las 114 entradas de las semanas 36–38 lo lleva). No un título corto resumido: aunque haya entradas viejas con títulos cortos, la convención es la historia entera. Para un `Error`, que no es narrativo, va su título de Jira tal cual.
+- **Etiquetas**: **una sola**, la del **tipo de incidencia en Jira**: `Historia` para historias y `Error` para errores (ambas existen en el workspace; `Error` confirmado por el usuario el 28/09/2026). Verificado contra las semanas 36–38 de 2026: todas las historias llevan exactamente `['Historia']`, ninguna lleva tema ni `pts-N`. No agregues etiquetas que el histórico no usa.
 - **Tarea**: cada entrada va ligada a una **tarea del proyecto cuyo nombre es el key de Jira** (`DPB-2528`). No basta con el proyecto: el histórico tiene `taskId` en el 100% de las entradas. Si la tarea no existe, **créala antes** (§7.4).
 - **Proyecto**: **pregunta cuál**, no elijas por default. En las semanas 36 y 37 fue `Desarrollo - Palo blanco` (`6a316bb96829c53fd93088a3`) en el 100% de las entradas.
 - **Facturable**: `billable: false` — así está todo el histórico.
@@ -311,6 +327,8 @@ Si el usuario no dio los tiempos, **pídelos**: los bloques exactos, o el total 
 - Crear tarea: `POST /workspaces/{ws}/projects/{pj}/tasks` con `{"name": "DPB-1234", "status": "ACTIVE"}`
 
 **Los tiempos van en UTC.** Guatemala es UTC−6 sin horario de verano: hora local + 6 h. O sea 08:00 local = `14:00Z`, 13:00 = `19:00Z`, 14:00 = `20:00Z`, 17:00 = `23:00Z`.
+
+> **Ojo con sumar las 6 h dos veces.** En Windows PowerShell 5.1, `ConvertFrom-Json` convierte las fechas que guardó `ConvertTo-Json` (`"\/Date(ms)\/"`) a `DateTime` **ya en UTC**; si además les sumas 6 h, todo queda seis horas corrido. Antes de escribir, imprime 2–3 entradas convertidas y confirma a ojo que 08:00 local salió como `14:00Z`. Y manda el cuerpo como bytes UTF-8 (`[Text.Encoding]::UTF8.GetBytes(...)`) o los acentos llegan rotos. También en 5.1: `@(Invoke-RestMethod ...)` sobre un arreglo JSON cuenta 1 elemento; enumera con `foreach` para paginar bien.
 
 **Verifica leyendo de vuelta**, y comprueba el solape cruzando cada entrada contra todas las demás — no confíes en que el plan estaba bien.
 
@@ -348,8 +366,11 @@ Igual que con Jira (§6.1): muestra las entradas (día, franja, duración, descr
 **Solo en Modo Clockify:**
 - [ ] Las horas las dio el usuario; no se inventó ninguna.
 - [ ] Solo días hábiles, sin tocar 13:00–14:00.
+- [ ] Horarios con el patrón del histórico (entrada/regreso/salida variables, sin huecos), no en punto exacto.
 - [ ] Se leyeron las entradas existentes y no hay solape.
-- [ ] Una etiqueta por entrada (`Historia`), preexistente.
+- [ ] Una etiqueta por entrada según el tipo (`Historia` / `Error`), preexistente.
+- [ ] Descripción `[KEY]: <título de Jira>` sin punto final.
+- [ ] Si se ponderaron tareas sin puntos, esos puntos se subieron a Jira (`customfield_10034`, solo `Historia`) y se verificaron leyendo de vuelta; los `Error` se reportaron como sin puntos.
 - [ ] Cada entrada lleva su `taskId`; las tareas que faltaban se crearon con el key como nombre.
 - [ ] Se preguntó el proyecto destino.
 - [ ] Preview aprobada antes de escribir, y verificación leyendo de vuelta.
