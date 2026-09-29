@@ -5,7 +5,8 @@ description: >-
   corto y compartible — historia, motion, música propia y copy para redes — construido de punta a punta
   por el modelo con las herramientas que ya hay en la máquina (sin assets empaquetados). Tesis — muestra
   la cosa real: reutiliza la UI, los componentes, el copy y la identidad del propio proyecto en vez de
-  inventar un spot genérico. Actívate SIEMPRE que el usuario diga frases como "/brag", "brag about
+  inventar un spot genérico — y antes de construir PROPONE un brief (objetivo, público y canal,
+  pantallas a mostrar, tono) y lo confirma con el usuario en vez de suponerlo. Actívate SIEMPRE que el usuario diga frases como "/brag", "brag about
   this", "hazme un video de lanzamiento", "quiero presumir lo que construí", "un video para LinkedIn de
   este proyecto", "un teaser de este release", "un video promocional de <url>", "anuncia la nueva
   feature en video", "un demo en video para redes", o cuando quiera mostrar lo que construyó en formato
@@ -24,8 +25,8 @@ lugar.
 
 Adaptada de [`brag-slim`](https://github.com/latent-spaces/brag) (MIT, © 2026 Shunit Haviv Hakimi; ver
 [`LICENSE`](LICENSE)). Las leyes creativas son las de la original; lo que se agregó es la capa de la
-casa: prerrequisitos en Windows, confidencialidad de proyectos de trabajo y verificación antes de
-entregar.
+casa: prerrequisitos en Windows, un brief confirmado con el usuario antes de planear, confidencialidad
+de proyectos de trabajo y verificación antes de entregar.
 
 ## Skill viva — no te auto-edites
 
@@ -133,19 +134,69 @@ Un video está hecho para circular. En un proyecto de **paloblanco** o de cualqu
 - Muestra la UI con **datos de demo o seed**, nunca datos reales de clientes, usuarios o finanzas.
 - Nada de credenciales, tokens, URLs internas, IPs ni nombres de servidores en pantalla, ni siquiera
   como "textura".
-- Si el sistema es interno y no está claro que se pueda mostrar fuera, **pregunta antes de construir**
-  para quién es el video (canal interno o público).
+- El público y el canal se confirman en el brief (paso 2). Si el video es público y el sistema es
+  interno, pide confirmación explícita de que se puede mostrar fuera.
 
 ### Luego, para cualquier input
 
-Antes de planear, responde: ¿Qué es (en una frase)? ¿Para quién es y qué hace por esa persona? ¿Qué lo
-distingue? ¿Cuál es la afirmación más impresionante o más graciosa? ¿Cuál es el gancho visual? ¿Qué UI o
-flujo real hay que mostrar? ¿Qué tono le queda? ¿Cuál es el caption de una línea para compartirlo?
+Respóndete: ¿Qué es (en una frase)? ¿Para quién es y qué hace por esa persona? ¿Qué lo distingue? ¿Cuál
+es la afirmación más impresionante o más graciosa? ¿Cuál es el gancho visual? ¿Qué UI o flujo real hay
+que mostrar? ¿Qué tono le queda? ¿Cuál es el caption de una línea para compartirlo? Esas respuestas son
+tus **propuestas**, no decisiones: el brief las pone a prueba con el usuario.
 
-## 2. Planear
+## 2. Brief: propón y pregunta antes de planear
 
-Escribe `plan.md`: el ángulo, el gancho, 2–3 highlights, el remate, el tono, la identidad visual y un
-storyboard escena por escena con duraciones que sumen el objetivo.
+El código dice qué hace el producto, no **para qué es el video**: si es para anunciar la v2 al equipo,
+atraer usuarios o mostrárselo a un cliente, y dónde se va a publicar. Eso cambia el mensaje, las
+pantallas, el tono, el idioma y hasta qué datos se pueden ver. Un render cuesta 10–15 minutos; suponer
+mal cuesta rehacerlo. Por eso, con lo que sacaste al inspeccionar, arma un brief con **tu propuesta**
+para cada punto y pide que se confirme o se corrija:
+
+| Punto | Qué propones (sacado del código y el copy) |
+|---|---|
+| Objetivo | Anunciar un release al equipo, atraer usuarios, demo para un cliente, portafolio o side project, celebrar un hito |
+| Público y canal | Equipo interno (Teams/Slack), LinkedIn, Instagram, un cliente concreto |
+| Mensaje clave | La frase que el espectador debe recordar al terminar |
+| Pantallas y flujo | 2–3 momentos reales, nombrando rutas o componentes: "lista de órdenes → clic en Aprobar → toast y KPIs" |
+| Qué NO mostrar | Módulos a medias, datos sensibles, features prometidas pero no implementadas |
+| Tono | Un preset (o dirección libre) y por qué encaja |
+| Formato y duración | landscape / vertical / square; unos 20 s |
+| Idioma | El del video y el del copy, si no son el del proyecto |
+| Audio | Música sintetizada, solo efectos o silencio. En LinkedIn e Instagram se reproduce sin sonido: el video debe entenderse igual |
+| Llamada a la acción y caption | "Ya disponible para Compras", una URL, "pídelo a TI"; y el caption tentativo de una línea |
+
+Cómo preguntar:
+
+- **Propón, no interrogues.** Cada punto lleva tu recomendación y su porqué en una línea; el usuario
+  solo corrige lo que no le sirve. "¿Qué pantallas quieres?" le pasa el trabajo a él; "Propongo lista
+  → Aprobar → toast, porque es el cambio de la v2" le ahorra pensar.
+- **Una sola ronda, solo lo abierto.** Pregunta entre 0 y 4 cosas: las que siguen abiertas y más
+  cambian el resultado (objetivo y público —júntalos si van de la mano—, pantallas, tono, mensaje
+  clave). No hay cupo que llenar. Si tienes una herramienta de preguntas con opciones, úsala, con tu
+  recomendación como primera opción. Lo que dependa de una respuesta va dentro de esa opción (p. ej.
+  "LinkedIn — requiere tu confirmación de que el sistema se puede mostrar fuera"), no en otra ronda.
+- **No preguntes lo que ya se dijo.** Lo que venga en el prompt (tono, formato, foco, canal) está
+  decidido; lístalo como tal y no lo pongas a votación. Si el usuario fijó el foco ("que se vea el
+  panel") pero no lo que lo rodea, el foco está decidido y lo demás es propuesta.
+- **Si no queda nada abierto,** muestra el brief resumido y pide un "va" antes de construir: es una
+  palabra contra un render de 15 minutos.
+- **Discrepancias, desde el brief.** Si la documentación promete algo que el código no implementa, o
+  hay datos que no deben salir, dilo en el brief, no hasta la entrega.
+
+Forma del mensaje (que quepa en una pantalla): **Lo que encontré** (3–5 bullets que cambian el video,
+incluidas las discrepancias) → **Ya decidido** (lo del prompt) → **Preguntas** (con opciones y tu
+recomendación primero) → **Supuestos** para el resto de la tabla.
+- **"Decide tú" o "sorpréndeme"** → sigue con tus propuestas y escríbelas como **Supuestos** al inicio de
+  `plan.md` y al entregar.
+- **Sin nadie que responda** (ejecución no interactiva) → sigue con tus propuestas y deja en
+  `decisions.md` lo que habrías preguntado.
+
+No escribas `plan.md` ni construyas nada hasta que el brief esté confirmado o los supuestos declarados.
+
+## 3. Planear
+
+Escribe `plan.md` a partir del brief confirmado: el ángulo, el gancho, 2–3 highlights, el remate, el
+tono, la identidad visual y un storyboard escena por escena con duraciones que sumen el objetivo.
 
 Si el usuario apunta a una parte —una versión nueva, una feature nueva, un ángulo— esa parte es el foco
 del video.
@@ -167,13 +218,18 @@ forma de arranque, no una plantilla.
 - **Solo lo que existe.** "Reconstruir" es para lo que existe pero no puedes renderizar, no para
   features que aún no están en el código. Si el README o el `CLAUDE.md` prometen algo que el código no
   implementa, no le inventes pantalla: muéstralo como mención (una tarjeta, una línea) o déjalo fuera,
-  y avísale al usuario al entregar.
+  y avísale al usuario desde el brief. Animar la UI que sí existe (que aparezca un ítem del feed, que
+  un contador baje, que se recorra una ruta ya dibujada) es darle vida; inventarle comportamiento o
+  pantallas nuevas, no.
 - **Específico.** Tiene que sentirse hecho para este proyecto exacto. Usa su propio copy y sus propias
   afirmaciones; nada de lenguaje SaaS genérico ("optimiza tu flujo de trabajo" está prohibido).
 - **Legible.** El ritmo sale del movimiento y los cortes, no de quitar el texto antes de tiempo. Toda
   línea que el espectador deba leer queda completa y quieta el tiempo suficiente para leerla (unos
   0.3 s por palabra), contando desde que la línea entera está en pantalla. El texto que es solo textura
-  no necesita leerse.
+  no necesita leerse. Lo mismo vale para la UI: una pantalla densa (una tabla, un panel de admin)
+  reducida a caber entera se vuelve textura. **Encuadra la zona de la acción** —el botón que se pulsa,
+  el toast, el total que cambia— a un tamaño en que se lea, y deja la pantalla completa solo como plano
+  de ubicación breve.
 - **Que esté vivo.** Cosas que aparecen una a una, clics simulados, swipes y tipeo le ganan a las
   diapositivas estáticas.
 - **Lo gracioso se gana su lugar.** El humor sale del absurdo propio del proyecto, no de forzarlo.
@@ -205,7 +261,7 @@ La skill no trae assets, así que **el audio lo sintetizas tú** (un script que 
 generadores de `ffmpeg`). No descargues música de internet para el video: casi nunca tiene licencia
 para publicarse.
 
-## 3. Construir, revisar, renderizar
+## 4. Construir, revisar, renderizar
 
 Constrúyelo con lo que funcione en esta máquina. Si dibujas el video en un navegador, haz que cada frame
 sea **función pura del tiempo** y espera a que carguen fuentes e imágenes antes de capturar cada uno.
@@ -218,21 +274,27 @@ Luego renderiza `launch-video.mp4`.
 Verifica el archivo con `ffprobe` antes de entregarlo: duración, resolución, fps y que tenga pista de
 audio. "Se renderizó sin errores" no es lo mismo que "el video está bien".
 
-## 4. Entregar
+## 5. Entregar
 
 - **Póster:** saca el frame *asentado* más fuerte (texto completo, no a mitad de transición) a
   `poster.jpg`, e incrústalo como frame 0 de `launch-video.mp4` para que la miniatura de cualquier
   plataforma lo muestre. Reemplaza el frame 0 en vez de agregar uno, para que la duración y la
   sincronía del audio no cambien.
-- **`share-copy.txt`:** 1–3 frases, publicables tal cual, específicas y en el tono del video. Nada de
-  "me emociona compartir". En el idioma del proyecto (o el que pida el usuario).
+- **`share-copy.txt`:** 1–3 frases y unas 35 palabras como máximo, publicables tal cual, específicas y
+  en el tono del video. Nada de "me emociona compartir". En el idioma del proyecto (o el que pida el
+  usuario).
 - **Dile al usuario** dónde están el video y el copy, dale una frase sobre el ángulo creativo y
   ofrécele rehacer una escena o probar otro tono.
+- **Ofrece limpiar `work/`.** Los frames, las capturas y el perfil temporal del navegador suman cientos
+  de MB. Ofrece borrarlos y conservar solo los scripts (composición, captura, audio), que bastan para
+  volver a renderizar. No borres nada sin que el usuario diga que sí.
 
 ## Racionalizaciones comunes
 
 | Racionalización | Realidad |
 |---|---|
+| "Del código ya se ve para quién es; no hace falta preguntar." | El código dice qué hace, no para qué es el video ni dónde se publica. Propón y confirma: es una ronda, no un render de 15 minutos. |
+| "Le pregunto todo, así no me equivoco." | Diez preguntas abiertas cansan y no deciden nada. Propón cada punto con tu recomendación y pregunta solo lo abierto que cambia el resultado. |
 | "Recreo la UI en el video, es más rápido que importar el componente real." | Lo recreado se ve genérico y miente sobre el producto. Reutiliza; reconstruye solo lo que no puedas. |
 | "Un paneo sobre capturas de pantalla basta." | Eso es un slideshow. Anima el markup real: aparece, se hace clic, se tipea. |
 | "Le pongo una cifra impactante, se ve mejor." | Una cifra inventada es una afirmación falsa en algo hecho para circular. Solo cifras de la fuente. |
@@ -243,9 +305,11 @@ audio. "Se renderizó sin errores" no es lo mismo que "el video está bien".
 
 ## Red flags
 
+- Escribir `plan.md` o empezar a construir sin brief confirmado ni supuestos declarados.
+- Preguntas abiertas sin una propuesta tuya, o volver a preguntar lo que el prompt ya decía.
 - El primer frame es un logo sobre fondo plano: no hay gancho.
 - Frases de marketing genérico que servirían para cualquier producto.
-- Texto que desaparece antes de poder leerse.
+- Texto que desaparece antes de poder leerse, o una pantalla densa tan reducida que no se lee.
 - UI reconstruida a mano cuando el componente real estaba en el repo.
 - Datos reales, credenciales o URLs internas visibles en algún frame.
 - Duración fuera de 15–25 s sin que el usuario lo haya pedido.
@@ -264,6 +328,8 @@ audio. "Se renderizó sin errores" no es lo mismo que "el video está bien".
 ## Verificación
 
 - [ ] Prerrequisitos comprobados; nada se instaló sin permiso.
+- [ ] Brief confirmado por el usuario (objetivo, público y canal, pantallas, tono), o supuestos
+      declarados si pidió "decide tú".
 - [ ] `plan.md` existe, con storyboard cuyas duraciones suman el objetivo.
 - [ ] El video usa UI, copy e identidad reales del proyecto o del sitio, no recreaciones genéricas.
 - [ ] Ninguna afirmación, cifra ni testimonio inventado, ni pantallas de features que el código no
@@ -272,5 +338,7 @@ audio. "Se renderizó sin errores" no es lo mismo que "el video está bien".
 - [ ] Revisaste stills de cada escena y de la mitad de cada transición.
 - [ ] `ffprobe` confirma duración (15–25 s), resolución, fps y pista de audio.
 - [ ] `poster.jpg` es un frame asentado y es el frame 0 del `.mp4`.
-- [ ] `share-copy.txt` es específico, en el tono y publicable tal cual.
-- [ ] Le dijiste al usuario dónde está todo y le ofreciste rehacer una escena u otro tono.
+- [ ] La UI que se muestra se lee en el frame: la zona de la acción está encuadrada, no reducida.
+- [ ] `share-copy.txt` es específico, en el tono, de ≤ ~35 palabras y publicable tal cual.
+- [ ] Le dijiste al usuario dónde está todo, le ofreciste rehacer una escena u otro tono, y limpiar
+      `work/`.
