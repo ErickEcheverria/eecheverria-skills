@@ -164,6 +164,10 @@ forma de arranque, no una plantilla.
   funcionando a una landing que la describe. Un poco de texto ilustrativo al mostrar el producto en uso
   está bien (un nombre de archivo, un toast de "Exportado"); afirmaciones, cifras o testimonios
   inventados, no. Nunca relleno abstracto.
+- **Solo lo que existe.** "Reconstruir" es para lo que existe pero no puedes renderizar, no para
+  features que aún no están en el código. Si el README o el `CLAUDE.md` prometen algo que el código no
+  implementa, no le inventes pantalla: muéstralo como mención (una tarjeta, una línea) o déjalo fuera,
+  y avísale al usuario al entregar.
 - **Específico.** Tiene que sentirse hecho para este proyecto exacto. Usa su propio copy y sus propias
   afirmaciones; nada de lenguaje SaaS genérico ("optimiza tu flujo de trabajo" está prohibido).
 - **Legible.** El ritmo sale del movimiento y los cortes, no de quitar el texto antes de tiempo. Toda
@@ -232,6 +236,7 @@ audio. "Se renderizó sin errores" no es lo mismo que "el video está bien".
 | "Recreo la UI en el video, es más rápido que importar el componente real." | Lo recreado se ve genérico y miente sobre el producto. Reutiliza; reconstruye solo lo que no puedas. |
 | "Un paneo sobre capturas de pantalla basta." | Eso es un slideshow. Anima el markup real: aparece, se hace clic, se tipea. |
 | "Le pongo una cifra impactante, se ve mejor." | Una cifra inventada es una afirmación falsa en algo hecho para circular. Solo cifras de la fuente. |
+| "El CLAUDE.md dice que la v2 trae exportar a PDF; le armo la pantalla." | Si no está en el código, es una promesa, no el producto. Menciónalo sin UI inventada y avisa. |
 | "Con los datos reales de la BD se ve más creíble." | Y expone datos de clientes en un archivo que se va a compartir. Datos de demo, siempre. |
 | "El render terminó, ya está." | Terminar no es estar bien. Stills de cada escena y transición, y `ffprobe` al `.mp4`. |
 | "Bajo una canción libre de internet." | "Libre" casi nunca significa publicable. Sintetiza el audio. |
@@ -261,7 +266,8 @@ audio. "Se renderizó sin errores" no es lo mismo que "el video está bien".
 - [ ] Prerrequisitos comprobados; nada se instaló sin permiso.
 - [ ] `plan.md` existe, con storyboard cuyas duraciones suman el objetivo.
 - [ ] El video usa UI, copy e identidad reales del proyecto o del sitio, no recreaciones genéricas.
-- [ ] Ninguna afirmación, cifra ni testimonio inventado.
+- [ ] Ninguna afirmación, cifra ni testimonio inventado, ni pantallas de features que el código no
+      implementa.
 - [ ] Sin datos reales, credenciales ni URLs internas en pantalla (proyectos de trabajo).
 - [ ] Revisaste stills de cada escena y de la mitad de cada transición.
 - [ ] `ffprobe` confirma duración (15–25 s), resolución, fps y pista de audio.
