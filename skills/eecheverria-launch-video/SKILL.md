@@ -226,7 +226,10 @@ forma de arranque, no una plantilla.
 - **Legible.** El ritmo sale del movimiento y los cortes, no de quitar el texto antes de tiempo. Toda
   línea que el espectador deba leer queda completa y quieta el tiempo suficiente para leerla (unos
   0.3 s por palabra), contando desde que la línea entera está en pantalla. El texto que es solo textura
-  no necesita leerse.
+  no necesita leerse. Lo mismo vale para la UI: una pantalla densa (una tabla, un panel de admin)
+  reducida a caber entera se vuelve textura. **Encuadra la zona de la acción** —el botón que se pulsa,
+  el toast, el total que cambia— a un tamaño en que se lea, y deja la pantalla completa solo como plano
+  de ubicación breve.
 - **Que esté vivo.** Cosas que aparecen una a una, clics simulados, swipes y tipeo le ganan a las
   diapositivas estáticas.
 - **Lo gracioso se gana su lugar.** El humor sale del absurdo propio del proyecto, no de forzarlo.
@@ -277,10 +280,14 @@ audio. "Se renderizó sin errores" no es lo mismo que "el video está bien".
   `poster.jpg`, e incrústalo como frame 0 de `launch-video.mp4` para que la miniatura de cualquier
   plataforma lo muestre. Reemplaza el frame 0 en vez de agregar uno, para que la duración y la
   sincronía del audio no cambien.
-- **`share-copy.txt`:** 1–3 frases, publicables tal cual, específicas y en el tono del video. Nada de
-  "me emociona compartir". En el idioma del proyecto (o el que pida el usuario).
+- **`share-copy.txt`:** 1–3 frases y unas 35 palabras como máximo, publicables tal cual, específicas y
+  en el tono del video. Nada de "me emociona compartir". En el idioma del proyecto (o el que pida el
+  usuario).
 - **Dile al usuario** dónde están el video y el copy, dale una frase sobre el ángulo creativo y
   ofrécele rehacer una escena o probar otro tono.
+- **Ofrece limpiar `work/`.** Los frames, las capturas y el perfil temporal del navegador suman cientos
+  de MB. Ofrece borrarlos y conservar solo los scripts (composición, captura, audio), que bastan para
+  volver a renderizar. No borres nada sin que el usuario diga que sí.
 
 ## Racionalizaciones comunes
 
@@ -302,7 +309,7 @@ audio. "Se renderizó sin errores" no es lo mismo que "el video está bien".
 - Preguntas abiertas sin una propuesta tuya, o volver a preguntar lo que el prompt ya decía.
 - El primer frame es un logo sobre fondo plano: no hay gancho.
 - Frases de marketing genérico que servirían para cualquier producto.
-- Texto que desaparece antes de poder leerse.
+- Texto que desaparece antes de poder leerse, o una pantalla densa tan reducida que no se lee.
 - UI reconstruida a mano cuando el componente real estaba en el repo.
 - Datos reales, credenciales o URLs internas visibles en algún frame.
 - Duración fuera de 15–25 s sin que el usuario lo haya pedido.
@@ -331,5 +338,7 @@ audio. "Se renderizó sin errores" no es lo mismo que "el video está bien".
 - [ ] Revisaste stills de cada escena y de la mitad de cada transición.
 - [ ] `ffprobe` confirma duración (15–25 s), resolución, fps y pista de audio.
 - [ ] `poster.jpg` es un frame asentado y es el frame 0 del `.mp4`.
-- [ ] `share-copy.txt` es específico, en el tono y publicable tal cual.
-- [ ] Le dijiste al usuario dónde está todo y le ofreciste rehacer una escena u otro tono.
+- [ ] La UI que se muestra se lee en el frame: la zona de la acción está encuadrada, no reducida.
+- [ ] `share-copy.txt` es específico, en el tono, de ≤ ~35 palabras y publicable tal cual.
+- [ ] Le dijiste al usuario dónde está todo, le ofreciste rehacer una escena u otro tono, y limpiar
+      `work/`.
