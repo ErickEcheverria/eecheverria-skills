@@ -295,6 +295,7 @@ tarea entra en un dominio con skill propia, delega ahí sin perder la disciplina
 | Afinar/pulir una idea vaga o a medio cocinar antes de escribir HU o código | `eecheverria-idea-refine` |
 | Generar/redactar historias de usuario (HU) de un feature o fix (proyecto DPB) | `eecheverria-write-user-story` |
 | Redactar la solicitud de despliegue para DevOps: changelog funcional, commits por repo y scripts consolidados para el DBA | `changelog-deploy` |
+| Presumir en video lo construido: video de lanzamiento corto de un proyecto o una URL, con música y copy para redes | `eecheverria-launch-video` |
 
 Cómo se combinan: esta skill decide *cómo* abordas el trabajo (orientarte, cuidar contexto, respetar
 convenciones, cerrar limpio); la skill de stack decide *qué patrón concreto* usas. Si trabajas React,

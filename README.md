@@ -46,6 +46,7 @@ flowchart TD
         IR["💡 idea-refine"]
         US["write-user-story"]
         CD["🚀 changelog-deploy"]
+        LV["🎬 launch-video"]
         IR --> US
         US --> CD
     end
@@ -97,6 +98,7 @@ flowchart TD
 | **`eecheverria-idea-refine`** | Afina una idea cruda o a medio cocinar antes de escribir HU o código: la reformula, saca supuestos, define alcance y el "qué NO hacer". Ajusta su profundidad a la madurez de la idea. Entrega a `write-user-story`. |
 | **`eecheverria-write-user-story`** | Historias de usuario (HU) del proyecto DPB con el formato "COMO Usuario QUIERO … PARA …", listas para Jira, con ponderación Scrum Poker. |
 | **`changelog-deploy`** | El mensaje pegable de solicitud de despliegue: changelog funcional para quien no toca el código, bloque de commits por repo (SHA completo, capa, ambiente) y el script SQL consolidado e idempotente para el DBA. |
+| **`eecheverria-launch-video`** | Video de lanzamiento de 15–25 s a partir de un proyecto o una URL: storyboard, motion con la UI y el copy reales del proyecto, audio sintetizado, póster y copy para redes, renderizado con `ffmpeg`. Adaptada de [`brag-slim`](https://github.com/latent-spaces/brag) (MIT), con prerrequisitos en Windows y cuidado de datos confidenciales en proyectos de trabajo. |
 
 ---
 
