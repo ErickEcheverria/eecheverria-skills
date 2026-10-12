@@ -229,7 +229,7 @@ body { margin: 0; background: #ffffff; font-family: 'ManualFont', 'Segoe UI', Ar
 .steps li { display: flex; gap: 18px; font-size: 27px; line-height: 1.42; }
 .steps .num { flex: 0 0 44px; height: 44px; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 700; font-size: 23px; display: grid; place-items: center; }
 .pg-text p { font-size: 28px; line-height: 1.5; margin: 0 0 18px; }
-.note { margin-top: 30px; background: var(--primary-soft); border-left: 8px solid var(--primary); border-radius: 12px; padding: 22px 28px; font-size: 26px; line-height: 1.45; display: grid; gap: 6px; }
+.note { margin-top: 30px; background: var(--primary-soft); border-radius: 14px; padding: 22px 28px; font-size: 26px; line-height: 1.45; display: grid; gap: 6px; }
 .note strong { color: var(--primary); }
 .toc2 { display: grid; gap: 2px; margin-top: 6px; }
 .toc-ch { display: flex; align-items: flex-end; gap: 22px; font-size: 30px; margin: 26px 0 10px; }
