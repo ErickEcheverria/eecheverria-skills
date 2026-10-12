@@ -20,20 +20,69 @@ const esc = (value) =>
 
 const rich = (value) => esc(value).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
 
-const pages = []
-
-pages.push({ kind: 'cover' })
-pages.push({ kind: 'toc' })
+const contentPages = []
 for (const chapter of manual.chapters) {
   chapter.pages.forEach((page, index) => {
-    pages.push({ kind: 'screen', chapter, page, first: index === 0 })
+    contentPages.push({ kind: 'screen', chapter, page, first: index === 0 })
   })
 }
 
+const TOC_CAPACITY = 48
+const tocEntries = []
+manual.chapters.forEach((chapter, index) => {
+  tocEntries.push({ type: 'chapter', chapter, index, units: 2.6 })
+  for (const page of chapter.pages) tocEntries.push({ type: 'page', chapter, page, units: 1 })
+})
+const tocChunks = []
+let tocChunk = []
+let tocUnits = 0
+for (const entry of tocEntries) {
+  const capacity = tocChunks.length === 0 ? TOC_CAPACITY - 3 : TOC_CAPACITY
+  if (tocUnits + entry.units > capacity && tocChunk.length) {
+    tocChunks.push(tocChunk)
+    tocChunk = []
+    tocUnits = 0
+  }
+  tocChunk.push(entry)
+  tocUnits += entry.units
+}
+if (tocChunk.length) tocChunks.push(tocChunk)
+
+const ROLE_CAPACITY = 52
+const roles = manual.roles ?? []
+const roleUnits = (role) => 3 + Math.ceil(role.pages.length / 2) * 1.1
+const roleChunks = []
+let roleChunk = []
+let roleUsed = 0
+for (const role of roles) {
+  const capacity = roleChunks.length === 0 ? ROLE_CAPACITY - 3 : ROLE_CAPACITY
+  if (roleUsed + roleUnits(role) > capacity && roleChunk.length) {
+    roleChunks.push(roleChunk)
+    roleChunk = []
+    roleUsed = 0
+  }
+  roleChunk.push(role)
+  roleUsed += roleUnits(role)
+}
+if (roleChunk.length) roleChunks.push(roleChunk)
+
+const pages = [{ kind: 'cover' }]
+tocChunks.forEach((entries, part) => pages.push({ kind: 'toc', entries, part }))
+roleChunks.forEach((list, part) => pages.push({ kind: 'roles', list, part }))
+pages.push(...contentPages)
+
+const pageNumber = new Map()
 const chapterStart = new Map()
 pages.forEach((p, i) => {
-  if (p.kind === 'screen' && p.first) chapterStart.set(p.chapter.id, i + 1)
+  if (p.kind !== 'screen') return
+  pageNumber.set(`${p.chapter.id}::${p.page.title}`, i + 1)
+  if (p.first) chapterStart.set(p.chapter.id, i + 1)
 })
+const numberOf = (ref) => {
+  const n = pageNumber.get(ref)
+  if (!n) throw new Error(`La guía por rol apunta a una página que no existe: ${ref}`)
+  return n
+}
 
 const PRODUCT = manual.product ?? manual.subtitle ?? ''
 const MARK = manual.mark ?? 'assets/brand/mark.svg'
@@ -60,18 +109,41 @@ const coverHtml = () => `
   </div>
   <div class="cover-foot">${esc(manual.footer ?? '')}</div>`
 
-const tocHtml = (n) => `
+const tocHtml = ({ entries, part }, n) => {
+  const rows = entries
+    .map((e) => {
+      if (e.type === 'chapter')
+        return `<div class="toc-ch" data-target="${chapterStart.get(e.chapter.id)}"><span class="toc-num">${e.index + 1}</span><span class="toc-name">${esc(e.chapter.title)}<small>${esc(e.chapter.summary ?? '')}</small></span><span class="toc-dots"></span><span class="toc-page">${chapterStart.get(e.chapter.id)}</span></div>`
+      return `<div class="toc-pg" data-target="${pageNumber.get(`${e.chapter.id}::${e.page.title}`)}"><span>${esc(e.page.title)}</span><span class="toc-dots"></span><span>${pageNumber.get(`${e.chapter.id}::${e.page.title}`)}</span></div>`
+    })
+    .join('')
+  const title = part === 0 ? 'Contenido' : 'Contenido (continuación)'
+  const intro = part === 0 ? `<p class="pg-purpose">${rich(manual.tocIntro ?? '')}</p>` : ''
+  return `
   ${header('Contenido')}
-  <h2 class="pg-title">Contenido</h2>
-  <p class="pg-purpose">${rich(manual.tocIntro ?? '')}</p>
-  <ol class="toc">
-    ${manual.chapters
-      .map(
-        (c, i) => `<li><span class="toc-num">${i + 1}</span><span class="toc-name">${esc(c.title)}<small>${esc(c.summary ?? '')}</small></span><span class="toc-dots"></span><span class="toc-page">${chapterStart.get(c.id)}</span></li>`
-      )
-      .join('')}
-  </ol>
+  <h2 class="pg-title">${title}</h2>
+  ${intro}
+  <div class="toc2">${rows}</div>
   ${footer(n)}`
+}
+
+const rolesHtml = ({ list, part }, n) => {
+  const cards = list
+    .map(
+      (role) => `<div class="role"><div class="role-head"><h3>${esc(role.role)}</h3><p>${rich(role.description ?? '')}</p></div><ul class="role-pages">${role.pages
+        .map((ref) => `<li data-target="${numberOf(ref)}"><span>${esc(ref.split('::')[1])}</span><span class="toc-dots"></span><span>${numberOf(ref)}</span></li>`)
+        .join('')}</ul></div>`
+    )
+    .join('')
+  const title = part === 0 ? 'Guía por rol' : 'Guía por rol (continuación)'
+  const intro = part === 0 ? `<p class="pg-purpose">${rich(manual.rolesIntro ?? '')}</p>` : ''
+  return `
+  ${header('Guía por rol')}
+  <h2 class="pg-title">${title}</h2>
+  ${intro}
+  <div class="roles">${cards}</div>
+  ${footer(n)}`
+}
 
 const shotHtml = (page) => {
   if (!page.image) return ''
@@ -117,7 +189,8 @@ const body = pages
     const n = i + 1
     let inner = ''
     if (p.kind === 'cover') inner = coverHtml()
-    if (p.kind === 'toc') inner = tocHtml(n)
+    if (p.kind === 'toc') inner = tocHtml(p, n)
+    if (p.kind === 'roles') inner = rolesHtml(p, n)
     if (p.kind === 'screen') inner = screenHtml(p, n)
     return `<section id="page-${n}" class="clip page page-${p.kind}" data-start="${i}" data-duration="1" data-track-index="0">${inner}</section>`
   })
@@ -158,6 +231,17 @@ body { margin: 0; background: #ffffff; font-family: 'ManualFont', 'Segoe UI', Ar
 .pg-text p { font-size: 28px; line-height: 1.5; margin: 0 0 18px; }
 .note { margin-top: 30px; background: var(--primary-soft); border-left: 8px solid var(--primary); border-radius: 12px; padding: 22px 28px; font-size: 26px; line-height: 1.45; display: grid; gap: 6px; }
 .note strong { color: var(--primary); }
+.toc2 { display: grid; gap: 2px; margin-top: 6px; }
+.toc-ch { display: flex; align-items: flex-end; gap: 22px; font-size: 30px; margin: 26px 0 10px; }
+.toc-ch:first-child { margin-top: 0; }
+.toc-pg { display: flex; align-items: flex-end; gap: 14px; font-size: 24px; color: var(--ink); padding-left: 80px; line-height: 1.55; }
+.roles { display: grid; gap: 26px; }
+.role { border: 2px solid var(--line); border-radius: 18px; padding: 26px 32px; }
+.role-head { display: grid; gap: 4px; margin-bottom: 14px; }
+.role-head h3 { margin: 0; font-size: 32px; color: var(--primary); }
+.role-head p { margin: 0; font-size: 23px; color: var(--muted); line-height: 1.4; }
+.role-pages { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; column-gap: 40px; row-gap: 6px; }
+.role-pages li { display: flex; align-items: flex-end; gap: 10px; font-size: 22px; }
 .toc { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 26px; }
 .toc li { display: flex; align-items: flex-end; gap: 22px; font-size: 32px; }
 .toc-num { width: 58px; height: 58px; border-radius: 14px; background: var(--primary); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 28px; flex: 0 0 58px; }

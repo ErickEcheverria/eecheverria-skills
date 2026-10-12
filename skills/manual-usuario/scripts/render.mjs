@@ -7,6 +7,7 @@ const out = process.argv[2] ?? 'out/Manual.pdf'
 const HYPERFRAMES = process.env.HYPERFRAMES_VERSION ?? '0.8.150'
 
 execSync('node tools/build.mjs manual.json coords.json', { stdio: 'inherit' })
+execSync('node tools/links.mjs', { stdio: 'inherit' })
 const { at } = JSON.parse(readFileSync('work/pages.json', 'utf8'))
 rmSync('snapshots', { recursive: true, force: true })
 execSync(`npx --yes hyperframes@${HYPERFRAMES} snapshot --at ${at.join(',')}`, { stdio: 'inherit' })

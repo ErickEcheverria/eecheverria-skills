@@ -17,7 +17,11 @@
     "mark": "assets/brand/mark.svg",
     "logo": "assets/brand/logo.svg",
     "font": "assets/fonts/Fuente.woff2",
-    "theme": { "primary": "#2c589a", "primarySoft": "#e8eef7", "accent": "#cc1f37" }
+    "theme": { "primary": "#2c589a", "primarySoft": "#e8eef7", "accent": "#cc1f37" },
+    "rolesIntro": "Busca tu rol y empieza por esas páginas.",
+    "roles": [
+      { "role": "Solicitante", "description": "Crea y envía a aprobación.", "pages": ["modulo-a::Lista de documentos", "modulo-a::Nuevo documento"] }
+    ]
   },
   "chapters": ["inicio", "modulo-a", "modulo-b"],
   "extraCoords": ["work/chapters/menu.coords.json"]
@@ -26,7 +30,9 @@
 
 `chapters` es el orden del índice; cada id es un `work/chapters/<id>.json`. `extraCoords` suma
 coordenadas de capturas hechas fuera de un capítulo (p. ej. el menú expandido). `accent` es el
-color de los círculos numerados.
+color de los círculos numerados. `roles` arma la **guía por rol**: cada página se nombra
+`<id del capítulo>::<título exacto de la página>` (si no existe, el build falla). El índice
+detallado y la guía se reparten solos en varias páginas y cada renglón es un enlace del PDF.
 
 ## `work/chapters/<id>.screens.json` (lo que se captura)
 

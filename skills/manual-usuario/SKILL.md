@@ -15,7 +15,8 @@ description: >-
 
 # Manual de usuario en PDF (HyperFrames)
 
-Produce **un PDF** que un usuario sin conocimientos técnicos lee de corrido: portada, índice, un
+Produce **un PDF** que un usuario sin conocimientos técnicos lee de corrido: portada, índice
+detallado (capítulos y sus páginas), una **guía por rol** (qué páginas leer según el rol), un
 capítulo por módulo y, en cada página, **una pantalla real** de la app con círculos rojos numerados
 y debajo los pasos con el mismo número. Lo más simple posible: una idea por página, botones con su
 texto exacto en negrita.
@@ -107,7 +108,8 @@ botones de cada pantalla? Califica de 1 a 10 y no entregues un 7: corrige y vuel
 ### 6. Renderizar
 
 `node tools/render.mjs out/<Nombre>.pdf` hace todo: arma la composición HyperFrames (una página
-carta de 1700×2200 por segundo), saca cada página con `npx hyperframes snapshot --at 0.5,1.5,…` y
+carta de 1700×2200 por segundo), mide los renglones del índice y de la guía por rol para volverlos
+**enlaces internos del PDF** (`links.mjs`, con el Chrome de depuración), saca cada página con `npx hyperframes snapshot --at 0.5,1.5,…` y
 Chrome headless imprime el PDF tamaño carta sin márgenes.
 
 ### 7. Entregar
@@ -137,7 +139,9 @@ página web.
 - `scripts/capture.mjs`: captura por CDP (puerto 9222) y mide la esquina de cada marcador.
 - `scripts/merge.mjs`: une los capítulos en `manual.json` + `coords.json` y valida.
 - `scripts/build.mjs`: genera la composición HyperFrames (`index.html`) carta, una página por segundo.
-- `scripts/render.mjs`: build → `hyperframes snapshot` → PDF.
-- `scripts/to-pdf.mjs`: junta los PNG en un PDF carta con Chrome headless.
+- `scripts/links.mjs`: mide los renglones con `data-target` (índice y guía por rol) para los enlaces.
+- `scripts/render.mjs`: build → links → `hyperframes snapshot` → PDF.
+- `scripts/to-pdf.mjs`: junta los PNG en un PDF carta con Chrome headless y pone los enlaces
+  internos encima de cada renglón (Chrome los conserva como enlaces del PDF).
 - `references/formato.md`: formatos de `book.json`, `screens.json` y del capítulo.
 - `references/guia-capitulo.md`: la guía que reciben los subagentes (seguridad, capturas, texto).

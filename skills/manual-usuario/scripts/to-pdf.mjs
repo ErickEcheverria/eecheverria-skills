@@ -16,13 +16,27 @@ const frames = readdirSync(framesDir)
   .sort((a, b) => timeOf(a) - timeOf(b))
 if (!frames.length) throw new Error(`No hay páginas en ${framesDir}`)
 
+const links = existsSync('work/links.json') ? JSON.parse(readFileSync('work/links.json', 'utf8')) : []
+const PX_PER_IN = 200
+const inch = (px) => `${(px / PX_PER_IN).toFixed(4)}in`
+const pageHtml = (f, i) => {
+  const n = i + 1
+  const anchors = links
+    .filter((l) => l.page === n)
+    .map((l) => `<a href="#p${l.target}" style="left:${inch(l.x)};top:${inch(l.y)};width:${inch(l.w)};height:${inch(l.h)}"></a>`)
+    .join('')
+  return `<div class="pg" id="p${n}"><img src="${pathToFileURL(resolve(framesDir, f)).href}" />${anchors}</div>`
+}
+
 const html = `<!doctype html><html><head><meta charset="utf-8"><style>
 @page { size: 8.5in 11in; margin: 0; }
 html, body { margin: 0; padding: 0; }
-img { display: block; width: 8.5in; height: 11in; page-break-after: always; break-after: page; }
-img:last-child { page-break-after: auto; break-after: auto; }
+.pg { position: relative; width: 8.5in; height: 11in; overflow: hidden; page-break-after: always; break-after: page; }
+.pg:last-child { page-break-after: auto; break-after: auto; }
+.pg img { display: block; width: 8.5in; height: 11in; }
+.pg a { position: absolute; display: block; }
 </style></head><body>
-${frames.map((f) => `<img src="${pathToFileURL(resolve(framesDir, f)).href}" />`).join('\n')}
+${frames.map(pageHtml).join('\n')}
 </body></html>`
 
 mkdirSync('work', { recursive: true })
