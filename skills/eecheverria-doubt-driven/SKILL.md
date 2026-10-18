@@ -62,13 +62,14 @@ Aplica la skill cuando estés a punto de:
 
 ## Restricción de carga
 
-Esta skill la **orquesta el hilo principal de la sesión**, porque el paso DOUBT necesita lanzar un
-subagente de contexto fresco.
+Esta skill la **orquesta el hilo principal de la sesión**: el paso DOUBT lanza un subagente de contexto
+fresco y el paso STOP escala al usuario, cosa que un subagente no puede hacer (no tiene
+`AskUserQuestion`).
 
-- **No la invoques dentro de otro subagente.** Un subagente que intentara ejecutar el paso DOUBT
-  necesitaría anidar otro subagente, cosa que el entorno no permite. Si te encuentras aplicándola desde
-  un subagente, **súbelo al hilo principal**: reporta que la duda no puede correr anidada y deja que la
-  sesión principal la ejecute.
+- **Desde un subagente, súbela al hilo principal.** Claude Code sí permite anidar subagentes (hasta
+  tres niveles por defecto, `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`), pero en el límite retira la
+  herramienta `Agent`, y aunque pudieras lanzar el revisor no podrías escalar al usuario en el STOP.
+  Reporta la decisión que hay que dudar y deja que la sesión principal corra el ciclo.
 
 Esto encaja con `eecheverria-senior-dev`, que ya predica "usa subagentes para cuidar tu contexto": aquí
 el subagente no es solo para ahorrar contexto, es para conseguir **una mirada independiente y sin sesgo**.
@@ -81,7 +82,7 @@ Copia esta checklist al aplicar la skill:
 Ciclo de duda:
 - [ ] Paso 1: CLAIM     — escribí la afirmación + por qué importa
 - [ ] Paso 2: EXTRACT   — aislé artefacto + contrato, quité mi razonamiento
-- [ ] Paso 3: DOUBT     — lancé un subagente de contexto fresco con prompt adversarial
+- [ ] Paso 3: DOUBT     — lancé revisor-adversarial (o un subagente fresco con prompt adversarial)
 - [ ] Paso 4: RECONCILE — clasifiqué cada hallazgo contra el texto del artefacto
 - [ ] Paso 5: STOP      — se cumplió la condición de parada (hallazgos triviales, 3 ciclos, o el usuario cortó)
 ```
@@ -114,9 +115,13 @@ lectura — si es un PR de 500 líneas, **descompón primero**.
 
 ### Paso 3: DOUBT — Lanza el revisor de contexto fresco
 
-Implementa este paso **lanzando un SUBAGENTE de contexto fresco** (vía la herramienta Agent/Task) con un
-prompt adversarial. Nada de personas nombradas: un subagente genérico y de solo lectura basta, porque lo
-que buscas es contexto *limpio*, no un rol.
+Implementa este paso **lanzando el subagente `pb-skills:revisor-adversarial`** (herramienta Agent con ese
+`subagent_type`). Viene en el plugin con el encuadre adversarial y el formato de hallazgos ya fijos, y
+solo tiene `Read`, `Grep` y `Glob`: no puede editar ni lanzar otros agentes. Pásale **ARTEFACTO +
+CONTRATO** y nada más.
+
+Si no está disponible (la skill se usa fuera del plugin), lanza un subagente genérico de solo lectura
+con el prompt de abajo. No es un rol ni una persona: lo que buscas es contexto *limpio*.
 
 El prompt del revisor **debe ser adversarial**. El encuadre decide la respuesta.
 
@@ -173,7 +178,8 @@ que ignorarlo.
 Clasifica cada hallazgo en este **orden de precedencia** (gana la primera clase que aplique):
 
 1. **Contrato mal leído** — el revisor marcó algo *porque* el CONTRATO que le diste era confuso o
-   incompleto. Arregla el contrato primero y reclasifica en el siguiente ciclo.
+   incompleto. Arregla el contrato primero y reclasifica en el siguiente ciclo. (`revisor-adversarial`
+   los marca con `Contrato ambiguo:`.)
 2. **Válido + accionable** — problema real que exige un cambio en el artefacto. Cámbialo y vuelve a
    iterar.
 3. **Trade-off válido** — el problema es real pero el costo de arreglarlo supera el de aceptarlo.
