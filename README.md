@@ -1,6 +1,6 @@
 # 🛠️ eecheverria-skills
 
-Skills de [**eecheverria**](mailto:eecheverria@paloblanco.com) para **Claude Code**, empaquetadas como
+Skills y agentes de [**eecheverria**](mailto:eecheverria@paloblanco.com) para **Claude Code**, empaquetados como
 **plugin** y distribuidas por el marketplace `paloblanco`.
 
 Este repositorio es la **fuente de verdad**. Se instala una vez por máquina y Claude Code lo mantiene al
@@ -52,10 +52,17 @@ flowchart TD
         US --> CD
     end
 
+    subgraph A["🤖 Agentes · revisores de contexto fresco"]
+        RA["🔎 revisor-adversarial"]
+        RS["🛡️ revisor-seguridad"]
+    end
+
     SD --> T
     SD --> S
     SD --> U
     UXL --> RE
+    DD -. lanza .-> RA
+    SEC -. lanza .-> RS
 
     classDef base fill:#0f172a,stroke:#38bdf8,stroke-width:3px,color:#fff;
 ```
@@ -101,6 +108,21 @@ flowchart TD
 | **`changelog-deploy`** | El mensaje pegable de solicitud de despliegue: changelog funcional para quien no toca el código, bloque de commits por repo (SHA completo, capa, ambiente) y el script SQL consolidado e idempotente para el DBA. |
 | **`manual-usuario`** | Manual de usuario en PDF (carta, vertical) a partir de capturas reales de la app: círculos numerados sobre cada control y los pasos con el mismo número, portada e índice. Mapea pantallas con subagentes, captura por CDP con la sesión del usuario (solo mirar), compone cada página con HyperFrames y junta el PDF con Chrome headless. |
 | **`eecheverria-launch-video`** | Video de lanzamiento de 15–25 s a partir de un proyecto o una URL: storyboard, motion con la UI y el copy reales del proyecto, audio sintetizado, póster y copy para redes, renderizado con `ffmpeg`. Adaptada de [`brag-slim`](https://github.com/latent-spaces/brag) (MIT), con prerrequisitos en Windows y cuidado de datos confidenciales en proyectos de trabajo. |
+
+---
+
+## 🤖 Agentes
+
+Una skill le dice a Claude *cómo* trabajar dentro de tu conversación. Un agente (subagente) es un
+trabajador aparte: arranca con contexto limpio, tiene herramientas acotadas y solo devuelve su informe.
+Por eso aquí solo hay revisores, donde una mirada independiente vale más que el contexto de la sesión.
+
+| Agente | Qué hace | Quién lo lanza |
+|---|---|---|
+| **`revisor-adversarial`** | Recibe ARTEFACTO + CONTRATO y busca qué está mal, sin validar ni resumir. Ignora la conclusión del autor si se la pasan y marca las ambigüedades del contrato. Solo `Read`/`Grep`/`Glob`. | `doubt-driven`, en el paso DOUBT |
+| **`revisor-seguridad`** | Revisa un diff con `eecheverria-security` precargada: threat model, checklist y hallazgos por severidad con su escenario de explotación. Sin `Edit`/`Write`; Bash solo para leer. | `security` y `senior-dev`, al cerrar cambios sensibles |
+
+Para lanzarlos a mano: `@agent-pb-skills:revisor-seguridad revisa el diff de esta rama`.
 
 ---
 
@@ -150,14 +172,25 @@ Quien clone ese repo abre Claude Code y ya tiene las skills, sin instalar nada a
 .claude-plugin/
 ├── marketplace.json   catálogo (marketplace `paloblanco`)
 └── plugin.json        manifiesto del plugin `pb-skills`
+agents/
+└── revisor-*.md       un archivo por agente
 skills/
 └── eecheverria-*/     una carpeta por skill, con su SKILL.md
 ```
 
-Claude Code descubre las skills en `<raíz-del-plugin>/skills/`, por eso viven ahí.
+Claude Code descubre las skills en `<raíz-del-plugin>/skills/` y los agentes en
+`<raíz-del-plugin>/agents/`, por eso viven ahí.
 
 Para **agregar** una skill: carpeta nueva bajo `skills/` con su `SKILL.md`, y push. Para **quitarla**:
 se borra.
+
+Para **agregar** un agente: un `.md` en `agents/` con `name`, `description` y solo las `tools` que
+necesita. En un plugin se ignoran `hooks`, `mcpServers` y `permissionMode`, así que la lista de `tools`
+es el único candado real. Para precargar una skill del plugin, nómbrala con su namespace
+(`skills: [pb-skills:eecheverria-security]`); con un nombre equivocado se omite sin avisar.
+
+Para probar cambios antes del push: `claude --plugin-dir .` desde la raíz del repo carga esta copia
+local del plugin.
 
 > ⚠️ **Sube `version` en los DOS manifiestos en cada cambio** — `.claude-plugin/plugin.json` y la entrada
 > del plugin en `.claude-plugin/marketplace.json`. No es cosmético: si la versión no cambia, quien ya
