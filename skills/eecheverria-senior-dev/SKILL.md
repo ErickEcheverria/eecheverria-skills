@@ -290,6 +290,7 @@ tarea entra en un dominio con skill propia, delega ahí sin perder la disciplina
 | Simplificar/limpiar código sin cambiar comportamiento, aplicar principios de código limpio | `eecheverria-clean-code` |
 | Commitear, ramificar, dividir cambios, worktrees, higiene de git | `eecheverria-git-workflow` |
 | Revisar/asegurar seguridad (OWASP, secretos, SSRF, auth, seguridad de features LLM) | `eecheverria-security` |
+| Revisar la seguridad de un cambio ya escrito sin cargar tu contexto (hallazgos por severidad) | subagente `pb-skills:revisor-seguridad` |
 | Diagnosticar y optimizar rendimiento midiendo primero (N+1, bundle, re-renders) | `eecheverria-performance` |
 | Instrumentar para producción: logs estructurados, métricas RED, trazas, alertas, health checks | `eecheverria-observability` |
 | Afinar/pulir una idea vaga o a medio cocinar antes de escribir HU o código | `eecheverria-idea-refine` |

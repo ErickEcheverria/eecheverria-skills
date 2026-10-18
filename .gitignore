@@ -1,10 +1,11 @@
-# Lista blanca: versionar solo README, los manifiestos del plugin y las skills.
+# Lista blanca: versionar solo README, los manifiestos del plugin, los agentes y las skills.
 /*
 
 !.gitignore
 !.gitattributes
 !README.md
 !.claude-plugin/
+!agents/
 !skills/
 
 # skill-creator queda fuera: es de Anthropic, no del usuario.

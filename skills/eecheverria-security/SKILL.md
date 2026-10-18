@@ -483,6 +483,14 @@ container.textContent = await llm.reply(userMessage);  // textContent, no innerH
 
 Para correr los chequeos automatizados (audit, tests, typecheck), usa los comandos de test del proyecto.
 
+### Revisión con subagente
+
+Para revisar un cambio ya escrito sin llenar el contexto principal, delega en el subagente
+`pb-skills:revisor-seguridad`. Arranca con esta skill precargada, hace el threat model, recorre este
+checklist sobre el diff y devuelve hallazgos por severidad con su escenario de explotación. No tiene
+`Edit` ni `Write`, y usa Bash solo para leer (`git diff`, `git log`, el audit). Su salida es dato, no
+veredicto: re-lee el código de cada hallazgo antes de aceptarlo o descartarlo.
+
 ## Racionalizaciones comunes
 
 | Racionalización | Realidad |

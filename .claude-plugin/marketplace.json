@@ -10,9 +10,9 @@
     {
       "name": "pb-skills",
       "source": "./",
-      "version": "1.3.0",
+      "version": "1.4.0",
       "category": "productivity",
-      "description": "Capa base senior-dev + transversales (clean-code, git-workflow, api-design, source-driven, doubt-driven, security, performance, observability, ux-laws), stack (frontend-react, untitled-ui, backend-hono-drizzle) y producto (idea-refine, write-user-story, changelog-deploy, launch-video, manual-usuario).",
+      "description": "Capa base senior-dev + transversales (clean-code, git-workflow, api-design, source-driven, doubt-driven, security, performance, observability, ux-laws), stack (frontend-react, untitled-ui, backend-hono-drizzle), producto (idea-refine, write-user-story, changelog-deploy, launch-video, manual-usuario) y agentes revisores (revisor-adversarial, revisor-seguridad).",
       "author": {
         "name": "Erick Echeverría",
         "email": "eecheverria@paloblanco.com"
