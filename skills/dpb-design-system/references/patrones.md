@@ -418,10 +418,12 @@ conteo y el detalle en popover, para cabeceras donde manda una tabla), `InputMon
   lugar de validar después. Un rango son dos `InputDate` encadenados por esos límites. Lo que una fecha
   significa («Último día de captura») va como chip (`BadgeWithIcon`) en el `hint`, no como párrafo.
 - **`Toggle` a ancho completo:** siempre `className={TOGGLE_ANCHO_COMPLETO}` si lleva `hint`; en una
-  rejilla, que ocupe todas las columnas, o el hint parte en cinco renglones. En el origen, el `Toggle`
-  también va dentro de formularios que se guardan con «Guardar» (cuenta activa, controlar techos).
-  Choca con la regla general de `eecheverria-untitled-ui` (toggle para efecto inmediato; checkbox si
-  hay que guardar). Elige una forma por app y no las mezcles.
+  rejilla, que ocupe todas las columnas, o el hint parte en cinco renglones. En DPB el `Toggle`
+  también va dentro de formularios que se guardan con «Guardar» (en el origen: cuenta activa,
+  controlar techos). Es la excepción que `eecheverria-untitled-ui` admite a su regla general
+  (toggle para efecto inmediato; checkbox si hay que guardar) cuando el proyecto la sigue de forma
+  consistente: en una misma app, los sí/no de formulario son todos `Toggle`, sin mezclar con
+  `Checkbox`.
 - **Números:** `inputMode="numeric"` y no `type="number"`. Para montos, un campo que dé formato
   (en el origen, `InputMonto`).
 - **Selects:** con una sola opción posible, elígela sola y no muestres el control. Mientras carga su

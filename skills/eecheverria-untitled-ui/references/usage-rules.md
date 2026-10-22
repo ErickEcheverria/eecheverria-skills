@@ -274,8 +274,10 @@ import { Checkbox } from "@/components/base/checkbox/checkbox";
 ```
 
 `isIndeterminate` es lo correcto para el checkbox de "seleccionar todo" de una tabla cuando hay
-selección parcial. Los toggles son para cambios de efecto inmediato; si el cambio requiere "Guardar",
-usa checkbox.
+selección parcial. Por defecto, los toggles son para cambios de efecto inmediato; si el cambio
+requiere "Guardar", usa checkbox. Si el proyecto ya usa `Toggle` dentro de formularios que se
+guardan, de forma consistente (las apps de DPB lo hacen; ver `dpb-design-system`), sigue al
+proyecto: lo que confunde al usuario es mezclar las dos formas en la misma app.
 
 ### Badge, Avatar y FeaturedIcon
 
