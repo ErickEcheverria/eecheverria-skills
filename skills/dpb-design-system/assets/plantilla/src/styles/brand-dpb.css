@@ -1,0 +1,111 @@
+/**
+ * Identidad de marca de Desarrollos Palo Blanco. Es la misma en todas las apps: un proyecto
+ * solo lo toca para agregar una serie de gráfica (y revalidarla, ver abajo).
+ *
+ * Este archivo se importa DESPUÉS de theme.css en globals.css y solo sobrescribe
+ * tokens. `theme.css` es código generado por el CLI de Untitled UI y se regenera con
+ * `npx untitledui@latest upgrade`: no lo edites, edita este archivo.
+ *
+ * ── Decisiones ───────────────────────────────────────────────────────────────
+ * - `brand` = azul DPB #2C589A. Es el color de acciones primarias, enlaces y focus
+ *   ring. La rampa se construyó sobre hsl(216, 56%, L) manteniendo el 500 exacto.
+ *
+ * - `accent` = rojo DPB #CC1F37. Rampa NUEVA, no sobrescribe nada de Untitled UI.
+ *   Es un acento de marca (destacados, KPIs), NO un color de estado.
+ *
+ * - Los ramos `error`, `warning` y `success` de Untitled UI se dejan INTACTOS. Son
+ *   colores funcionales: un rojo de error tiene que leerse como error, no como marca.
+ *   Si se pintara `error` con el rojo DPB, un registro con error y un botón de marca
+ *   serían el mismo color.
+ *
+ * - Tipografía Open Sans 400/600/700, la oficial de DPB. Se carga en index.html.
+ */
+
+@theme {
+    --font-body: "Open Sans", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    --font-display: "Open Sans", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+
+    /* Azul DPB — brand-500 es el #2C589A exacto */
+    --color-brand-50: rgb(243 246 252); /* #F3F6FC */
+    --color-brand-100: rgb(226 235 248); /* #E2EBF8 */
+    --color-brand-200: rgb(195 212 239); /* #C3D4EF */
+    --color-brand-300: rgb(148 179 225); /* #94B3E1 */
+    --color-brand-400: rgb(82 131 203); /* #5283CB */
+    --color-brand-500: rgb(44 88 154); /* #2C589A  ← oficial */
+    --color-brand-600: rgb(35 75 133); /* #234B85 */
+    --color-brand-700: rgb(28 61 110); /* #1C3D6E */
+    --color-brand-800: rgb(22 49 90); /* #16315A */
+    --color-brand-900: rgb(17 38 69); /* #112645 */
+    --color-brand-950: rgb(12 27 50); /* #0C1B32 */
+
+    /* Rojo DPB — accent-500 es el #CC1F37 exacto */
+    --color-accent-50: rgb(253 241 243); /* #FDF1F3 */
+    --color-accent-100: rgb(252 227 231); /* #FCE3E7 */
+    --color-accent-200: rgb(248 196 204); /* #F8C4CC */
+    --color-accent-300: rgb(241 152 166); /* #F198A6 */
+    --color-accent-400: rgb(229 93 114); /* #E55D72 */
+    --color-accent-500: rgb(204 31 55); /* #CC1F37  ← oficial */
+    --color-accent-600: rgb(179 25 49); /* #B31931 */
+    --color-accent-700: rgb(149 19 39); /* #951327 */
+    --color-accent-800: rgb(120 17 33); /* #781121 */
+    --color-accent-900: rgb(96 16 28); /* #60101C */
+    --color-accent-950: rgb(65 11 20); /* #410B14 */
+}
+
+/**
+ * Lienzo sobre el que flotan las tarjetas del layout (sidebar y contenido).
+ *
+ * Se declara DOS veces a propósito: `--color-bg-canvas` guarda el valor y
+ * `--background-color-canvas` es lo que hace que Tailwind genere la utilidad
+ * `bg-canvas` (con `--color-bg-canvas` generaría `bg-bg-canvas`). Como la utilidad
+ * resuelve a `var(--color-bg-canvas)`, basta con redefinir esa variable en
+ * `.dark-mode` para que el tema oscuro funcione.
+ *
+ * No puede ser `bg-secondary`: en claro es casi blanco y el efecto flotante se pierde.
+ */
+@theme {
+    --color-bg-canvas: rgb(233 238 246);
+    --background-color-canvas: var(--color-bg-canvas);
+}
+
+.dark-mode {
+    --color-bg-canvas: rgb(16 21 30);
+}
+
+/**
+ * Borde sutil de advertencia, gemelo de `error_subtle`: el tema de Untitled UI trae
+ * `ring-error_subtle` pero no un equivalente amarillo. Y `ring-warning` NO existe: Tailwind
+ * cae al color del texto y el contorno sale casi negro. Mismo reparto que el rojo: 300 en
+ * claro, 500 en oscuro.
+ *
+ * Tres variables porque cada utilidad lee su propio espacio (`ring-*`, `border-*`); las dos
+ * apuntan a `--color-border-warning_subtle`, que es la única que cambia en `.dark-mode`.
+ */
+@theme {
+    --color-border-warning_subtle: var(--color-yellow-300);
+    --ring-color-warning_subtle: var(--color-border-warning_subtle);
+    --border-color-warning_subtle: var(--color-border-warning_subtle);
+}
+
+.dark-mode {
+    --color-border-warning_subtle: var(--color-yellow-500);
+}
+
+/**
+ * Las dos primeras series categóricas de las gráficas. Validadas con el script de la skill
+ * dataviz (lightness, croma, separación para daltonismo y contraste contra la superficie) en
+ * claro y en oscuro. El azul es el de la marca; el naranja, el segundo tono categórico, lejos
+ * del rojo DPB y de los colores de estado. Si se agrega una serie, revalidar.
+ *
+ * Se usan como `var(--color-chart-1)` en el `fill` de recharts y como `bg-chart-1` en las
+ * leyendas. El tema oscuro sube un paso cada uno para conservar el contraste.
+ */
+@theme {
+    --color-chart-1: var(--color-brand-500);
+    --color-chart-2: rgb(235 104 52); /* #EB6834 */
+}
+
+.dark-mode {
+    --color-chart-1: var(--color-brand-400);
+    --color-chart-2: rgb(217 89 38); /* #D95926 */
+}
