@@ -396,6 +396,9 @@ Y el resto del ecosistema:
 - **`eecheverria-senior-dev`** — capa base: leer el `CLAUDE.md` del proyecto primero, disciplina de
   alcance (que aquí se traduce en no sobrescribir componentes del usuario) y pedir autorización antes
   de acciones que crean estructura o autentican.
+- **`dpb-design-system`** — en proyectos de Desarrollos Palo Blanco, cárgala también: pone encima de
+  este catálogo la marca (`brand-dpb.css`, sin tocar `theme.css`), el shell y las piezas comunes de
+  DPB. Esta skill sigue siendo la dueña del catálogo, el CLI y los tokens.
 - **`eecheverria-ux-laws`** — el criterio de UX detrás de la composición: cuántas opciones caben en la
   vista, qué se destaca, cómo se agrupa y dónde va cada acción. Esa skill decide qué debe pasar en
   pantalla; esta, con qué componentes y tokens se construye.

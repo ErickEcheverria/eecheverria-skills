@@ -283,6 +283,7 @@ tarea entra en un dominio con skill propia, delega ahí sin perder la disciplina
 | Diseñar o revisar la UI antes de implementarla: cuántas opciones, jerarquía, agrupación, targets, esperas (criterio de UX) | `eecheverria-ux-laws` |
 | Frontend en React (app, vista, componente, form, tabla, dashboard; UI, estados, accesibilidad) | `eecheverria-frontend-react` |
 | Construir UI en un proyecto con el design system **Untitled UI React** (catálogo, CLI `add`, tokens semánticos) | `eecheverria-untitled-ui` |
+| Darle la cara DPB a una app interna: tema de marca, isotipo, shell y piezas comunes sobre Untitled UI | `dpb-design-system` |
 | Backend Node + Hono + Drizzle (API, módulo, endpoint, refactor) | `eecheverria-backend-hono-drizzle` |
 | Diseñar el contrato/forma de una API o interfaz (versionado, errores, tipos) antes de implementar | `eecheverria-api-design` |
 | Escribir código específico de un framework/versión verificando contra su doc oficial | `eecheverria-source-driven` |
