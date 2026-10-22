@@ -38,8 +38,10 @@ flowchart TD
     subgraph S["🎯 Stack"]
         RE["⚛️ frontend-react"]
         UUI["🎨 untitled-ui"]
+        DPB["🏠 dpb-design-system"]
         HN["⚙️ backend-hono-drizzle"]
         RE --> UUI
+        UUI --> DPB
     end
 
     subgraph U["📝 Producto y utilidad"]
@@ -97,6 +99,7 @@ flowchart TD
 |---|---|
 | **`eecheverria-frontend-react`** | UI de calidad de producción en React + Tailwind: arquitectura de componentes, estado, design system minimalista, accesibilidad WCAG y estados de carga/vacío/error. |
 | **`eecheverria-untitled-ui`** | El design system **Untitled UI React** (React 19 + Tailwind v4 + React Aria): busca en el catálogo antes de escribir, trae con el CLI (`add`/`search`), estiliza solo con tokens semánticos y respeta la frontera free (MIT) vs PRO. Incluye el catálogo completo y los patrones de uso por componente. |
+| **`dpb-design-system`** | La cara de las apps internas de DPB **encima de Untitled UI**, sacada de app-presupuestos: tema de marca (`brand-dpb.css` con azul #2C589A, rojo #CC1F37 y Open Sans), isotipo, shell (lienzo con tarjetas flotantes + sidebar colapsable), pantalla de acceso, 404 y piezas comunes (diálogo, confirmación, error con remedio, vacío, paginación en español, notificaciones, KPI). Trae las plantillas listas para copiar, un script que las copia sin pisar nada y las trampas del catálogo que ya mordieron. |
 | **`eecheverria-backend-hono-drizzle`** | Backend senior con Node + Hono + Drizzle (MySQL/PlanetScale) + Joi + JWT + Swagger, arquitectura modular. |
 
 ### 📝 Producto y utilidad
