@@ -79,7 +79,7 @@ Cuatro escalas, cada una con su trabajo. La confusión más frecuente es usar `t
 | `bg-primary_alt` · `bg-primary_hover` | Variante que se invierte en dark · hover | — |
 | `bg-primary-solid` | Fondo oscuro primario | — |
 | `bg-secondary` | Secciones con contraste respecto al fondo base | `bg-gray-50` |
-| `bg-secondary_alt` · `bg-secondary_hover` · `bg-secondary_subtle` | Variantes de la secundaria | — |
+| `bg-secondary_alt` · `bg-secondary_hover` | Variantes de la secundaria | — |
 | `bg-tertiary` | Fondos de control (toggles) | `bg-gray-100` |
 | `bg-quaternary` | Pistas de sliders y barras de progreso | `bg-gray-200` |
 | `bg-active` | Ítem seleccionado en menús y navegación | `bg-gray-50` |
@@ -366,17 +366,24 @@ import { Tabs } from "@/components/application/tabs/tabs";
 ```
 
 ```tsx
+const PESTANAS = [
+    { id: "perfil", label: "Perfil" },
+    { id: "seguridad", label: "Seguridad" },
+];
+
 <Tabs defaultSelectedKey="perfil">
-    <Tabs.List>
-        <Tabs.Tab key="perfil">Perfil</Tabs.Tab>
-        <Tabs.Tab key="seguridad">Seguridad</Tabs.Tab>
+    <Tabs.List type="underline" items={PESTANAS}>
+        {(tab) => <Tabs.Item {...tab} />}
     </Tabs.List>
-    <Tabs.Panel key="perfil">…</Tabs.Panel>
-    <Tabs.Panel key="seguridad">…</Tabs.Panel>
+    <Tabs.Panel id="perfil">…</Tabs.Panel>
+    <Tabs.Panel id="seguridad">…</Tabs.Panel>
 </Tabs>
 ```
 
-Las `key` conectan tab y panel — no uses índices. Si el estado de la pestaña debe sobrevivir a un
+Los `id` conectan tab y panel — no uses índices. No es `key`: React se queda con la `key` y React
+Aria nunca la ve, así que el panel no se asocia a su pestaña. La pestaña es `Tabs.Item` (con `id` y
+`label`; también vale escrita a mano dentro de `Tabs.List` sin `items`), y `type` elige el estilo
+(`button-brand` por defecto, `underline`, …). Si el estado de la pestaña debe sobrevivir a un
 refresh o compartirse por URL, controla `selectedKey`/`onSelectionChange` contra el router.
 
 ### Pagination

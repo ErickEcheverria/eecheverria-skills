@@ -125,8 +125,9 @@ Cada entrada dice de qué capa depende, para saber cuándo revalidarla:
 ### `bg-secondary_subtle` no existe · catálogo
 
 - **Síntoma:** una fila «atenuada» sale sin fondo.
-- **Causa:** el tema no define `secondary_subtle`, aunque aparezca en listas de tokens (también en la de
-  `eecheverria-untitled-ui`). Los fondos de estado que sí existen son
+- **Causa:** el tema no define `secondary_subtle`, aunque suene a la serie `_alt`/`_hover` y haya
+  aparecido en listas de tokens. Las variantes de la secundaria que existen son `bg-secondary_alt`,
+  `bg-secondary_hover` y `bg-secondary-solid`. Los fondos de estado que sí existen son
   `bg-{success,warning,error}-{primary,secondary,solid}`.
 - **Arreglo:** `bg-secondary` para atenuar. Antes de usar un token de una lista, búscalo en `theme.css`.
 
