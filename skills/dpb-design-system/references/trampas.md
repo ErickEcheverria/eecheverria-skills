@@ -5,74 +5,70 @@ ya lo resuelve. Las reglas generales de Untitled UI (props `is*`, imports `Aria*
 nada de `dark:`) están en `eecheverria-untitled-ui`; aquí va solo lo que no es obvio. Cómo armar las
 pantallas está en `patrones.md`.
 
-## Con qué versiones se observó
-
-Lockfile de `app-presupuestos-frontend` al 22/10/2026:
-
-| Pieza | Instalada | Pedida en `package.json` |
-| --- | --- | --- |
-| Untitled UI React | starter del CLI, `npx untitledui@latest init . --vite` del 17/09/2026 | — |
-| react-aria-components | 1.21.1 (react-aria 3.52.1) | `^1.16.0` |
-| Tailwind CSS y `@tailwindcss/vite` | 4.3.3 | `^4.2.2` |
-| React y React DOM | 19.3.0 | `^19.2.4` |
-| Vite y rolldown | 8.3.0 y 1.2.11 | `^8.0.2` |
-| react-router | 7.18.4 | `^7.13.0` |
-| TypeScript | 5.9.3 | `^5.9.3` |
-| recharts · sonner · tailwind-merge | 3.10.1 · 2.0.8 · 3.7.0 | `^3.8.0` · `^2.0.8` · `^3.5.0` |
-| `@internationalized/date` | 3.12.4 (transitiva) | no declarada |
-
-El starter vigente (revisado el 22/10/2026) ya trae **react-router 8.5 y TypeScript 6.0.3**, y
-cambió el `Modal` (ver [Diálogos](#diálogos)). En él se volvieron a comprobar: el `size` ignorado de
-`Table`, el `overflow-x-auto` que rompe el encabezado fijo, el doble scroll del `sr-only`, el `w-max`
-del `Toggle`, el tachado que no entra en un `inline-block`, los textos de `PaginationPageDefault`, el
-toast PRO, el `containerAriaLabel` en inglés de `sonner` y el `empty-state` sin tokens. El resto se
-observó solo en app-presupuestos.
-
-Cada entrada dice de qué capa depende, para saber cuándo revalidarla:
-
-- **CSS** y **navegador**: no caducan.
-- **catálogo**: después de cada `npx untitledui@latest upgrade` o de un starter nuevo.
-- **RAC**: al subir de minor `react-aria-components`.
-- **Tailwind 4**: al subir de minor Tailwind.
-
 ## Contenido
 
-1. [Instalación y toolchain](#instalación-y-toolchain)
-2. [Tokens y Tailwind 4](#tokens-y-tailwind-4)
-3. [Scroll, recortes y desbordes](#scroll-recortes-y-desbordes)
-4. [Diálogos](#diálogos)
-5. [Tablas y filas](#tablas-y-filas)
-6. [Selects, campos y controles](#selects-campos-y-controles)
-7. [Catálogo: textos en inglés y piezas PRO](#catálogo-textos-en-inglés-y-piezas-pro)
-8. [Animación, SVG y remontajes](#animación-svg-y-remontajes)
-9. [Datos en pantalla](#datos-en-pantalla)
-10. [Sesión](#sesión)
+1. [Con qué versiones se observó](#con-qué-versiones-se-observó)
+2. [Instalación y toolchain](#instalación-y-toolchain)
+3. [Tokens y Tailwind 4](#tokens-y-tailwind-4)
+4. [Scroll, recortes y desbordes](#scroll-recortes-y-desbordes)
+5. [Diálogos](#diálogos)
+6. [Tablas y filas](#tablas-y-filas)
+7. [Selects, campos y controles](#selects-campos-y-controles)
+8. [Catálogo: textos en inglés y piezas PRO](#catálogo-textos-en-inglés-y-piezas-pro)
+9. [Animación, SVG y remontajes](#animación-svg-y-remontajes)
+10. [Datos en pantalla](#datos-en-pantalla)
+11. [Sesión](#sesión)
+
+---
+
+## Con qué versiones se observó
+
+| Pieza | app-presupuestos (lockfile al 22/10/2026) | Starter del 22/10/2026 |
+| --- | --- | --- |
+| Untitled UI React | starter del CLI del 17/09/2026 | `npx untitledui@latest init . --vite` |
+| react-aria-components | 1.21.1 | 1.21.1 / 1.22.1 |
+| Tailwind CSS y `@tailwindcss/vite` | 4.3.3 | 4.3.3 |
+| React y React DOM | 19.3.0 | 19.3 |
+| Vite y rolldown | 8.3.0 y 1.2.11 | Vite 8.3 |
+| react-router | 7.18.4 | 8.5 |
+| TypeScript | 5.9.3 | 6.0.3 |
+| sonner | 2.0.8 | 2.0.8 |
+
+Cada título dice de qué capa depende; **revalidada** = se reprodujo también con el starter del
+22/10/2026 (sin la marca, solo se vio en el origen). Cuándo revalidar cada capa:
+
+- **CSS** y **diseño** (una decisión de la app): no caducan.
+- **navegador** (el motor, el lector de pantalla o sus datos): al cambiar de navegador objetivo; `Intl`
+  usa los datos de CLDR, que cambian con sus versiones.
+- **catálogo** (lo que genera Untitled UI): tras cada `upgrade` o starter nuevo.
+- **RAC** (react-aria-components) y **Tailwind 4**: al subir de minor. **React**: al subir de mayor.
+- Una librería por su nombre (rolldown, MSAL): al subir esa librería.
 
 ---
 
 ## Instalación y toolchain
 
-### El typecheck falla recién generado el proyecto · catálogo
+### El typecheck falla recién generado el proyecto · catálogo · solo en starters anteriores
 
 - **Síntoma:** 7 errores TS2307 en `src/components/` justo después de `init`: no encuentra
   `@react-aria/utils`, `@react-stately/utils` ni `@react-types/overlays`.
-- **Causa:** varios componentes generados importan esos paquetes directo (`useControlledState` en el
-  date-picker y en `input-payment`, `filterDOMProps` en `file-upload-trigger`, el tipo `Placement` en
-  `nav-account-card`), y el CLI no los declara.
-- **Arreglo:** `npm i -D @react-aria/utils @react-stately/utils @react-types/overlays` (en el origen,
-  `^3.34.1`, `^3.12.1` y `^3.10.0`). Si un `upgrade` deja de importarlos, quítalos.
+- **Causa:** varios componentes generados importaban esos paquetes directo, y el CLI no los declaraba.
+- **Arreglo:** con el starter del 22/10/2026 no se reproduce (typecheck y build limpios): no los
+  instales de oficio. Con uno anterior que dé esos errores,
+  `npm i -D @react-aria/utils @react-stately/utils @react-types/overlays`. Si un `upgrade` deja de
+  importarlos, quítalos.
 
-### `calendar.tsx` no compila · catálogo + RAC
+### `calendar.tsx` no compila · catálogo + RAC · solo en starters anteriores
 
 - **Síntoma:** `tsc` falla en `src/components/application/date-picker/calendar.tsx` y el build no pasa.
-- **Causa:** el `CalendarContext` de react-aria-components 1.21 tipa `onChange` con la unión que incluye
-  la selección de rango (`readonly DateValue[]`), y el `CalendarContextProvider` del starter guarda un
-  solo valor.
-- **Arreglo:** un parche local, la única excepción a «no tocar `src/components/`», con un comentario en el
-  propio archivo que diga por qué:
+- **Causa:** el `CalendarContext` de react-aria-components tipa `onChange` con la unión que incluye la
+  selección de rango (`readonly DateValue[]`), y el `CalendarContextProvider` de esos starters guardaba
+  un solo valor.
+- **Arreglo:** el `calendar.tsx` del starter del 22/10/2026 ya trae la corrección. Con uno anterior, un
+  parche local, la única excepción a «no tocar `src/components/`», con un comentario que diga por qué:
 
   ```ts
-  // PARCHE LOCAL: RAC 1.21 tipa onChange con la unión de rango. Revisar en cada upgrade.
+  // PARCHE LOCAL: RAC tipa onChange con la unión de rango. Revisar en cada upgrade.
   const onChange = (next: DateValue | readonly DateValue[]) => {
       setValue(Array.isArray(next) ? (next[0] ?? null) : (next as DateValue));
   };
@@ -80,34 +76,25 @@ Cada entrada dice de qué capa depende, para saber cuándo revalidarla:
   ```
 
   `upgrade` sobrescribe el archivo. Después de cada uno, corre `typecheck` sin el parche y vuelve a
-  aplicarlo solo si falla. No está verificado si el catálogo ya lo corrigió.
+  aplicarlo solo si falla.
 
-### `@internationalized/date` se importa sin estar declarada · RAC
-
-- **Síntoma:** ninguno hoy. El riesgo es que el import deje de resolver tras un `npm install`.
-- **Causa:** es dependencia transitiva de react-aria-components, y los componentes generados del
-  date-picker ya la importan directo.
-- **Arreglo:** úsala igual que ellos (por ejemplo, `parseDate` para pasar `AAAA-MM-DD` a `DateValue`).
-  Si algún día se rompe, decláralo en `package.json`.
-
-### Vite se cae en Windows con «Rolldown panicked» · toolchain
+### Vite se cae en Windows con «Rolldown panicked» · rolldown
 
 - **Síntoma:** `npm run dev` y `vite build` caen con «Rolldown panicked… oxc_codegen sourcemap_builder…
   index out of bounds», o con un segfault sin mensaje, en cuanto `vite.config.ts` pasa de unas líneas.
-  Pasa igual sin tus cambios y en rutas sin espacios.
 - **Causa:** un bug de rolldown 1.2.9 en Windows.
 - **Arreglo:** subir `rolldown` a 1.2.11 en el lockfile, que cabe en el `~1.2.6` que pide Vite 8.3.0. Si
   reaparece después de un `npm install`, mira qué versión quedó (`npm ls rolldown`) antes de tocar nada más.
 
-### El tema parpadea o no respeta lo elegido al recargar · starter
+### El tema parpadea o no respeta lo elegido al recargar · catálogo
 
 - **Síntoma:** quien eligió el tema oscuro ve un destello claro al cargar, o al revés. El guardia
   anti-parpadeo de `index.html` nunca coincide con la preferencia real.
 - **Causa:** el starter leía en `index.html` la clave `theme`, mientras `ThemeProvider` escribe en
   `ui-theme`.
 - **Arreglo:** la misma clave en los dos (`ui-theme`) y el mismo valor por defecto: `defaultTheme="light"`
-  en el provider y «sin valor guardado, claro» en el guardia. El guardia va en `try/catch`: con
-  `localStorage` bloqueado (incógnito), se queda en claro.
+  en el provider y «sin valor guardado, claro» en el guardia, que va en `try/catch`.
+- **Ya resuelto en:** los fragmentos `index-head.html` y `main.tsx` de la skill.
 
 ---
 
@@ -118,18 +105,27 @@ Cada entrada dice de qué capa depende, para saber cuándo revalidarla:
 - **Síntoma:** un aviso amarillo sale con un contorno casi negro.
 - **Causa:** el tema trae `error_subtle` para bordes y anillos, pero ningún equivalente amarillo. Tailwind
   no avisa de un color que no existe, y el anillo cae al color del texto.
-- **Arreglo:** `ring-warning_subtle` y `border-warning_subtle`, definidos como gemelos de `error_subtle`
-  (yellow-300 en claro, yellow-500 en oscuro).
+- **Arreglo:** `ring-warning_subtle` y `border-warning_subtle`, definidos sobre la rampa `yellow` del
+  tema: yellow-300 en claro y yellow-500 en oscuro.
 - **Ya resuelto en:** `src/styles/brand-dpb.css`.
 
 ### `bg-secondary_subtle` no existe · catálogo
 
 - **Síntoma:** una fila «atenuada» sale sin fondo.
-- **Causa:** el tema no define `secondary_subtle`, aunque suene a la serie `_alt`/`_hover` y haya
-  aparecido en listas de tokens. Las variantes de la secundaria que existen son `bg-secondary_alt`,
+- **Causa:** el tema no define `secondary_subtle`, aunque haya aparecido en listas de tokens. Las variantes de la secundaria que existen son `bg-secondary_alt`,
   `bg-secondary_hover` y `bg-secondary-solid`. Los fondos de estado que sí existen son
   `bg-{success,warning,error}-{primary,secondary,solid}`.
 - **Arreglo:** `bg-secondary` para atenuar. Antes de usar un token de una lista, búscalo en `theme.css`.
+
+### `bg-active` y las clases `fg-*` sueltas no pintan nada · catálogo · revalidada
+
+- **Síntoma:** el ítem activo de una navegación sale sin fondo; un ícono con `fg-quaternary` sale con el
+  color del texto.
+- **Causa:** `bg-active` existía en el catálogo anterior y el del 22/10/2026 lo quitó. Los tokens `fg-*`
+  solo generan CSS con prefijo de utilidad.
+- **Arreglo:** el ítem activo es `bg-secondary hover:bg-secondary_hover`, como el `nav-item` del
+  catálogo; los `fg-*`, como `text-fg-*`, `bg-fg-*` o `fill-fg-*`.
+- **Ya resuelto en:** `sidebar.tsx`.
 
 ### Una variable de `@theme` no aparece en el CSS compilado · Tailwind 4
 
@@ -155,7 +151,7 @@ Cada entrada dice de qué capa depende, para saber cuándo revalidarla:
 - **Causa:** el preflight de Tailwind 4 deja los botones con el cursor por defecto, y `Table.Row` no lo
   pone ni cuando navega.
 - **Arreglo:** `cursor-pointer` explícito. `Button` y `ButtonUtility` del catálogo ya lo traen.
-- **Ya resuelto en:** `src/features/shell/sidebar.tsx`.
+- **Ya resuelto en:** los botones propios de `src/features/shell/sidebar.tsx`.
 
 ### `transform-none` no anula un realce · Tailwind 4
 
@@ -177,9 +173,9 @@ Cada entrada dice de qué capa depende, para saber cuándo revalidarla:
 - **Arreglo:** el scroll va en un `div` con contorno (`rounded-lg ring-1 ring-secondary`) que lleva el
   `max-h-*` y el `overflow-y-auto`, no en el `<ul>` pelado. Y no anides áreas con scroll: dentro de un
   diálogo, el cuerpo ya se desplaza.
-- **Ya resuelto en:** `AREA_TABLA` (`tabla.ts`) y el cuerpo de `TarjetaDialogo`.
+- **Ya resuelto en:** `AREA_TABLA` (`tabla.ts`).
 
-### El encabezado fijo de la tabla se va con las filas · catálogo
+### El encabezado fijo de la tabla se va con las filas · catálogo · revalidada
 
 - **Síntoma:** le pusiste `sticky top-0` al `Table.Header` y al bajar se desplaza igual.
 - **Causa:** `Table` envuelve la `<table>` en un `div` con `overflow-x-auto` (y a la tabla le pone
@@ -190,10 +186,9 @@ Cada entrada dice de qué capa depende, para saber cuándo revalidarla:
   es opaco, así que las filas pasan por debajo sin transparentarse).
 - **Ya resuelto en:** `AREA_TABLA` + `ENCABEZADO_FIJO` (`tabla.ts`).
 
-### Aparece un segundo scroll, el de la página entera · CSS
+### Aparece un segundo scroll, el de la página entera · CSS · revalidada
 
-- **Síntoma:** además del scroll de la tabla, el documento crece (en el origen, a ~2500 × 2400 px) y
-  aparece otra barra encima.
+- **Síntoma:** además del scroll de la tabla, el documento crece y aparece otra barra encima.
 - **Causa:** `sr-only` es `position: absolute`, y un `overflow` solo recorta a los `absolute` cuyo bloque
   contenedor es él o algo dentro de él. Sin un ancestro posicionado, el bloque contenedor es la ventana, y
   los `sr-only` de las celdas de la derecha y de abajo estiran el documento.
@@ -205,16 +200,16 @@ Cada entrada dice de qué capa depende, para saber cuándo revalidarla:
 
 - **Síntoma:** en una ventana baja, con una casilla o un interruptor al final del cuerpo, el fondo del
   diálogo se estira y el diálogo completo se mueve.
-- **Causa:** la misma: `Checkbox` y `Toggle` de React Aria esconden su `<input>` con `position: absolute`,
-  que escapa del recorte del cuerpo si nada en medio es `relative`.
+- **Causa:** `Checkbox` y `Toggle` de React Aria esconden su `<input>` con `position: absolute`, y un
+  `overflow` solo recorta a los `absolute` cuyo bloque contenedor es él o algo dentro de él: si nada
+  entre el input y el cuerpo con scroll es `relative`, el input escapa del recorte y estira el diálogo.
 - **Arreglo:** el cuerpo con scroll es `relative`. No lo resuelvas con un margen negativo: dentro del área
   con scroll, lo que sube se recorta.
 - **Ya resuelto en:** `TarjetaDialogo`.
 
 ### `sr-only` no achica una `<table>` · CSS
 
-- **Síntoma:** scroll horizontal en móvil sin nada visible que desborde (en el origen, la tabla accesible
-  de una gráfica medía 323 px).
+- **Síntoma:** scroll horizontal en móvil sin nada visible que desborde (la tabla accesible de una gráfica).
 - **Causa:** `sr-only` pone `width: 1px`, pero una tabla ignora el ancho y se estira a su contenido.
 - **Arreglo:** el `sr-only` va en un `<div>` que envuelve la tabla, nunca en la tabla. Para cazar
   desbordes así, compara `main.scrollWidth` con `main.clientWidth` en la consola.
@@ -228,46 +223,40 @@ Cada entrada dice de qué capa depende, para saber cuándo revalidarla:
   `Tabs`, `Tabs.Panel`) y `flex-1` en el área. No lo contengas con `overflow-hidden`: recorta las filas
   de más en vez de dejar llegar a ellas.
 
-### El anillo de foco sale recortado · CSS
+### El anillo de foco o el borde sale recortado · CSS
 
 - **Síntoma:** el primer o el último campo de un área con scroll, o un enlace de la navegación, muestran
-  el anillo de foco cortado.
-- **Causa:** el `overflow` recorta lo que sale de la caja, y el anillo está fuera.
-- **Arreglo:** holgura dentro del área: `-mx-1 px-1` en la navegación y `py-1` en el cuerpo del diálogo.
-- **Ya resuelto en:** `sidebar.tsx` y `TarjetaDialogo`.
+  el anillo de foco cortado; la tarjeta que abre el contenido de la página pierde su borde de arriba.
+- **Causa:** el `overflow` recorta lo que sale de la caja, y el anillo (`ring`) se pinta por fuera.
+- **Arreglo:** holgura dentro del área: `-mx-1 px-1` en la navegación, `py-1` en el cuerpo del diálogo y
+  `pt-px` en `main`.
+- **Ya resuelto en:** `sidebar.tsx`, `TarjetaDialogo` y `app-layout.tsx`.
 
 ---
 
 ## Diálogos
 
-### `Modal` y `Dialog` no traen tarjeta ni límite de alto · catálogo (starter del 17/09/2026)
+### `Modal` y `Dialog` no traen tarjeta ni límite de alto · catálogo · solo en el catálogo anterior
 
-- **Síntoma:** un formulario largo se desplaza entero y se lleva el título y «Guardar»; o el diálogo
-  ocupa todo el ancho.
-- **Causa:** en el starter con que se hizo app-presupuestos (react-aria-components 1.21), `Modal` y
-  `Dialog` solo ponían posición, animación y fondo, y `Modal` era `w-full` sin ancho máximo.
-- **Arreglo:** la tarjeta la ponía `TarjetaDialogo` (cabecera y pie fijos, scroll solo en el cuerpo, tope
-  de `85dvh`) y el `max-w-*` iba en cada `Modal`.
-- **Nota:** **cambió en el starter vigente.** El `Modal` ya trae superficie (fondo, `shadow-xl`,
-  `rounded-xl sm:rounded-2xl`) y alto máximo. La trampa actual es la siguiente.
+- **Síntoma:** el diálogo sale sin fondo, ocupa todo el ancho, o un formulario largo se desplaza entero
+  y se lleva el título y «Guardar».
+- **Causa:** en el catálogo anterior (el del origen, starter del 17/09/2026), `Modal` y `Dialog` solo
+  ponían posición, animación y el fondo del overlay, y `Modal` era `w-full` sin ancho máximo.
+- **Cómo saberlo:** si el `Dialog` de `src/components/application/modals/modal.tsx` no lleva
+  `max-h-[inherit]`, es el catálogo anterior. La versión de react-aria-components no sirve de señal: el
+  actual usa la misma.
+- **Arreglo:** `<TarjetaDialogo className="bg-primary shadow-xl max-h-[85dvh]">` y el `max-w-*` en cada
+  `Modal`. Con el catálogo actual, sin `className`.
+- **Ya resuelto en:** la prop `className` de `src/features/comunes/tarjeta-dialogo.tsx`.
 
-### El `Dialog` desplaza todo, cabecera y pie incluidos · catálogo (starter vigente)
+### El `Dialog` desplaza todo, cabecera y pie incluidos · catálogo · revalidada
 
 - **Síntoma:** en un formulario largo, el título, la × y «Guardar» se van con el scroll.
-- **Causa:** el `Dialog` del starter vigente es `max-h-[inherit] overflow-y-auto`: el scroll es de todo su
+- **Causa:** el `Dialog` del catálogo actual es `max-h-[inherit] overflow-y-auto`: el scroll es de todo su
   contenido, no solo del cuerpo.
-- **Arreglo:** `TarjetaDialogo` como **hijo directo** de `Dialog`. Toma `max-h-[inherit]`, deja el scroll
-  solo en el cuerpo y conserva `ring-1 ring-secondary` con las esquinas del `Modal`, para que el borde se
-  vea en modo oscuro. No le pongas otra área con `overflow-y-auto` alrededor.
+- **Arreglo:** `TarjetaDialogo` como **hijo directo** de `Dialog`: toma `max-h-[inherit]` y deja el
+  scroll solo en el cuerpo. No le pongas otra área con `overflow-y-auto` alrededor.
 - **Ya resuelto en:** `src/features/comunes/tarjeta-dialogo.tsx`.
-
-### Los botones de una confirmación se salen de la ventana · diseño
-
-- **Síntoma:** con un texto largo o una lista (los pendientes que impiden una operación), el pie queda
-  fuera de la pantalla.
-- **Causa:** el texto iba como descripción, en la cabecera, que es fija y no se desplaza.
-- **Arreglo:** el texto de una confirmación va en el cuerpo, que sí se desplaza.
-- **Ya resuelto en:** `src/features/comunes/confirmar-dialog.tsx`.
 
 ### El diálogo muestra los datos del registro anterior · React
 
@@ -276,7 +265,7 @@ Cada entrada dice de qué capa depende, para saber cuándo revalidarla:
 - **Causa:** el diálogo no se desmonta al cerrarse (se cierra el overlay), así que un `useState(prop)`
   leyó la prop solo la primera vez.
 - **Arreglo:** carga los valores en un efecto que corre al abrir (`if (!abierto) return;` y las
-  dependencias `[abierto, registro]`).
+  dependencias `[abierto, registro]`, con `registro` estable: el objeto que llegó del servidor).
 
 ### El formulario se vacía con cada tecla · React
 
@@ -285,32 +274,31 @@ Cada entrada dice de qué capa depende, para saber cuándo revalidarla:
   en cada render.
 - **Arreglo:** reinicia solo al abrir, con `abierto` como dependencia y sin ese objeto.
 
-### El error del intento anterior sigue ahí al reabrir · RAC
+### Escape y el clic fuera se saltan el botón Cancelar · RAC
 
-- **Síntoma:** cierras con Escape o con un clic fuera y, al volver a abrir, el error viejo sigue a la vista.
+- **Síntoma:** al reabrir, el error del intento anterior sigue a la vista; o Escape cierra el diálogo a
+  media escritura y el resultado ya no tiene dónde mostrarse.
 - **Causa:** Escape y el clic fuera los dispara el overlay por `onOpenChange`; no pasan por el handler del
-  botón Cancelar.
+  botón Cancelar ni miran si se está guardando.
 - **Arreglo:** todas las salidas por un solo handler conectado a `onOpenChange`, que limpia el error al
-  cerrar.
-
-### El mismo error se anuncia dos veces · accesibilidad
-
-- **Síntoma:** el lector de pantalla repite el error, y al cerrar el diálogo queda uno visible detrás.
-- **Causa:** la página y el diálogo pintan el mismo error con `role="alert"`.
-- **Arreglo:** un error, un sitio. Con un diálogo abierto, el error va en él y la página no lo pinta.
+  cerrar, y `isDismissable={!trabajando} isKeyboardDismissDisabled={trabajando}` en el `ModalOverlay`.
+- **Ya resuelto en:** `confirmar-dialog.tsx`. En los diálogos de formulario, va en cada uno.
 
 ---
 
 ## Tablas y filas
 
-### `<Table size="sm">` no cambia el alto de las filas · catálogo
+### `<Table size="sm">` no cambia el alto de las filas · catálogo · revalidada
 
-- **Síntoma:** todas las filas salen de 72 px (`h-18`) aunque pidas `sm`.
+- **Síntoma:** todas las filas salen de 72 px (`h-18`) aunque pidas `sm`; con `size="sm"` y `h-11` en
+  cada fila, salen de 54 px.
 - **Causa:** `TableRoot` resuelve `context?.size ?? size`, y `TableContext` trae `{ size: "md" }` por
-  defecto: el contexto nunca es `undefined` y la prop no se lee jamás.
-- **Arreglo:** el `size` va en `Table.Header` y en cada `Table.Row`, que sí respetan el suyo. Para afinar
-  el alto, una `h-11` en el `className` de la fila gana sobre la `h-14` del componente, porque `cx` es
-  tailwind-merge.
+  defecto: el contexto nunca es `undefined` y la prop no se lee jamás. `Table.Cell` toma su tamaño del
+  mismo contexto, siempre `md` (`py-4`), y estira la fila.
+- **Arreglo:** el `size` va en `Table.Header` y en cada `Table.Row`, que sí respetan el suyo, y la fila
+  lleva `h-11 *:py-2`. La `h-11` gana sobre la `h-14` del componente porque `cx` es tailwind-merge, y
+  `*:py-2` baja el relleno vertical de las celdas sin tocar su `px-6`, que las alinea con `Table.Head`
+  (`size="sm"` en cada celda las desalinea).
 - **Ya resuelto en:** `FILA` (`tabla.ts`).
 
 ### Una celda muestra un dato viejo o un botón no se deshabilita · RAC
@@ -328,14 +316,16 @@ Cada entrada dice de qué capa depende, para saber cuándo revalidarla:
 - **Causa:** `Table.Head` pinta la etiqueta dentro de un `flex`.
 - **Arreglo:** `className="*:justify-end"` en el `Table.Head`; en la celda, `text-right tabular-nums`.
 
-### El badge sale tachado, o un texto de la fila inactiva no · CSS
+### El badge sale tachado, o un texto de la fila inactiva no · CSS · revalidada
 
 - **Síntoma:** en una fila inactiva, el badge «Inactiva» queda tachado e ilegible; o, al revés, el texto
   que vive dentro de una caja `inline-flex` no se tacha.
 - **Causa:** el `line-through` de la celda lo heredan todos sus hijos, en bloque y en flex, salvo las
   cajas en línea atómicas (`inline-block`, `inline-flex`).
-- **Arreglo:** envuelve el badge en un `inline-block` para que no se tache, y al texto que vive dentro de
-  una caja atómica, o que trae su propio color, ponle el tachado explícito.
+- **Arreglo:** envuelve el badge en un `inline-block` (`SIN_TACHAR`) para que no se tache, y al texto que
+  vive dentro de una caja atómica, o que trae su propio color, ponle el tachado explícito. Ojo: el hijo
+  directo de un contenedor flex se *blockifica*, y ese `inline-block` pasa a bloque y se tacha igual;
+  dentro de una celda `flex`, mete el `SIN_TACHAR` en un `<span>` más.
 - **Ya resuelto en:** `claseFila`, `SIN_TACHAR` y `TACHADO_INACTIVO` (`estado-fila.ts`).
 
 ### La columna fija de una `<table>` propia casi no se mueve · CSS
@@ -344,8 +334,8 @@ Cada entrada dice de qué capa depende, para saber cuándo revalidarla:
   se mueve nada.
 - **Causa:** un elemento `sticky` solo se desplaza dentro de su bloque contenedor, que para una celda es la
   tabla. Una celda que abarca casi todas las columnas no tiene a dónde moverse.
-- **Arreglo:** ancla el contenido de la celda, no la celda: un hijo `sticky w-fit` con su `left-*` igual al
-  padding de la celda.
+- **Arreglo:** en las filas con `colSpan`, ancla el contenido y no la celda: un hijo `sticky w-fit` con su
+  `left-*` igual al padding de la celda. En las demás filas, `sticky left-0` en la `td` funciona.
 
 ### Abrir un diálogo desde una fila la guarda a medias · React
 
@@ -393,7 +383,7 @@ Cada entrada dice de qué capa depende, para saber cuándo revalidarla:
   comienzo de la etiqueta (el código), queda casi nada.
 - **Arreglo:** no repitas en `supportingText` lo que ya dice la etiqueta.
 
-### `Toggle` abre un scroll horizontal o aplasta el interruptor · catálogo
+### `Toggle` abre un scroll horizontal o aplasta el interruptor · catálogo · revalidada
 
 - **Síntoma:** un `Toggle` con `hint` largo abre scroll horizontal en el diálogo; con `w-full`, el
   interruptor sale aplastado.
@@ -413,24 +403,16 @@ Cada entrada dice de qué capa depende, para saber cuándo revalidarla:
 
 ### `type="number"` entrega vacío con «3e» · navegador
 
-- **Síntoma:** un campo numérico con «3e» se guarda como vacío, que puede significar otra cosa (en el
-  origen, «no avisa»).
+- **Síntoma:** un campo numérico con «3e» se guarda como vacío, que puede significar otra cosa.
 - **Causa:** con `type="number"`, el navegador entrega una cadena vacía ante un valor que no es número.
-- **Arreglo:** `inputMode="numeric"`, que da el teclado numérico en móvil, y valida tú el texto.
+- **Arreglo:** `inputMode="numeric"` para enteros o `inputMode="decimal"` para montos (en iOS, `numeric`
+  no trae punto decimal), y valida tú el texto.
 
 ### `Select` no vuelve a «Todas» · RAC
 
 - **Síntoma:** una vez elegido un filtro, no hay forma de volver a «sin filtrar».
 - **Causa:** `Select` necesita una clave, y `undefined` no lo es.
 - **Arreglo:** una opción centinela (`"__todas__"`) que el filtro traduce a `undefined`.
-
-### Un control nativo pinta el chrome del sistema · navegador
-
-- **Síntoma:** el desplegable sale con el azul del sistema operativo; la fecha, con `dd/mm/aaaa` y el
-  calendario del navegador.
-- **Causa:** `<select>`, `<input type="date">` y `NativeSelect` (que es justo el `<select>` del sistema)
-  los dibuja el navegador.
-- **Arreglo:** `Select` e `InputDate` del catálogo, siempre.
 
 ---
 
@@ -439,24 +421,17 @@ Cada entrada dice de qué capa depende, para saber cuándo revalidarla:
 ### Textos fijos en inglés que no se pueden editar · catálogo
 
 - **Síntoma:** «Previous» y «Next», el pie del `MultiSelect`, el `DropZone`, el `DateRangePicker`, el
-  «Notifications» que anuncia el lector de pantalla, la 404 «We can't find that page».
+  «Notifications» que anuncia el lector de pantalla, la 404 «We can't find that page». Revalidados con el
+  starter del 22/10/2026: los de `PaginationPageDefault` y el de `sonner`.
 - **Causa:** el catálogo trae texto fijo, y `src/components/` no se edita.
-- **Arreglo:** apágalo por props o compón con otras piezas del catálogo:
-
-  | Viene en inglés | Salida |
-  | --- | --- |
-  | Pie del `MultiSelect` | `showFooter={false}` |
-  | `PaginationPageDefault` | `Paginacion` (dos `Button` del catálogo) |
-  | `DateRangePicker` | dos `InputDate` encadenados con `minValue` y `maxValue` |
-  | `DropZone` y los ítems de `file-upload` | `FileTrigger` + `Button` y una ficha propia; su `<input>` va con `display: none`, así que no escapa de ningún recorte |
-  | `containerAriaLabel` del `Toaster` de `sonner` | `containerAriaLabel="Notificaciones"` |
-  | `not-found.tsx` del starter | `src/pages/no-encontrada.tsx` |
-
-  Sin salida: el placeholder «Search» del buscador del `MultiSelect`. Se acepta cuando perder la búsqueda
-  (sobre más de un centenar de opciones, en el origen) es peor que un texto en inglés.
+- **Arreglo:** apágalo por props o compón con otras piezas del catálogo; la tabla de salidas está en
+  [Idioma](patrones.md#idioma) de `patrones.md`. De `DropZone` y los ítems de `file-upload` se sale con
+  `FileTrigger` + `Button`, cuyo `<input>` va con `display: none` y no escapa de ningún recorte. Sin
+  salida: el placeholder «Search» del buscador del `MultiSelect`; se acepta cuando perder la búsqueda
+  es peor que un texto en inglés.
 - **Ya resuelto en:** `paginacion.tsx`, `notificaciones.tsx` y `no-encontrada.tsx`.
 
-### El toast del catálogo pide `login` · catálogo
+### El toast del catálogo pide `login` · catálogo · revalidada
 
 - **Síntoma:** `npx untitledui@latest add` de las notificaciones pide iniciar sesión.
 - **Causa:** el toast de Untitled UI (`notifications`) es PRO.
@@ -464,21 +439,24 @@ Cada entrada dice de qué capa depende, para saber cuándo revalidarla:
   la pausa y el `aria-live`), con el aspecto hecho con tokens.
 - **Ya resuelto en:** `src/features/comunes/notificaciones.tsx`.
 
-### `application/empty-state` no sigue los tokens · catálogo
+### `application/empty-state` no sigue los tokens · catálogo · revalidada
 
 - **Síntoma:** el vacío del starter se ve distinto en oscuro y trae una ilustración ajena a la app.
 - **Causa:** usa tokens no semánticos (`from-neutral-50 to-neutral-200`) y una ilustración decorativa.
-- **Arreglo:** `EstadoVacio` de la plantilla, que sigue el bloque del origen.
+- **Arreglo:** `EstadoVacio` de la plantilla.
+- **Ya resuelto en:** `src/features/comunes/estado-vacio.tsx`.
 
 ---
 
 ## Animación, SVG y remontajes
 
-### La transición de entrada solo se ve la primera vez · React
+### La transición no se repite al cambiar de registro · React
 
-- **Síntoma:** al navegar entre pantallas no hay transición; solo se vio al cargar la app.
-- **Causa:** `animate-in` se aplica al montar. Cada pantalla monta su propio `AppLayout` en la misma
-  posición, y React lo reconcilia en vez de montarlo de nuevo.
+- **Síntoma:** al pasar de `/proveedores/1` a `/proveedores/2` no hay transición; entre módulos, sí.
+- **Causa:** `animate-in` se aplica al montar. Entre páginas distintas, cada ruta monta otro componente y
+  React remonta todo, así que la entrada se dispara sola. Cuando la misma página cambia de parámetro,
+  React la reconcilia en la misma posición en vez de montarla, y las clases ya aplicadas no vuelven a
+  correr.
 - **Arreglo:** una `key` con el `pathname` en lo que se anima, siempre con `motion-reduce:animate-none`.
 - **Ya resuelto en:** `src/layouts/app-layout.tsx`.
 
@@ -497,21 +475,21 @@ Cada entrada dice de qué capa depende, para saber cuándo revalidarla:
 - **Arreglo:** cada movimiento en su propio `<g>`, por fuera del `<g>` que lleva la transformación del
   dibujo.
 
-### Con dos logos en pantalla, uno sale sin degradado · navegador
+### Con dos SVG iguales en pantalla, uno sale sin degradado o sin patrón · navegador
 
-- **Síntoma:** la segunda instancia de un SVG con `<linearGradient>` se pinta mal.
+- **Síntoma:** la segunda instancia de un SVG con `<linearGradient>` o `<pattern>` se pinta mal.
 - **Causa:** dos `id` iguales en el documento; el `url(#id)` de la segunda apunta a la primera.
-- **Arreglo:** el `id` sale de `useId()`. El isotipo DPB no tiene degradados; aplica a una marca propia
-  que los tenga, como la de app-presupuestos.
+- **Arreglo:** el `id` sale de `useId()`. Una marca propia con degradados necesita lo mismo.
+- **Ya resuelto en:** `src/brand/iso-pattern.tsx`.
 
 ### Lo que debe pasar una vez por sesión pasa en cada pantalla · React
 
 - **Síntoma:** la entrada del logo, o la petición que arma el menú, se repite en cada navegación.
-- **Causa:** la sidebar se remonta con cada página (cada una monta su `AppLayout`), y un `useState` se
-  pierde con ella.
-- **Arreglo:** una bandera o un almacén a nivel de módulo (`useSyncExternalStore` para datos). Márcala en
-  un efecto, no en el inicializador del estado: en desarrollo, StrictMode llama dos veces al inicializador
-  y en la segunda llamada ya no animaría.
+- **Causa:** al cambiar de página, React remonta todo, sidebar incluida (cada ruta monta una página
+  distinta con su `AppLayout`), y un `useState` se pierde con ella.
+- **Arreglo:** una bandera a nivel de módulo; los datos, en la caché de la capa de datos (la decide
+  `eecheverria-frontend-react`). Márcala en un efecto, no en el inicializador del estado: en desarrollo,
+  StrictMode llama dos veces al inicializador y en la segunda llamada ya no animaría.
 
 ---
 
@@ -522,33 +500,25 @@ Cada entrada dice de qué capa depende, para saber cuándo revalidarla:
 - **Síntoma:** «2026-10-31» se muestra como 30/10/2026.
 - **Causa:** `new Date("2026-10-31")` es medianoche UTC, y en Guatemala (UTC−6) se pinta el día anterior.
 - **Arreglo:** una fecha de calendario (`AAAA-MM-DD`) no pasa por `Date`: se formatea partiendo la cadena,
-  y para un `InputDate` se convierte con `parseDate` de `@internationalized/date`.
+  y para un `InputDate` se convierte con `parseDate` de `@internationalized/date`. Es dependencia
+  transitiva de react-aria-components, sin declarar (3.12.4 en el origen): si deja de resolver tras un
+  `npm install`, decláralo en `package.json`.
 
 ### Los montos compactos mezclan sufijos · navegador
 
-- **Síntoma:** «1.7 K» y «12.5 k» en la misma columna.
+- **Síntoma:** «1.7 K» (1700) y «184.5 k» (184500) en la misma columna.
 - **Causa:** `Intl.NumberFormat` con `notation: "compact"` en `es-GT`.
-- **Arreglo:** un formateador compacto propio, y el monto exacto en el `title`.
+- **Arreglo:** `formatearCompacto` («1.9k», «184.5k», «1.4M», «-1.9k»), con el exacto de `formatearMonto`
+  («Q 4,500.00») siempre alcanzable, no solo en un `title`.
+- **Ya resuelto en:** `src/utils/formato.ts`.
 
-### Las fotos por fila agotan el rate limit · API
+### Las fotos por fila agotan el rate limit · diseño
 
 - **Síntoma:** un listado con fotos dispara una petición por persona y el backend responde 429.
-- **Causa:** un `<img src>` no puede mandar el Bearer, así que la foto viaja en base64 dentro del envelope y
-  cada una es una petición autenticada contra el límite del usuario.
+- **Causa:** si la foto sale de una API autenticada, un `<img src>` no puede mandar el Bearer, así que
+  cada foto es una petición propia contra el límite del usuario.
 - **Arreglo:** iniciales en los listados (`Avatar` con `initials`); la foto, solo al abrir una persona, y la
   propia cacheada por sesión.
-
-### Los avisos siguen ahí al volver a la pestaña · sonner
-
-- **Síntoma:** parece un aviso trabado.
-- **Causa:** con la pestaña oculta, `sonner` pausa el conteo.
-- **Arreglo:** ninguno: es a propósito, para que nadie se pierda un aviso que no vio.
-
-### Las doce etiquetas del eje de meses se enciman · recharts
-
-- **Síntoma:** en móvil, los nombres de los meses se pisan.
-- **Causa:** `interval={0}` fuerza a pintar todas las etiquetas.
-- **Arreglo:** `interval="preserveStartEnd"` con `minTickGap`.
 
 ---
 
@@ -561,8 +531,11 @@ Cada entrada dice de qué capa depende, para saber cuándo revalidarla:
 - **Arreglo:** cierre local con `clearCache()`. Como la cookie de Microsoft sobrevive, el inicio de sesión
   fuerza `prompt: "select_account"`: sin eso, el siguiente clic devuelve en silencio a la misma cuenta y
   parece que salir no hizo nada. Los dos cambios van juntos; no toques uno sin el otro.
+- **El costo:** en un equipo compartido, quien llega después ve la cuenta del anterior en el selector y
+  entra sin contraseña. Si la app se usa en equipos compartidos, `logoutRedirect()`. La decisión es de
+  seguridad: tómala con `eecheverria-security`.
 
-### Al recargar se ve el login un instante · auth
+### Al recargar se ve el login un instante · MSAL
 
 - **Síntoma:** con la sesión viva, recargar muestra la pantalla de acceso un momento antes de volver.
 - **Causa:** la ruta protegida redirige antes de que MSAL termine de restaurar la cuenta.
