@@ -25,6 +25,10 @@ interface PaginacionProps {
  *
  * Sin numeritos de página: en un listado que se filtra por búsqueda nadie salta a la página once. Lo
  * que se usa es avanzar, retroceder y saber dónde se está.
+ *
+ * Por debajo de `sm` los botones quedan solo con la flecha y el texto en «1 de 5»: con la sidebar
+ * colapsada, a 320 px la tarjeta deja ~180 px y las dos etiquetas no cabían, así que la tarjeta ganaba
+ * un scroll horizontal. «Anterior», «Siguiente» y «Página» siguen ahí para el lector de pantalla.
  */
 export const Paginacion = ({ page, totalPages, total, onCambiarPagina, isDisabled }: PaginacionProps) => {
     const navRef = useRef<HTMLElement>(null);
@@ -61,18 +65,19 @@ export const Paginacion = ({ page, totalPages, total, onCambiarPagina, isDisable
 
     return (
         <nav ref={navRef} aria-label="Paginación" className="flex items-center justify-between gap-3 border-t border-secondary pt-4">
-            <Button color="secondary" size="sm" iconLeading={ArrowLeft} onPress={() => ir("anterior")} isDisabled={isDisabled || page <= 1}>
-                Anterior
+            <Button color="secondary" size="sm" iconLeading={ArrowLeft} className="max-sm:px-2" onPress={() => ir("anterior")} isDisabled={isDisabled || page <= 1}>
+                <span className="max-sm:sr-only">Anterior</span>
             </Button>
 
             {/* `aria-live`: sin él, pulsar «Siguiente» no produce ningún aviso audible y parece no haber hecho nada. */}
             <p aria-live="polite" className="text-sm text-tertiary">
-                Página <span className="font-medium text-secondary">{page}</span> de <span className="font-medium text-secondary">{totalPages}</span>
+                <span className="max-sm:sr-only">Página </span>
+                <span className="font-medium text-secondary">{page}</span> de <span className="font-medium text-secondary">{totalPages}</span>
                 <span className="hidden sm:inline"> · {total} registros</span>
             </p>
 
-            <Button color="secondary" size="sm" iconTrailing={ArrowRight} onPress={() => ir("siguiente")} isDisabled={isDisabled || page >= totalPages}>
-                Siguiente
+            <Button color="secondary" size="sm" iconTrailing={ArrowRight} className="max-sm:px-2" onPress={() => ir("siguiente")} isDisabled={isDisabled || page >= totalPages}>
+                <span className="max-sm:sr-only">Siguiente</span>
             </Button>
         </nav>
     );

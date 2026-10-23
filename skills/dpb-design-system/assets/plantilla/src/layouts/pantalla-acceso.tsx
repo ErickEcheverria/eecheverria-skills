@@ -31,6 +31,9 @@ interface PantallaAccesoProps {
     children: ReactNode;
 }
 
+/** El año del pie, al cargar la app: leer la hora durante el render lo vuelve impuro (el lint lo marca). */
+const ANIO = new Date().getFullYear();
+
 export const PantallaAcceso = ({ lineaSuperior, titulo, descripcion, children }: PantallaAccesoProps) => (
     <div className="grid min-h-dvh lg:grid-cols-2">
         {/* Columna de acceso */}
@@ -71,7 +74,7 @@ export const PantallaAcceso = ({ lineaSuperior, titulo, descripcion, children }:
             </main>
 
             <div className="flex flex-wrap items-center justify-between gap-4 text-xs text-quaternary">
-                <p>© {new Date().getFullYear()} · Desarrollos Palo Blanco</p>
+                <p>© {ANIO} · Desarrollos Palo Blanco</p>
                 <Button href={`mailto:${SHELL.correoSoporte}`} color="link-gray" size="sm" className="text-xs">
                     Ayuda
                 </Button>
