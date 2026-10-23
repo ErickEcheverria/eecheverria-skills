@@ -9,8 +9,8 @@
  *
  * Anula dos `overflow` del catálogo: `Table` mete la `<table>` en un `div` con `overflow-x-auto` y a la
  * `<table>` le pone `overflow-x-hidden`. `sticky` se pega al ancestro con scroll más cercano, y con ese
- * `div` en medio el encabezado se pegaba a él y se iba con las filas al bajar. `src/components/` no se
- * edita, así que se anula desde aquí: los dos pasan a `overflow-visible` y todo el scroll es de esta área.
+ * `div` en medio el encabezado se pegaba a él y se iba con las filas al bajar. El paquete no se edita
+ * desde la app, así que se anula desde aquí: los dos pasan a `overflow-visible` y todo el scroll es de esta área.
  *
  * Es `relative`, y no es decorativo: un `sr-only` es `position: absolute` y un `overflow` solo lo recorta
  * si es su bloque contenedor. Sin nada posicionado en medio, el de las celdas de abajo y de la derecha

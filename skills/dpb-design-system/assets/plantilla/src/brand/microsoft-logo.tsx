@@ -3,9 +3,8 @@ import type { SVGProps } from "react";
 /**
  * Marca de Microsoft (los cuatro cuadros) para el botón de acceso.
  *
- * Va aquí y no en `components/base/buttons/social-logos.tsx` porque ese archivo es
- * código generado por el CLI de Untitled UI —su catálogo trae Google, Apple, Facebook,
- * X, Figma y Dribbble, pero no Microsoft— y se sobrescribe con `untitledui upgrade`.
+ * Va aquí porque el catálogo del paquete (`base/buttons/social-logos`) trae Google, Apple,
+ * Facebook, X, Figma y Dribbble, pero no Microsoft, y el paquete no se edita desde la app.
  *
  * Colores oficiales de Microsoft, deliberadamente fuera del sistema de tokens: son la
  * marca de un tercero y no deben cambiar con el tema de la aplicación.

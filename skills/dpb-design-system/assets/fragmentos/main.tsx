@@ -1,6 +1,7 @@
 /**
- * Fragmento de src/main.tsx: el orden de los providers y un ejemplo de rutas. Se FUSIONA con el
- * main.tsx del starter. Cada proyecto agrega sus rutas y monta su autenticación donde se indica.
+ * Fragmento de src/main.tsx: el orden de los providers y un ejemplo de rutas. En un arranque reemplaza
+ * al main.tsx de Vite (que monta App.tsx e index.css, que se borran); en una adopción se FUSIONA con el
+ * del proyecto. Cada proyecto agrega sus rutas y monta su autenticación donde se indica.
  */
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";

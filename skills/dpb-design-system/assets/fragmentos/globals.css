@@ -1,36 +1,19 @@
 /*
- * Fragmento de src/styles/globals.css: se FUSIONA con el del starter. Lo único que cambia son
- * los dos imports marcados; plugins, variantes y la fuente en html/body ya vienen así y se
- * muestran para fijar el orden. Lo demás del starter (utilidades, resets) se queda como está.
+ * Fragmento de src/styles/globals.css, el CSS principal de la app (lo importa main.tsx). En un arranque
+ * reemplaza al src/index.css de Vite, que se borra. En una adopción se fusiona con el CSS principal del
+ * proyecto y se quita su `@import "tailwindcss";`.
  */
 
-@import "tailwindcss";
-@import "./theme.css";
-/* Marca DPB: sobrescribe tokens de theme.css. Debe ir DESPUES de el. */
-@import "./brand-dpb.css";
-@import "./typography.css";
-/* Barras de desplazamiento sutiles (propio, no del CLI). */
+/* Tailwind, sus plugins, el tema DPB (colores, Inter, modo oscuro con `.dark-mode`) y el @source de los
+   componentes del paquete. REEMPLAZA a `@import "tailwindcss";`: no lo agregues además. */
+@import "@desarrollospaloblanco/ui/styles.css";
+
+/* Barras de desplazamiento sutiles: son de la capa DPB, el paquete no las estiliza. */
 @import "./scrollbars.css";
 
-@plugin "@tailwindcss/typography";
-@plugin "tailwindcss-react-aria-components";
-@plugin "tailwindcss-animate";
-
-/* El tema oscuro es la clase `.dark-mode` en <html>, la que pone ThemeProvider y el guardia de index.html. */
-@custom-variant dark (&:where(.dark-mode, .dark-mode *));
-@custom-variant label (& [data-label]);
-@custom-variant focus-input-within (&:has(input:focus));
-
-/* … (las @utility y los resets del starter, sin cambios) … */
-
-/* `--font-body` es Open Sans desde brand-dpb.css: así llega a toda la app. */
-html,
-body {
-    font-family: var(--font-body);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    -webkit-font-variant-ligatures: contextual;
-    font-variant-ligatures: contextual;
-    -webkit-font-kerning: normal;
-    font-kerning: normal;
-}
+/*
+ * Lo propio de la app va debajo, por ejemplo una serie de gráfica nueva en src/styles/graficas.css.
+ * Tokens NUEVOS, sí; redefinir los del paquete (brand-*, accent-*, la fuente, los semánticos), nunca:
+ * esa app dejaría de verse como las demás y la mejora no llegaría a ninguna otra. Si un token del
+ * paquete está mal, se corrige en el paquete.
+ */

@@ -1,10 +1,10 @@
+import { Button } from "@desarrollospaloblanco/ui/components/base/buttons/button";
 import { ArrowLeft } from "@untitledui/icons";
 import { AppLogo } from "@/brand/app-logo";
-import { Button } from "@/components/base/buttons/button";
 
 /**
- * La página 404, en español: sustituye a `not-found.tsx` del starter, que viene en inglés. No lee
- * la cuenta, así que sirve con y sin sesión. Ningún proyecto la edita.
+ * La página 404, en español: la ruta `*` de `main.tsx`. No lee la cuenta, así que sirve con y sin
+ * sesión. Ningún proyecto la edita.
  */
 export const NoEncontradaPage = () => (
     <main className="flex min-h-dvh flex-col items-center justify-center bg-primary px-4 py-16">

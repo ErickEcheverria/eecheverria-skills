@@ -6,7 +6,7 @@ import type { SVGProps } from "react";
  * suelto), copiada tal cual.
  *
  * -- Las variantes ----------------------------------------------------------
- * - `color`: casa azul #2C589A (`brand-500`) y cuadros rojos #CC1F37 (`accent-500`). Sobre
+ * - `color`: casa azul #2C589A (`brand-600`) y cuadros rojos #CC1F37 (`accent-600`). Sobre
  *   fondos claros.
  * - `white`: todo blanco. Sobre el azul o el rojo de marca, como el panel del login: a color,
  *   la casa desaparece contra #2C589A.

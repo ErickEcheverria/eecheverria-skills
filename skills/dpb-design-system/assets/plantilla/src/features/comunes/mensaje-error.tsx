@@ -1,7 +1,7 @@
 import type { FC, ReactNode } from "react";
+import { Button } from "@desarrollospaloblanco/ui/components/base/buttons/button";
+import { cx } from "@desarrollospaloblanco/ui/utils/cx";
 import { AlertCircle, AlertTriangle, InfoCircle, RefreshCw01 } from "@untitledui/icons";
-import { Button } from "@/components/base/buttons/button";
-import { cx } from "@/utils/cx";
 
 /**
  * El error que la persona tiene que leer y resolver: qué pasó, el detalle por campo y qué hacer. Va

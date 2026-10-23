@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { Dialog, Modal, ModalOverlay } from "@/components/application/modals/modal";
-import { Button } from "@/components/base/buttons/button";
+import { Dialog, Modal, ModalOverlay } from "@desarrollospaloblanco/ui/components/application/modals/modal";
+import { Button } from "@desarrollospaloblanco/ui/components/base/buttons/button";
 import { TarjetaDialogo } from "@/features/comunes/tarjeta-dialogo";
 
 /**

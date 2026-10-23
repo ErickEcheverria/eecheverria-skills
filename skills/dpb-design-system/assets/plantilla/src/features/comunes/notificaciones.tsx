@@ -1,8 +1,8 @@
 import type { FC } from "react";
+import { ButtonUtility } from "@desarrollospaloblanco/ui/components/base/buttons/button-utility";
+import { cx } from "@desarrollospaloblanco/ui/utils/cx";
 import { AlertCircle, CheckCircle, X } from "@untitledui/icons";
 import { Toaster, toast } from "sonner";
-import { ButtonUtility } from "@/components/base/buttons/button-utility";
-import { cx } from "@/utils/cx";
 
 /**
  * Avisos flotantes («toasts») arriba al centro, que se van solos a los 5 s. `<Notificaciones />` se

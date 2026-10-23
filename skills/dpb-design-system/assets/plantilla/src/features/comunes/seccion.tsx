@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { useId } from "react";
-import { cx } from "@/utils/cx";
+import { cx } from "@desarrollospaloblanco/ui/utils/cx";
 
 /**
  * Un bloque de una pantalla de detalle o de configuración, con su título, su descripción y una acción

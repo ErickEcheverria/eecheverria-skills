@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
+import { Button } from "@desarrollospaloblanco/ui/components/base/buttons/button";
 import { ArrowLeft, ArrowRight } from "@untitledui/icons";
-import { Button } from "@/components/base/buttons/button";
 
 /**
  * El paginador de un listado, debajo de su tabla. Las props son `page`, `totalPages` y `total`
@@ -21,7 +21,7 @@ interface PaginacionProps {
 
 /**
  * Compuesto con dos `Button` del catálogo en vez de `PaginationPageDefault`, que trae «Previous»,
- * «Next» y «Page 1 of 10» fijos en inglés dentro de `src/components/`, que no se edita.
+ * «Next» y «Page 1 of 10» fijos en inglés dentro del paquete, que no se edita desde la app.
  *
  * Sin numeritos de página: en un listado que se filtra por búsqueda nadie salta a la página once. Lo
  * que se usa es avanzar, retroceder y saber dónde se está.

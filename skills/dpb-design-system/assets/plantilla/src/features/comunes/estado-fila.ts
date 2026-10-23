@@ -1,4 +1,4 @@
-import { cx } from "@/utils/cx";
+import { cx } from "@desarrollospaloblanco/ui/utils/cx";
 
 /**
  * Cómo se ve en un listado un registro INACTIVO, igual en todas las pantallas:

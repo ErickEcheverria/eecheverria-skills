@@ -32,6 +32,20 @@ if (!existsSync(join(destino, 'package.json'))) {
   process.exit(1)
 }
 
+// Las plantillas importan el catálogo de @desarrollospaloblanco/ui: sin él, lo copiado no compila. El
+// dry-run sí se permite, para ver los conflictos antes de decidir la adopción.
+const pkg = JSON.parse(readFileSync(join(destino, 'package.json'), 'utf8'))
+const conPaquete = Boolean(pkg.dependencies?.['@desarrollospaloblanco/ui'] || pkg.devDependencies?.['@desarrollospaloblanco/ui'])
+if (!conPaquete) {
+  console[dryRun ? 'warn' : 'error']('El proyecto no declara @desarrollospaloblanco/ui: instálalo antes de copiar (SKILL.md, paso 2).')
+  if (!dryRun) process.exit(1)
+}
+// El modelo anterior copiaba el catálogo a src/components/ y ponía la marca en brand-dpb.css: esas apps
+// se migran primero (SKILL.md, «Migrar una app con el catálogo copiado»).
+if (existsSync(join(destino, 'src/styles/brand-dpb.css')) || existsSync(join(destino, 'src/components/base'))) {
+  console.warn('Aviso: el proyecto tiene el catálogo copiado (src/components/base o src/styles/brand-dpb.css). Migra antes de actualizar piezas.')
+}
+
 const origen = resolve(dirname(fileURLToPath(import.meta.url)), '../assets/plantilla')
 
 const listar = (dir) =>
@@ -43,7 +57,7 @@ const listar = (dir) =>
 // CRLF vs LF no es un conflicto real: git normaliza el fin de línea según el SO.
 const normalizar = (ruta) => readFileSync(ruta, 'utf8').replace(/\r\n/g, '\n')
 
-// Las que cada app edita a propósito (SKILL.md, paso 4). Que difieran es lo esperado: reemplazarlas
+// Las que cada app edita a propósito (SKILL.md, paso 5). Que difieran es lo esperado: reemplazarlas
 // borraría la configuración de la app (y en `use-cuenta.ts`, su conexión a la auth).
 const COSTURAS = new Set([
   "src/features/shell/shell.config.ts",

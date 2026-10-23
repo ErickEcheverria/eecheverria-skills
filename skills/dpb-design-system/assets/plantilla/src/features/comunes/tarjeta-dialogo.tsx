@@ -1,15 +1,12 @@
 import type { FormEvent, ReactNode } from "react";
+import { ButtonUtility } from "@desarrollospaloblanco/ui/components/base/buttons/button-utility";
 import { X } from "@untitledui/icons";
-import { ButtonUtility } from "@/components/base/buttons/button-utility";
-import { cx } from "@/utils/cx";
 
 /**
  * La superficie de TODO diálogo: cabecera y pie fijos, y el scroll solo en el cuerpo. Va como hijo
  * directo de `Dialog`: `<ModalOverlay><Modal className="max-w-lg"><Dialog aria-label={titulo}><TarjetaDialogo>`.
  *
- * Supone el catálogo actual, cuyo `Dialog` lleva `max-h-[inherit] overflow-y-auto`. Si el `Dialog` de
- * `src/components/application/modals/modal.tsx` no lo lleva, el proyecto tiene el catálogo anterior, cuyo
- * `Modal` no trae fondo ni alto tope: pasa `className="bg-primary shadow-xl max-h-[85dvh]"`.
+ * Supone el `Dialog` del paquete, que lleva `max-h-[inherit] overflow-y-auto`.
  */
 
 interface TarjetaDialogoProps {
@@ -30,8 +27,6 @@ interface TarjetaDialogoProps {
     onSubmit?: (evento: FormEvent<HTMLFormElement>) => void;
     /** El cuerpo, lo único que se desplaza. El texto de una confirmación también va aquí, no en `descripcion`. */
     children?: ReactNode;
-    /** Solo para el catálogo anterior (ver arriba): `bg-primary shadow-xl max-h-[85dvh]`. */
-    className?: string;
 }
 
 /**
@@ -51,7 +46,7 @@ const TARJETA = "flex max-h-[inherit] w-full flex-col overflow-hidden rounded-xl
  */
 const CUERPO = "relative flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-6 py-1";
 
-export const TarjetaDialogo = ({ titulo, descripcion, onCerrar, cerrarDeshabilitado, pie, onSubmit, children, className }: TarjetaDialogoProps) => {
+export const TarjetaDialogo = ({ titulo, descripcion, onCerrar, cerrarDeshabilitado, pie, onSubmit, children }: TarjetaDialogoProps) => {
     const contenido = (
         <>
             <div className="flex shrink-0 items-start justify-between gap-4 px-6 pt-6 pb-4">
@@ -74,13 +69,13 @@ export const TarjetaDialogo = ({ titulo, descripcion, onCerrar, cerrarDeshabilit
         </>
     );
 
-    if (!onSubmit) return <div className={cx(TARJETA, className)}>{contenido}</div>;
+    if (!onSubmit) return <div className={TARJETA}>{contenido}</div>;
 
     return (
         // `noValidate`: la validación la pinta la pantalla en español; la del navegador sale en su idioma y con su chrome.
         <form
             noValidate
-            className={cx(TARJETA, className)}
+            className={TARJETA}
             onSubmit={(evento) => {
                 evento.preventDefault();
                 onSubmit(evento);

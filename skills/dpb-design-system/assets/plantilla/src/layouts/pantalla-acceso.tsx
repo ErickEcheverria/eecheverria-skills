@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
+import { Button } from "@desarrollospaloblanco/ui/components/base/buttons/button";
 import { Lock01 } from "@untitledui/icons";
 import { AppLogo } from "@/brand/app-logo";
 import { DpbIsotipo } from "@/brand/dpb-isotipo";
 import { IsoPattern } from "@/brand/iso-pattern";
-import { Button } from "@/components/base/buttons/button";
 import { SHELL } from "@/features/shell/shell.config";
 
 /**
@@ -82,10 +82,13 @@ export const PantallaAcceso = ({ lineaSuperior, titulo, descripcion, children }:
          * Panel de marca. Se oculta bajo 1024 px: es apoyo, no contenido, y por eso
          * el lockup de arriba a la izquierda se queda siempre visible.
          *
+         * El azul es `brand-600`, el oficial en la escala del paquete: con `brand-500` sale más
+         * claro y el texto blanco al 75 % baja de 4.5:1.
+         *
          * El isotipo va en su variante BLANCA: a color, la casa azul desaparece contra
          * #2C589A. Con `aria-hidden`, porque el nombre está escrito justo debajo.
          */}
-        <div className="relative hidden flex-col overflow-hidden bg-brand-500 px-12 py-10 lg:flex">
+        <div className="relative hidden flex-col overflow-hidden bg-brand-600 px-12 py-10 lg:flex">
             <IsoPattern className="pointer-events-none absolute inset-0 text-white/10" />
 
             <div className="relative flex flex-1 flex-col items-center justify-center">
