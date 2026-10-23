@@ -1,28 +1,17 @@
+import type { UseCuenta } from "@/features/shell/cuenta";
+
 /**
- * La cuenta de la sesión, tal como la lee la sidebar. COSTURA: cada proyecto la conecta a su
- * autenticación (en DPB suele ser MSAL). Sin login todavía, se queda así: `cuenta: null` y la
- * sidebar no muestra el menú de la cuenta.
+ * La cuenta de la sesión, tal como la lee la sidebar (la forma vive en `cuenta.ts`). COSTURA: cada
+ * proyecto la conecta a su autenticación (en DPB suele ser MSAL). Sin login todavía, se queda así:
+ * `cuenta: null` y la sidebar no muestra el menú de la cuenta.
  */
 
-/** Código del rol que filtra la navegación (`NavItem.roles`). Cámbialo por la unión del proyecto: `"ADMIN" | …`. */
+/**
+ * Código del rol que filtra la navegación (`NavItem.roles`). Cámbialo por la unión del proyecto:
+ * `"ADMIN" | …`. Este archivo tiene que seguir exportando `Rol` aunque la auth viva en otro lado
+ * (reexpórtalo): `navegacion.ts` y `cuenta.ts` lo importan de aquí.
+ */
 export type Rol = string;
-
-export interface Cuenta {
-    nombre: string;
-    correo: string;
-    /** URL o data URI de la foto. Sin ella, el avatar va con iniciales. */
-    foto?: string;
-    /** Sin rol solo se ven las entradas de la navegación que no piden `roles`. */
-    rol?: Rol;
-    /** Renglón bajo el nombre: el rol o el departamento, legible. Opcional. */
-    detalle?: string;
-}
-
-interface UseCuenta {
-    /** `null` sin sesión: la sidebar no muestra el menú de la cuenta. */
-    cuenta: Cuenta | null;
-    cerrarSesion: () => void | Promise<void>;
-}
 
 /**
  * Sin cuenta de ejemplo a propósito: una de mentira llegaba a producción el día que nadie conectaba

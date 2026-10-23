@@ -11,7 +11,7 @@ interface CifraKpiProps {
     etiqueta: string;
     valor: string;
     /**
-     * La lectura completa cuando `valor` va compacto («Q 1.2M» → «Q 1,203,450.00»). Va en el `title` para
+     * La lectura completa cuando `valor` va compacto («1.2M», de `formatearCompacto` → «Q 1,203,450.00», de `formatearMonto`). Va en el `title` para
      * el ratón y como texto `sr-only` para el lector de pantalla; en táctil el `title` no se alcanza, así
      * que si el exacto importa en móvil, ponlo también en `detalle`.
      */
@@ -38,9 +38,9 @@ export const CifraKpi = ({ etiqueta, valor, exacto, detalle, icono, tono = "norm
         <dt className={cx("text-sm font-medium text-tertiary", icono && "pr-12")}>
             {etiqueta}
             {icono && (
-                <span aria-hidden className="absolute top-4 right-4">
+                <div aria-hidden className="absolute top-4 right-4">
                     <FeaturedIcon icon={icono} size="md" theme="light" color={tono === "alerta" ? "error" : "brand"} />
-                </span>
+                </div>
             )}
         </dt>
         <dd

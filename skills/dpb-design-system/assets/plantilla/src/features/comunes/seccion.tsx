@@ -41,3 +41,19 @@ export const Seccion = ({ titulo, descripcion, accion, children, className }: Se
         </section>
     );
 };
+
+/**
+ * La rejilla de datos de una pantalla de detalle: `<Datos><Dato etiqueta="Código">PRV-0042</Dato>…</Datos>`.
+ * Es un `<dl>` de verdad (cada `Dato` es su grupo `div` › `dt` + `dd`), así el lector de pantalla
+ * asocia cada etiqueta con su valor. Una columna en móvil, dos desde `sm` y tres desde `lg`.
+ */
+export const Datos = ({ children, className }: { children: ReactNode; className?: string }) => (
+    <dl className={cx("grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3", className)}>{children}</dl>
+);
+
+export const Dato = ({ etiqueta, children }: { etiqueta: string; children: ReactNode }) => (
+    <div className="min-w-0">
+        <dt className="text-sm text-tertiary">{etiqueta}</dt>
+        <dd className="mt-1 text-sm font-medium break-words text-primary">{children}</dd>
+    </div>
+);

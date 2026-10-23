@@ -1,9 +1,10 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import { ArrowLeft } from "@untitledui/icons";
 import { useLocation } from "react-router";
 import { Button } from "@/components/base/buttons/button";
 import { Sidebar } from "@/features/shell/sidebar";
 import { useSidebarCollapsed } from "@/features/shell/use-sidebar-collapsed";
+import { cx } from "@/utils/cx";
 
 /**
  * La cáscara de toda pantalla con sesión: cada página de `src/pages/` monta su `AppLayout`.
@@ -31,6 +32,13 @@ import { useSidebarCollapsed } from "@/features/shell/use-sidebar-collapsed";
  */
 const TRANSICION = "animate-in fade-in slide-in-from-bottom-1 duration-200 ease-out motion-reduce:animate-none";
 
+/**
+ * Si ya se pintó una pantalla: la primera carga no mueve el foco (el usuario aún no hizo nada); las
+ * siguientes sí. Vive fuera del componente porque cada ruta monta su propio `AppLayout`. En desarrollo,
+ * StrictMode corre el efecto dos veces y la primera carga también enfoca el `h1`; en el build, no.
+ */
+let yaHuboUnaPantalla = false;
+
 interface AppLayoutProps {
     title: string;
     /** Línea de apoyo bajo el título. */
@@ -53,8 +61,9 @@ interface AppLayoutProps {
     volverA?: { href: string; label: string };
     /**
      * Franja fija sobre la cabecera, a todo el ancho de la tarjeta: lo que cambia el contexto de TODA la
-     * pantalla (modo simulación, mantenimiento, solo lectura). No se va con el scroll. Una `NotaInformativa`
-     * o un `MensajeError` compacto suelen bastar.
+     * pantalla (modo simulación, mantenimiento, solo lectura). No se va con el scroll. Va una
+     * `NotaInformativa tono="advertencia"`; no un `MensajeError`, cuyo `role="alert"` se volvería a
+     * anunciar en cada navegación (cada ruta remonta su `AppLayout`).
      */
     aviso?: ReactNode;
     children: ReactNode;
@@ -79,6 +88,18 @@ interface AppLayoutProps {
 export const AppLayout = ({ title, subtitle, action, filtros, volverA, aviso, children }: AppLayoutProps) => {
     const { isCollapsed, toggle } = useSidebarCollapsed();
     const { pathname } = useLocation();
+    const tituloRef = useRef<HTMLHeadingElement>(null);
+
+    // Al navegar, el enlace que se pulsó se desmonta con la pantalla anterior y el foco cae a
+    // `<body>`: el siguiente Tab empezaría desde el principio del documento. Se lleva al `h1`, que
+    // además anuncia a dónde se llegó. `preventScroll`: la cabecera ya está arriba.
+    useEffect(() => {
+        if (!yaHuboUnaPantalla) {
+            yaHuboUnaPantalla = true;
+            return;
+        }
+        tituloRef.current?.focus({ preventScroll: true });
+    }, [pathname]);
 
     return (
         <div className="flex h-dvh gap-3 overflow-hidden bg-canvas p-3">
@@ -114,7 +135,7 @@ export const AppLayout = ({ title, subtitle, action, filtros, volverA, aviso, ch
                     cada renglón suyo es uno menos para el contenido. */}
                 <header
                     key={`encabezado:${pathname}`}
-                    className={`flex flex-wrap items-start justify-between gap-3 px-4 pt-4 pb-3 sm:gap-4 sm:px-6 sm:pt-6 sm:pb-5 ${TRANSICION}`}
+                    className={cx("flex flex-wrap items-start justify-between gap-3 px-4 pt-4 pb-3 sm:gap-4 sm:px-6 sm:pt-6 sm:pb-5", TRANSICION)}
                 >
                     <div className="min-w-0">
                         {volverA && (
@@ -122,7 +143,15 @@ export const AppLayout = ({ title, subtitle, action, filtros, volverA, aviso, ch
                                 {volverA.label}
                             </Button>
                         )}
-                        <h1 className="truncate text-display-xs font-semibold text-primary">{title}</h1>
+                        {/* `tabIndex={-1}`: enfocable por código, no por Tab. En móvil parte en dos líneas
+                            (el subtítulo se oculta y no habría dónde leer un título largo); desde `sm`, una. */}
+                        <h1
+                            ref={tituloRef}
+                            tabIndex={-1}
+                            className="line-clamp-2 text-display-xs font-semibold break-words text-primary outline-hidden sm:line-clamp-1"
+                        >
+                            {title}
+                        </h1>
                         {subtitle && <p className="mt-1 hidden text-sm text-tertiary sm:block">{subtitle}</p>}
                     </div>
 
@@ -135,7 +164,10 @@ export const AppLayout = ({ title, subtitle, action, filtros, volverA, aviso, ch
 
                 {/* `pt-px`: el `ring` de una tarjeta que abre el contenido se pinta 1 px por fuera y el
                     `overflow` de `main` le recortaba el borde de arriba. */}
-                <main key={`contenido:${pathname}`} className={`relative flex min-h-0 flex-1 flex-col overflow-y-auto px-4 pt-px pb-4 sm:px-6 sm:pb-6 ${TRANSICION}`}>
+                <main
+                    key={`contenido:${pathname}`}
+                    className={cx("relative flex min-h-0 flex-1 flex-col overflow-y-auto px-4 pt-px pb-4 sm:px-6 sm:pb-6", TRANSICION)}
+                >
                     {children}
                 </main>
             </div>

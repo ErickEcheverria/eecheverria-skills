@@ -8,8 +8,21 @@ import { fileURLToPath } from 'node:url'
 
 const args = process.argv.slice(2)
 const dryRun = args.includes('--dry-run')
-const destino = args.find((arg) => !arg.startsWith('--'))
+const posicionales = args.filter((arg) => !arg.startsWith('-'))
+const destino = posicionales[0]
 
+// Una bandera mal escrita («--dryrun») no puede caer en la copia real: se rechaza todo lo desconocido.
+const desconocidas = args.filter((arg) => arg.startsWith('-') && arg !== '--dry-run')
+if (desconocidas.length) {
+  console.error(`Opción desconocida: ${desconocidas.join(', ')}. La única es --dry-run.`)
+  process.exit(1)
+}
+
+// Dos posicionales suelen ser una ruta con espacios sin comillas, partida en dos.
+if (posicionales.length > 1) {
+  console.error(`Sobran argumentos: ${posicionales.slice(1).join(' ')}. ¿La ruta tiene espacios? Ponla entre comillas.`)
+  process.exit(1)
+}
 if (!destino) {
   console.error('Uso: node scripts/copiar-plantilla.mjs <raíz-del-proyecto> [--dry-run]')
   process.exit(1)

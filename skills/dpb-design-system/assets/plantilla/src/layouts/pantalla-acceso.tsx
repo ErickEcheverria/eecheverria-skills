@@ -3,6 +3,7 @@ import { Lock01 } from "@untitledui/icons";
 import { AppLogo } from "@/brand/app-logo";
 import { DpbIsotipo } from "@/brand/dpb-isotipo";
 import { IsoPattern } from "@/brand/iso-pattern";
+import { Button } from "@/components/base/buttons/button";
 import { SHELL } from "@/features/shell/shell.config";
 
 /**
@@ -37,10 +38,11 @@ export const PantallaAcceso = ({ lineaSuperior, titulo, descripcion, children }:
             <AppLogo />
 
             {/* `justify-center` centra el bloque de acceso en la columna; sin él
-                queda pegado al borde izquierdo, muy lejos del panel de marca. */}
-            <div className="flex flex-1 items-center justify-center py-12">
+                queda pegado al borde izquierdo, muy lejos del panel de marca. Es el `<main>`
+                de la pantalla: el lockup y el pie quedan fuera, como cabecera y pie. */}
+            <main className="flex flex-1 items-center justify-center py-12">
                 <div className="w-full max-w-90">
-                    <p className="text-sm font-semibold text-accent-600">{lineaSuperior}</p>
+                    <p className="text-sm font-semibold text-accent">{lineaSuperior}</p>
                     <h1 className="mt-1.5 text-display-sm font-bold text-primary">{titulo}</h1>
                     {descripcion && <p className="mt-2 text-md text-tertiary">{descripcion}</p>}
 
@@ -58,21 +60,21 @@ export const PantallaAcceso = ({ lineaSuperior, titulo, descripcion, children }:
                             <p className="font-medium text-secondary">Acceso por el directorio de la organización</p>
                             <p className="mt-1 text-tertiary">
                                 ¿No puedes entrar? Escribe a{" "}
-                                <a href={`mailto:${SHELL.correoSoporte}`} className="font-medium text-brand-secondary underline-offset-2 hover:underline">
+                                <Button href={`mailto:${SHELL.correoSoporte}`} color="link-color" size="sm">
                                     {SHELL.correoSoporte}
-                                </a>
+                                </Button>
                                 .
                             </p>
                         </div>
                     </div>
                 </div>
-            </div>
+            </main>
 
             <div className="flex flex-wrap items-center justify-between gap-4 text-xs text-quaternary">
                 <p>© {new Date().getFullYear()} · Desarrollos Palo Blanco</p>
-                <a href={`mailto:${SHELL.correoSoporte}`} className="underline-offset-2 hover:underline">
+                <Button href={`mailto:${SHELL.correoSoporte}`} color="link-gray" size="sm" className="text-xs">
                     Ayuda
-                </a>
+                </Button>
             </div>
         </div>
 

@@ -5,7 +5,8 @@ import { AppLogo } from "@/brand/app-logo";
 import { Avatar } from "@/components/base/avatar/avatar";
 import { Dropdown } from "@/components/base/dropdown/dropdown";
 import { Tooltip } from "@/components/base/tooltip/tooltip";
-import { visibleNavItems } from "@/features/shell/nav-items";
+import { NAV_ITEMS } from "@/features/shell/nav-items";
+import { visibleNavItems } from "@/features/shell/navegacion";
 import { useCuenta } from "@/features/shell/use-cuenta";
 import { cx } from "@/utils/cx";
 
@@ -55,11 +56,12 @@ const partirNombre = (nombre: string): string[] => {
 
 export const Sidebar = ({ isCollapsed, onToggleCollapse }: { isCollapsed: boolean; onToggleCollapse: () => void }) => {
     const { cuenta, cerrarSesion } = useCuenta();
-    const items = visibleNavItems(cuenta?.rol);
+    const items = visibleNavItems(NAV_ITEMS, cuenta?.rol);
 
     return (
-        <aside
-            aria-label="Navegación principal"
+        // Un `div` y no un `<aside>`: es la navegación principal, no contenido complementario; el
+        // landmark con nombre es el `<nav>` de adentro.
+        <div
             className={cx(
                 // La sidebar es una TARJETA que flota sobre el lienzo, no un panel
                 // pegado al borde: fondo propio, borde sutil, esquinas y sombra.
@@ -70,7 +72,7 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: { isCollapsed: boolea
                 // Tres pisos: el logo arriba y la cuenta con «Colapsar» abajo quedan FIJOS, y solo
                 // la navegación de en medio se desplaza cuando no cabe (pantallas bajas). Si se
                 // desplazara la tarjeta entera, el perfil se iría de la vista.
-                "flex shrink-0 flex-col overflow-hidden rounded-xl bg-primary p-3 shadow-md ring-1 ring-secondary transition-[width] duration-200 ease-in-out [interpolate-size:allow-keywords]",
+                "flex shrink-0 flex-col overflow-hidden rounded-xl bg-primary p-3 shadow-md ring-1 ring-secondary transition-[width] duration-200 ease-in-out [interpolate-size:allow-keywords] motion-reduce:transition-none",
                 // Expandida, el ancho lo decide el CONTENIDO y no un número fijo: 240 px como
                 // mínimo, y más solo si el nombre del usuario lo necesita para caber entero.
                 // El tope de 320 px es para un nombre desmesurado, que entonces se trunca en
@@ -82,8 +84,9 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: { isCollapsed: boolea
                 <AppLogo colapsado={isCollapsed} />
             </div>
 
-            {/* `-mx-1 px-1`: el área con scroll recortaría el anillo de foco de los enlaces. */}
-            <nav className="-mx-1 min-h-0 flex-1 overflow-y-auto px-1 pb-2">
+            {/* `-mx-1 px-1 pt-1`: el área con scroll recortaría el anillo de foco de los enlaces, que
+                se pinta 4 px por fuera; arriba también, o el del primero perdía su borde superior. */}
+            <nav aria-label="Navegación principal" className="-mx-1 min-h-0 flex-1 overflow-y-auto px-1 pt-1 pb-2">
                 <ul className="flex flex-col gap-1">
                     {items.map(({ label, href, icon: Icon, grupo }, indice) => {
                         // Separador al cambiar de sección, nunca antes de la primera entrada visible:
@@ -106,8 +109,10 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: { isCollapsed: boolea
                         return (
                             <li key={href}>
                                 {abreSeccion && (
-                                    <div role="separator" aria-label={grupo ?? undefined} className={cx("mt-2 mb-1", !isCollapsed && "px-2")}>
-                                        <div className="border-t border-secondary" />
+                                    // El título del grupo es texto normal, fuera del separador: dentro de un
+                                    // `role="separator"` sus hijos son presentacionales y el lector no lo leía.
+                                    <div className={cx("mt-2 mb-1", !isCollapsed && "px-2")}>
+                                        <div role="separator" className="border-t border-secondary" />
                                         {!isCollapsed && grupo && <p className="mt-2 text-xs font-medium text-quaternary">{grupo}</p>}
                                     </div>
                                 )}
@@ -199,6 +204,6 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: { isCollapsed: boolea
                     {!isCollapsed && <span className="truncate">Colapsar</span>}
                 </button>
             </div>
-        </aside>
+        </div>
     );
 };

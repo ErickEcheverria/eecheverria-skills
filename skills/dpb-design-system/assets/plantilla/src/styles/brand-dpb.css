@@ -1,6 +1,8 @@
 /**
- * Identidad de marca de Desarrollos Palo Blanco. Es la misma en todas las apps: un proyecto
- * solo lo toca para agregar una serie de gráfica (y revalidarla, ver abajo).
+ * Identidad de marca de Desarrollos Palo Blanco. Es la misma en todas las apps y un proyecto NO lo
+ * edita: si lo hiciera, cada actualización de la plantilla lo marcaría como conflicto. Una serie de
+ * gráfica propia va en un CSS del proyecto (p. ej. `src/styles/graficas.css`) importado después de
+ * este en `globals.css`, con su valor en `@theme` y en `.dark-mode` (y revalidada, ver abajo).
  *
  * Este archivo se importa DESPUÉS de theme.css en globals.css y solo sobrescribe
  * tokens. `theme.css` es código generado por el CLI de Untitled UI y se regenera con
@@ -60,8 +62,9 @@
  * Se declara DOS veces a propósito: `--color-bg-canvas` guarda el valor y
  * `--background-color-canvas` es lo que hace que Tailwind genere la utilidad
  * `bg-canvas` (con `--color-bg-canvas` generaría `bg-bg-canvas`). Como la utilidad
- * resuelve a `var(--color-bg-canvas)`, basta con redefinir esa variable en
- * `.dark-mode` para que el tema oscuro funcione.
+ * resuelve a `var(--color-bg-canvas)`, en `.dark-mode` se redefine el valor Y el alias: un
+ * alias declarado en `:root` se resuelve ahí, así que sin repetirlo un contenedor oscuro anidado
+ * (no solo `<html>`) se quedaría con el lienzo claro. Es lo mismo que hace `theme.css`.
  *
  * No puede ser `bg-secondary`: en claro es casi blanco y el efecto flotante se pierde.
  */
@@ -72,6 +75,7 @@
 
 .dark-mode {
     --color-bg-canvas: rgb(16 21 30);
+    --background-color-canvas: var(--color-bg-canvas);
 }
 
 /**
@@ -81,7 +85,8 @@
  * claro, 500 en oscuro.
  *
  * Tres variables porque cada utilidad lee su propio espacio (`ring-*`, `border-*`); las dos
- * apuntan a `--color-border-warning_subtle`, que es la única que cambia en `.dark-mode`.
+ * apuntan a `--color-border-warning_subtle`; en `.dark-mode` se repiten junto al valor, por la
+ * misma razón que el lienzo.
  */
 @theme {
     --color-border-warning_subtle: var(--color-yellow-300);
@@ -91,6 +96,29 @@
 
 .dark-mode {
     --color-border-warning_subtle: var(--color-yellow-500);
+    --ring-color-warning_subtle: var(--color-border-warning_subtle);
+    --border-color-warning_subtle: var(--color-border-warning_subtle);
+}
+
+/**
+ * Contraste en oscuro. El tema de Untitled UI deja el anillo de foco y el ícono de marca en
+ * brand-500, que con nuestro azul da ~2.8:1 sobre el fondo oscuro (neutral-950): por debajo del
+ * 3:1 de WCAG 1.4.11, y el foco con teclado deja de verse. brand-400 da ~5.2:1.
+ *
+ * `text-accent` es el rojo DPB como TEXTO (la línea sobre el título del acceso): accent-600 en claro
+ * (~6.8:1 sobre blanco) y accent-400 en oscuro (~5.8:1). Con el paso crudo `text-accent-600` el texto
+ * no se invertía y en oscuro quedaba ilegible.
+ */
+@theme {
+    --color-text-accent: var(--color-accent-600);
+    --text-color-accent: var(--color-text-accent);
+}
+
+.dark-mode {
+    --color-focus-ring: var(--color-brand-400);
+    --color-fg-brand-primary: var(--color-brand-400);
+    --color-text-accent: var(--color-accent-400);
+    --text-color-accent: var(--color-text-accent);
 }
 
 /**

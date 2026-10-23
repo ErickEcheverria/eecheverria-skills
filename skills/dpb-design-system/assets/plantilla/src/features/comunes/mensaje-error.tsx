@@ -1,5 +1,5 @@
 import type { FC, ReactNode } from "react";
-import { AlertCircle, InfoCircle, RefreshCw01 } from "@untitledui/icons";
+import { AlertCircle, AlertTriangle, InfoCircle, RefreshCw01 } from "@untitledui/icons";
 import { Button } from "@/components/base/buttons/button";
 import { cx } from "@/utils/cx";
 
@@ -34,8 +34,9 @@ export const MensajeError = ({ titulo, detalles, remedio, onReintentar, classNam
                 {/* El detalle por campo va antes del remedio: es lo accionable de verdad. */}
                 {detalles && detalles.length > 0 && (
                     <ul className="mt-2 list-inside list-disc text-sm text-error-primary">
-                        {detalles.map((detalle) => (
-                            <li key={detalle}>{detalle}</li>
+                        {/* El índice en la key: el backend puede repetir un detalle («Campo obligatorio» dos veces). */}
+                        {detalles.map((detalle, indice) => (
+                            <li key={`${indice}-${detalle}`}>{detalle}</li>
                         ))}
                     </ul>
                 )}
@@ -60,21 +61,36 @@ interface NotaInformativaProps {
     titulo: ReactNode;
     /** El texto de apoyo: cómo funciona, a quién acudir. Admite enlaces. */
     children?: ReactNode;
-    /** El ícono de la izquierda; por defecto, la «i». */
+    /** El ícono de la izquierda; por defecto, el del tono («i» o triángulo). */
     icono?: FC<{ className?: string }>;
+    /**
+     * `advertencia` para lo que cambia el contexto sin ser un error: modo de prueba, mantenimiento,
+     * solo lectura. Es lo que va en el `aviso` de `AppLayout`.
+     */
+    tono?: "neutro" | "advertencia";
     className?: string;
 }
+
+const TONO_NOTA = {
+    neutro: { caja: "bg-secondary ring-secondary", icono: "text-fg-quaternary", Icono: InfoCircle },
+    advertencia: { caja: "bg-warning-primary ring-warning_subtle", icono: "text-fg-warning-secondary", Icono: AlertTriangle },
+} as const;
 
 /**
  * Nota en tono neutro con la anatomía de `MensajeError` (ícono, título y texto): explica algo sin
  * alarmar y no compite con un error cuando los dos están en pantalla. Sin `role="alert"`: no es urgente.
  */
-export const NotaInformativa = ({ titulo, children, icono: Icono = InfoCircle, className }: NotaInformativaProps) => (
-    <div className={cx("flex gap-3 rounded-lg bg-secondary p-4 ring-1 ring-secondary", className)}>
-        <Icono aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-fg-quaternary" />
-        <div className="min-w-0 text-sm">
-            <p className="font-medium text-secondary">{titulo}</p>
-            {children && <div className="mt-1 text-tertiary">{children}</div>}
+export const NotaInformativa = ({ titulo, children, icono, tono = "neutro", className }: NotaInformativaProps) => {
+    const estilo = TONO_NOTA[tono];
+    const Icono = icono ?? estilo.Icono;
+
+    return (
+        <div className={cx("flex gap-3 rounded-lg p-4 ring-1", estilo.caja, className)}>
+            <Icono aria-hidden="true" className={cx("mt-0.5 size-4 shrink-0", estilo.icono)} />
+            <div className="min-w-0 text-sm">
+                <p className="font-medium text-secondary">{titulo}</p>
+                {children && <div className="mt-1 text-tertiary">{children}</div>}
+            </div>
         </div>
-    </div>
-);
+    );
+};
