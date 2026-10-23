@@ -53,7 +53,7 @@ quedar desfasado cuando Untitled UI publique componentes nuevos.
 | Buttons | `buttons` | Toda acción: primaria, secundaria, terciaria, destructiva y enlaces (`link-*`) | free ✔ |
 | Button groups | `button-groups` | Acciones agrupadas o selector segmentado | free ✔ |
 | Social buttons | `social-buttons` | Login con Google/Apple/GitHub | free? |
-| Utility buttons | `utility-buttons` | Botones de icono en toolbars y cabeceras de tabla | free? |
+| Utility buttons | `utility-buttons` (CLI: `add button-utility`, verificado) | Botones de icono en toolbars, acciones de fila y cabeceras de tabla | free ✔ |
 | Mobile app store buttons | `mobile-app-store-buttons` | Badges de App Store / Google Play | free? |
 | Inputs | `inputs` | Campos de texto con label, hint, icono y estado de error | free ✔ |
 | Textareas | `textareas` | Texto largo (descripciones, comentarios) | free ✔ |
@@ -122,12 +122,10 @@ Lo que más vas a usar en paneles administrativos, CRUD y sistemas con roles.
 | Card headers | `card-headers` | Encabezado de tarjeta con acciones | free? |
 | Content dividers | `content-dividers` | Separadores con o sin texto | free? |
 | Alerts | `alerts` | Mensajes de éxito/error/aviso en la página | free? |
-| Notifications | `notifications` | Toasts y notificaciones flotantes | free? |
+| Notifications | `notifications` | Toasts y notificaciones flotantes. Sin licencia, `search "toast notification"` no devuelve nada: no lo prometas. Alternativa free en DPB: `notificar` de `dpb-design-system`, sobre sonner | PRO |
 | Inline CTAs | `inline-ctas` | Llamada a la acción dentro de la app (upgrade, invitar) | free? |
 | Metrics | `metrics` | Tarjetas de KPI con variación | free? |
-| Line & bar charts | `line-bar-charts` | Series temporales y comparaciones | free ✔ |
-| Pie charts | `pie-charts` | Composición de un total | free ✔ |
-| Radar charts | `radar-charts` | Comparación multivariable | free ✔ |
+| Charts | CLI: `charts-base` (docs: `line-bar-charts`, `pie-charts`, `radar-charts`) | Líneas/barras, pastel y radar. Las tres páginas de docs son ejemplos, no se instalan con `add`: `add charts-base` trae las piezas comunes sobre Recharts (`ChartTooltipContent`, `ChartLegendContent`, `ChartActiveDot`) y la gráfica se arma con `recharts` siguiendo el ejemplo | free ✔ |
 | Activity gauges | `activity-gauges` | Progreso circular tipo anillo | free? |
 | Activity feeds | `activity-feeds` | Historial/timeline de eventos | free? |
 | Progress steps | `progress-steps` | Wizards y procesos por pasos | free? |
@@ -195,7 +193,7 @@ Páginas armadas de punta a punta. **Requieren licencia PRO** — se traen con
 | Landing / pricing / about / blog / contact / FAQ / team / 404 pages | `landing-pages`, `pricing-pages`, … | Páginas de marketing completas |
 
 **Cómo tratarlos:** no los propongas como si fueran gratis. Di que son PRO y **arma la alternativa
-free** — un dashboard se reconstruye con `metrics` + `line-bar-charts` + `tables` +
+free** — un dashboard se reconstruye con `metrics` + `charts-base` + `tables` +
 `sidebar-navigations` + `page-headers`.
 
 ## Recetas: intención compuesta → piezas
@@ -209,13 +207,13 @@ Los pedidos reales casi nunca son un componente. Descomponer es la mitad del tra
 | "Formulario de alta de cliente" | `inputs` + `select` + `textareas` + `checkboxes` + `buttons` + `alerts` |
 | "Panel de administración con menú lateral" | `sidebar-navigations` + `header-navigations` + `page-headers` + `breadcrumbs` |
 | "Pantalla de configuración con secciones" | `tabs` + `section-headers` + `toggles` + `section-footers` |
-| "Dashboard de métricas" | `metrics` + `line-bar-charts` + `pie-charts` + `date-pickers` + `tables` |
+| "Dashboard de métricas" | `metrics` + `charts-base` + `date-pickers` + `tables` |
 | "Login del sistema" | `log-in-pages` o `inputs` + `checkboxes` + `buttons` + `social-buttons` + `logo` |
 | "Wizard de varios pasos" | `progress-steps` + `inputs` + `buttons` + `section-footers` |
 | "Detalle de un registro sin salir del listado" | `slideout-menus` + `tabs` + `badges` + `activity-feeds` |
 | "Subir un archivo con progreso" | `file-uploaders` + `progress-indicators` + `alerts` |
-| "Aviso de éxito tras guardar" | `notifications` (flotante) o `alerts` (en la página) |
-| "Cargando y sin resultados" | `loading-indicators` + `empty-states` + `illustrations` |
+| "Aviso de éxito tras guardar" | `alerts` (en la página). Si tiene que ser flotante, el toast del catálogo (`notifications`) es PRO: no lo instales; usa la alternativa free del proyecto (en DPB, `notificar` de `dpb-design-system`, sobre sonner) |
+| "Cargando y sin resultados" | `loading-indicators` + `empty-states` (o la pieza equivalente del design system del proyecto: en DPB, `EstadoVacio` de `dpb-design-system`) + `illustrations` |
 
 ## Rutas de import
 
@@ -246,10 +244,10 @@ import { Avatar } from "@/components/base/avatar/avatar";
 import { AvatarLabelGroup } from "@/components/base/avatar/avatar-label-group";
 import { FeaturedIcon } from "@/components/foundations/featured-icon/featured-icon";
 
-import { Modal } from "@/components/application/modals/modal";
+import { Dialog, Modal, ModalOverlay } from "@/components/application/modals/modal";
 import { Table, TableCard } from "@/components/application/table/table";
 import { Tabs } from "@/components/application/tabs/tabs";
-import { Pagination } from "@/components/application/pagination/pagination";
+import { PaginationPageDefault } from "@/components/application/pagination/pagination";
 import { DatePicker } from "@/components/application/date-picker/date-picker";
 
 import { cx } from "@/utils/cx";
@@ -258,5 +256,5 @@ import { cx } from "@/utils/cx";
 La ruta llega hasta el **archivo**, no hasta la carpeta: `…/modals/modal`, no `…/modals`.
 
 Los archivos son **kebab-case** y el nombre del directorio no siempre coincide con el slug del CLI
-(`add tables` deja `components/application/table/`). Cuando dudes de una ruta, ábrela en el proyecto
+(`add modal` deja `components/application/modals/modal.tsx`). Cuando dudes de una ruta, ábrela en el proyecto
 en vez de adivinar: el código ya está ahí.

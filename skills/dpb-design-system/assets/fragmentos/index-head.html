@@ -1,0 +1,48 @@
+<!--
+    Fragmento de index.html: se FUSIONA con el del starter, no lo reemplaza. Cada bloque dice
+    dónde va y qué sustituye. Lo demás del starter (charset, viewport, el body) se queda igual.
+-->
+
+<!-- En la etiqueta <html>: la app está en español. El starter trae lang="en". -->
+<html lang="es">
+
+<!-- Dentro de <head>, en lugar del favicon del starter (/vite.svg): el isotipo DPB de public/marca/. -->
+<link rel="icon" type="image/svg+xml" href="/marca/dpb-isotipo.svg" />
+
+<!-- Dentro de <head>, en lugar del theme-color del starter (#7f56d9): el azul DPB, brand-500. -->
+<meta name="theme-color" content="#2C589A" />
+
+<!-- Dentro de <head>, en lugar del enlace a Inter del starter. Los dos preconnect ya vienen; se dejan. -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<!-- Open Sans 400/500/600/700 e itálica 400: tipografía oficial de DPB (ver src/styles/brand-dpb.css).
+     El 500 es `font-medium`, que usan las plantillas: sin él se pinta en 400. -->
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+
+<!-- Dentro de <head>: la descripción y el título de la app. El título lleva el mismo nombre que SHELL.nombreApp. -->
+<meta name="description" content="Qué hace la app — Desarrollos Palo Blanco" />
+<title>Nombre de la app — Palo Blanco</title>
+
+<!--
+    Al FINAL de <head>, y borrando el <script> del starter que va al pie de <body>. En el head corre
+    antes del primer pintado; al pie del body el navegador puede pintar antes en claro y luego saltar.
+-->
+<script>
+    // Inline en `head` para evitar el parpadeo de tema (FOUC) al cargar.
+    //
+    // La clave TIENE que ser la misma que usa ThemeProvider ("ui-theme"). El
+    // starter del CLI lee aquí "theme" mientras el provider escribe en
+    // "ui-theme", así que ese guardia nunca coincide con la preferencia real.
+    //
+    // Sin valor guardado el tema es CLARO, igual que `defaultTheme="light"` en
+    // main.tsx. Son apps administrativas que se usan junto a hojas de cálculo y
+    // documentos impresos: el claro es el modo esperado.
+    try {
+        var stored = localStorage.getItem("ui-theme");
+        var isDark = stored === "dark" || (stored === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.classList.toggle("dark-mode", isDark);
+    } catch (e) {
+        // localStorage bloqueado (incógnito, cookies deshabilitadas): tema claro.
+        document.documentElement.classList.remove("dark-mode");
+    }
+</script>

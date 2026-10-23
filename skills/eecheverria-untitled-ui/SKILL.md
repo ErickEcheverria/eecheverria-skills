@@ -73,7 +73,7 @@ Antes de proponer nada, mira qué hay. Tres escenarios, tres comportamientos dis
 
 | Señal en el proyecto | Escenario | Qué haces |
 | --- | --- | --- |
-| `components.json` + `components/base/` + `styles/theme.css` | Ya usa Untitled UI | Sigue el proceso completo de abajo |
+| `components/base/` + `styles/theme.css` (en el starter, bajo `src/`), con o sin `components.json`: el starter actual no lo genera | Ya usa Untitled UI | Sigue el proceso completo de abajo |
 | Proyecto React/Next/Vite sin esas señales | No lo usa | **Pregunta** antes de introducirlo; no lo instales de oficio |
 | Directorio vacío o proyecto nuevo pedido por el usuario | Arranque limpio | Ve a "Setup de un proyecto nuevo" |
 
@@ -103,8 +103,12 @@ componentes de v8 sobre React 18 o Tailwind 3 produce fallos raros y difíciles 
 | TypeScript | 5.9 |
 | `react-aria-components` | 1.20 |
 
-La versión de la librería sale de `components.json` (el CLI la autodetecta). Si trabajas un proyecto
-en v7, pásalo explícito: `--lib-version 7`. Mezclar v7 y v8 en el mismo repo rompe los tokens.
+La versión de la librería la resuelve el CLI: `--lib-version` si lo pasas; si no, el campo `version`
+de `untitledui.json` o `components.json`; y si no hay ninguno, asume v8. El starter actual (`init` del
+2026-10-22) no genera ninguno de los dos: ahí el CLI trabaja en v8 por defecto y el `package.json` es
+el que confirma que el stack cumple el piso de arriba. Si el proyecto es v7 y no tiene ese archivo,
+pásalo explícito en cada `add`, `search` y `example` —`--lib-version 7`—, o el CLI le trae componentes
+de v8. Mezclar v7 y v8 en el mismo repo rompe los tokens.
 
 Para cualquier patrón específico de versión —de React 19, de Tailwind 4 o de la propia librería— no
 tires de memoria: apóyate en **`eecheverria-source-driven`** y trae la doc de esa versión
@@ -131,14 +135,15 @@ npx untitledui@latest search "flecha" --type icons --limit 10
 
 Un pedido compuesto casi siempre se arma con **varias piezas del catálogo**, no con un componente
 gigante. "Listado de usuarios con búsqueda, filtros y paginación" = `tables` + `filter-bars` +
-`pagination` + `empty-states` + `avatar`. Descomponer así es la mitad del trabajo.
+`pagination` + `empty-states` (o la pieza equivalente del design system del proyecto: en DPB,
+`EstadoVacio` de `dpb-design-system`) + `avatar`. Descomponer así es la mitad del trabajo.
 
 ### Paso 3 · Trae el componente con el CLI
 
 ```bash
 npx untitledui@latest add button                      # uno
 npx untitledui@latest add table pagination filter-bar # varios de una
-npx untitledui@latest add button -p src/components -y # ruta explícita, sin prompts
+npx untitledui@latest add button -p src/components -y # ruta explícita, sin prompts (y sobrescribe: ver abajo)
 npx untitledui@latest add                             # sin argumentos: lista interactiva
 ```
 
@@ -147,12 +152,24 @@ Criterio:
 - **El slug del CLI suele ser singular aunque la URL de docs sea plural** (`/components/buttons` →
   `add button`, `/components/filter-bars` → `add filter-bar`). Si un `add` no encuentra el slug,
   prueba el singular o usa la lista interactiva — no inventes nombres.
-- **Usa `-y`** en sesiones agénticas: el CLI es interactivo y sin ese flag te quedas colgado en un
-  prompt que el usuario no ve.
-- **`--overwrite` nunca a ciegas.** El código es del usuario y puede tener modificaciones locales;
-  sobrescribir las borra en silencio. Si necesitas actualizar un componente, **avísale primero y
-  muestra qué cambia** (`git diff` después de correrlo en un árbol limpio). Esto es la disciplina de
-  alcance de `eecheverria-senior-dev` aplicada al CLI.
+- **`-y` es también `--overwrite`.** En una sesión agéntica `add` necesita `-y`: el CLI es interactivo
+  y sin ese flag te quedas colgado en un prompt que el usuario no ve. Pero `-y` enciende `overwrite`
+  (y contesta que sí al «¿sobrescribir?»): si un archivo del componente ya existe con cambios locales,
+  lo pisa sin avisar. Con `-y` también agrega, sin preguntar, los componentes base de los que depende y
+  que aún no tienes (`includeAllComponents`); los que ya existen no los vuelve a traer. O sea, «usa
+  `-y`» y «`--overwrite` nunca a ciegas» no se cumplen a la vez con flags: lo que los concilia es git.
+  1. Corre `add` en un **árbol limpio**: commitea o haz `stash` antes.
+  2. Justo después, **`git diff`**: confirma que no sobrescribió archivos del catálogo con cambios
+     locales y revisa lo que tocó en `package.json`.
+  3. **Revierte lo que no debía tocar** (`git restore <archivo>`). Si un componente sí hay que
+     actualizarlo, avísale al usuario y muéstrale el diff antes de quedarte con él.
+
+  El código es del usuario: es la disciplina de alcance de `eecheverria-senior-dev` aplicada al CLI, y
+  vale igual para `--overwrite` explícito.
+- **`upgrade`, con el mismo cuidado.** `npx untitledui@latest upgrade` migra el proyecto de v7 a v8:
+  reescribe `theme.css`, dependencias, `tsconfig` y tu código, y sin `untitledui.json` ni
+  `components.json` da por hecho que vienes de v7, también en un starter v8. Puede pisar cambios
+  locales: córrelo primero con `--dry-run`, enséñale al usuario qué cambiaría y que él decida.
 - **Deja que el CLI resuelva los imports y las dependencias.** Copiar el código de la web a mano se
   salta la resolución de rutas (`@/components/...`) y las utilidades (`cx`, `is-react-component`).
 - Si el CLI no está disponible (sin red, entorno restringido), dilo y ofrece la alternativa manual —
@@ -174,10 +191,12 @@ reglas que más se violan. El detalle completo y los ejemplos por componente est
 | `border-gray-200` | `border-secondary` | el default del sistema |
 | `text-red-600` (error) | `text-error-primary` | semántica, no color |
 | `bg-white` | `bg-primary` | en dark mode deja de ser blanco |
-| iconos `text-gray-400` | `fg-quaternary` | los no-texto tienen su propia escala (`fg-*`) |
+| iconos `text-gray-400` | `text-fg-quaternary` | los no-texto tienen su propia escala (`fg-*`) |
 
 La escala `fg-*` es para elementos **no textuales** (iconos, indicadores); `text-*` es para texto.
-Confundirlas es el error más común. Tabla completa de los ~80 tokens en `references/usage-rules.md`.
+Como clase, `fg-*` lleva la propiedad delante (`text-fg-*` en un icono): `fg-quaternary` a secas no
+genera CSS. Confundirlas es el error más común. Tabla completa de los ~80 tokens en
+`references/usage-rules.md`.
 
 **2. Dark mode se hereda, no se escribe.** No uses el prefijo `dark:` de Tailwind. El sistema define
 `@custom-variant dark (&:where(.dark-mode, .dark-mode *))`: basta con la clase `dark-mode` en un
@@ -205,13 +224,14 @@ simplemente **no hace nada**, y eso se descubre tarde.
 así la clase que pasas por props gana sobre la del componente) en vez de template strings o `clsx`.
 Cuando definas variantes, agrúpalas con `sortCx({ common, sizes, colors })`.
 
-**7. Componentes compuestos (dot notation).** `Select.Item`, `Select.ComboBox`, `Table.Row`,
-`Tabs.Panel`, `Modal.Dialog`. No inventes wrappers propios alrededor de ellos.
+**7. Componentes compuestos (dot notation).** `Select.Item`, `Select.ComboBox`, `Table.Head`,
+`Table.Row`, `Tabs.Panel`. No inventes wrappers propios alrededor de ellos. El modal no es compuesto:
+son exports con nombre que se anidan `ModalOverlay` › `Modal` › `Dialog`.
 
 **8. Iconos de `@untitledui/icons`, pasados como referencia.**
 
 ```typescript
-import { Check, Trash02 } from "@untitledui/icons";
+import { Check } from "@untitledui/icons";
 
 <Button iconLeading={Check}>Guardar</Button>                        // ✅ referencia
 <Button iconLeading={<Check data-icon className="size-4" />}>…</Button> // ✅ JSX: marca con data-icon
@@ -276,7 +296,7 @@ Reglas:
 
 - **No propongas PRO como si fuera gratis.** Si algo solo existe en PRO, dilo claro y **arma la
   alternativa con componentes free** — casi siempre se puede: un "dashboard de ejemplo" PRO se
-  reconstruye con `metrics` + `charts` + `table` + `sidebar-navigations`.
+  reconstruye con `metrics` + `charts-base` + `table` + `sidebar-navigations`.
 - **La comprobación fiable es en runtime, no en el catálogo:** si `npx untitledui@latest add <x>` te
   pide `login`, ese componente es PRO. El catálogo de esta skill marca el tier de forma *indicativa*.
 - **No leas el botón "Get PRO" de la web como veredicto.** Aparece también en páginas de componentes
@@ -293,8 +313,15 @@ Solo cuando el usuario lo pida. Es una acción que crea estructura, así que con
 # Proyecto nuevo (elige framework y color de marca)
 npx untitledui@latest init --nextjs -c indigo -y
 npx untitledui@latest init --vite -c indigo -y
-npx untitledui@latest --colors-list          # ver colores de marca disponibles
+npx untitledui@latest init --vite --colors-list  # elige el color de marca de una lista (interactivo)
 ```
+
+`--colors-list` es opción de `init`, no una consulta: muestra la lista como selector y sigue con el
+`init`, así que no lo corras para «ver» colores. En una sesión agéntica pasa `-c` directo: valen
+`brand` y los nombres de la paleta de Tailwind (`indigo`, `blue`, `emerald`…).
+
+En proyectos DPB no pases `-c`: el color de marca sale de `brand-dpb.css`, que pone
+`dpb-design-system` encima de `theme.css`.
 
 Si en cambio hay que integrarlo en un proyecto existente:
 
@@ -353,7 +380,7 @@ pregunta antes de editarlo (regla de `eecheverria-senior-dev`).
 - Archivos en PascalCase dentro de `components/`.
 - Clases concatenadas con template strings en vez de `cx()`.
 - Iconos como JSX sin `data-icon`, o iconos de otra librería conviviendo con `@untitledui/icons`.
-- `--overwrite` corrido sin mostrar el diff.
+- `add -y` o `--overwrite` corridos sin árbol limpio o sin revisar el `git diff` después.
 - Un `<a>` estilado a mano donde correspondía `<Button href … color="link-*">`.
 - Componentes PRO propuestos sin advertir que requieren licencia.
 
@@ -362,9 +389,10 @@ pregunta antes de editarlo (regla de `eecheverria-senior-dev`).
 Antes de decir "listo" en una UI con Untitled UI:
 
 - [ ] Cada pieza salió del catálogo (o está justificado por qué no existía ahí).
-- [ ] Los componentes se trajeron con `npx untitledui add`, no copiados a mano.
+- [ ] Los componentes se trajeron con `npx untitledui add`, no copiados a mano, en árbol limpio y con
+      el `git diff` revisado (que `-y` no haya pisado cambios locales).
 - [ ] Cero clases de color genéricas de Tailwind; todo con tokens semánticos.
-- [ ] `text-*` para texto y `fg-*` para iconos/elementos no textuales, sin mezclarlos.
+- [ ] `text-*` para texto y `fg-*` (`text-fg-*`) para iconos/elementos no textuales, sin mezclarlos.
 - [ ] La vista se revisó **en dark mode** (clase `dark-mode`) y ningún color quedó fijo.
 - [ ] Imports de React Aria con prefijo `Aria*`; imports del design system por su ruta `@/components/…`.
 - [ ] Props de React Aria (`isDisabled`, `isInvalid`, `isRequired`, `isLoading`), no las de HTML.
@@ -373,7 +401,8 @@ Antes de decir "listo" en una UI con Untitled UI:
 - [ ] Formularios con `Controller`; errores en `hint` + `isInvalid`, no en un texto suelto.
 - [ ] El flujo completo se recorre **solo con teclado**, y el foco es visible en cada parada.
 - [ ] Estados de carga, vacío y error resueltos con componentes del catálogo
-      (`loading-indicator`, `empty-state`, `alerts`), no improvisados.
+      (`loading-indicator`, `empty-state`, `alerts`) o las piezas equivalentes del design system del
+      proyecto (p. ej. `dpb-design-system`), no improvisados.
 - [ ] Nada del cambio depende de un componente PRO sin que el usuario lo sepa.
 - [ ] Typecheck y build del proyecto pasan; resultado real reportado.
 
@@ -396,6 +425,9 @@ Y el resto del ecosistema:
 - **`eecheverria-senior-dev`** — capa base: leer el `CLAUDE.md` del proyecto primero, disciplina de
   alcance (que aquí se traduce en no sobrescribir componentes del usuario) y pedir autorización antes
   de acciones que crean estructura o autentican.
+- **`dpb-design-system`** — en proyectos de Desarrollos Palo Blanco, cárgala también: pone encima de
+  este catálogo la marca (`brand-dpb.css`, sin tocar `theme.css`), el shell y las piezas comunes de
+  DPB. Esta skill sigue siendo la dueña del catálogo, el CLI y los tokens.
 - **`eecheverria-ux-laws`** — el criterio de UX detrás de la composición: cuántas opciones caben en la
   vista, qué se destaca, cómo se agrupa y dónde va cada acción. Esa skill decide qué debe pasar en
   pantalla; esta, con qué componentes y tokens se construye.

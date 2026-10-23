@@ -1,0 +1,44 @@
+/**
+ * Barras de desplazamiento sutiles en toda la app (08/10/2026).
+ *
+ * Las del sistema (Windows: gris sólido con flechas) pesaban más que el contenido en la barra lateral y en las
+ * tablas. Aquí: una píldora delgada, sin flechas ni carril, que se oscurece al pasar el mouse.
+ *
+ * - Chrome, Edge y Safari usan `::-webkit-scrollbar`. Las propiedades estándar (`scrollbar-width` y
+ *   `scrollbar-color`) van SOLO donde no existe el pseudo-elemento (Firefox): Chrome 121+ ignora
+ *   `::-webkit-scrollbar` en cuanto ve una de las estándar, y volverían las flechas.
+ * - Colores con tokens semánticos de theme.css, así que el modo oscuro sale solo.
+ * - El borde transparente con `background-clip` deja la píldora más angosta que el área que se puede arrastrar.
+ */
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+::-webkit-scrollbar-button {
+    display: none;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--color-border-primary);
+    background-clip: padding-box;
+    border: 3px solid transparent;
+    border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-fg-quaternary);
+}
+
+@supports not selector(::-webkit-scrollbar) {
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--color-border-primary) transparent;
+    }
+}
