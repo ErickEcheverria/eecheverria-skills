@@ -320,8 +320,8 @@ npx untitledui@latest init --vite --colors-list  # elige el color de marca de un
 `init`, así que no lo corras para «ver» colores. En una sesión agéntica pasa `-c` directo: valen
 `brand` y los nombres de la paleta de Tailwind (`indigo`, `blue`, `emerald`…).
 
-En proyectos DPB no pases `-c`: el color de marca sale de `brand-dpb.css`, que pone
-`dpb-design-system` encima de `theme.css`.
+En proyectos DPB no uses `init` ni `add`: el catálogo y el tema (con el color de marca) vienen del
+paquete `@desarrollospaloblanco/ui`. Ver `dpb-design-system`.
 
 Si en cambio hay que integrarlo en un proyecto existente:
 
@@ -425,9 +425,11 @@ Y el resto del ecosistema:
 - **`eecheverria-senior-dev`** — capa base: leer el `CLAUDE.md` del proyecto primero, disciplina de
   alcance (que aquí se traduce en no sobrescribir componentes del usuario) y pedir autorización antes
   de acciones que crean estructura o autentican.
-- **`dpb-design-system`** — en proyectos de Desarrollos Palo Blanco, cárgala también: pone encima de
-  este catálogo la marca (`brand-dpb.css`, sin tocar `theme.css`), el shell y las piezas comunes de
-  DPB. Esta skill sigue siendo la dueña del catálogo, el CLI y los tokens.
+- **`dpb-design-system`** — en proyectos de Desarrollos Palo Blanco, cárgala también. Ahí el catálogo
+  no se copia con el CLI: viene compilado, con el tema DPB y sin componentes PRO, en el paquete
+  `@desarrollospaloblanco/ui`, y su API se lee de la versión instalada con el script de esa skill. De
+  esta skill siguen valiendo las reglas de uso (imports `Aria*`, `cx`/`sortCx`, compuestos, tokens
+  semánticos, React Hook Form); el CLI, su catálogo y la frontera free/PRO no aplican ahí.
 - **`eecheverria-ux-laws`** — el criterio de UX detrás de la composición: cuántas opciones caben en la
   vista, qué se destaca, cómo se agrupa y dónde va cada acción. Esa skill decide qué debe pasar en
   pantalla; esta, con qué componentes y tokens se construye.
