@@ -1,4 +1,4 @@
-import { cx } from "@/utils/cx";
+import { cx } from "@desarrollospaloblanco/ui/utils/cx";
 
 /**
  * Lo que se pinta mientras llega la PRIMERA carga: la forma de lo que viene, no un spinner. `Esqueleto`

@@ -1,6 +1,6 @@
 import type { FC, ReactNode } from "react";
-import { FeaturedIcon } from "@/components/foundations/featured-icon/featured-icon";
-import { cx } from "@/utils/cx";
+import { FeaturedIcon } from "@desarrollospaloblanco/ui/components/foundations/featured-icon/featured-icon";
+import { cx } from "@desarrollospaloblanco/ui/utils/cx";
 
 /**
  * Una cifra destacada de un tablero o un inicio. Pinta `<dt>`/`<dd>`, así que va dentro de un `<dl>`:

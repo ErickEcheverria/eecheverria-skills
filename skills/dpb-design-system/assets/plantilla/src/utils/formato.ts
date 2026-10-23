@@ -21,6 +21,17 @@ const UN_DECIMAL = new Intl.NumberFormat("es-GT", { maximumFractionDigits: 1 });
 export const formatearMonto = (monto: number): string => MONEDA.format(monto);
 
 /**
+ * Lo inverso de `formatearMonto`, para el campo que se formatea al salir: «Q 4,500.00», «4500» y
+ * «-Q 1,250.5» se leen 4500, 4500 y -1250.5. Quita la «Q», las comas y los espacios (también el duro
+ * que pone `Intl`). Lo que no es un número, o el campo vacío, da `null`: el formulario decide si es un
+ * error, en vez de guardar `NaN` o un cero que nadie escribió.
+ */
+export const leerMonto = (texto: string): number | null => {
+    const limpio = texto.replace(/[Q,\s]/gi, "");
+    return /^-?(\d+\.?\d*|\.\d+)$/.test(limpio) ? Number(limpio) : null;
+};
+
+/**
  * Un monto COMPACTO para columnas estrechas y KPIs: «109», «1.9k», «1.4M», «-1.9k». Pierde centavos a
  * propósito, así que va siempre con el exacto (`formatearMonto`) a mano: el `exacto` de `CifraKpi`, un
  * `title`, el detalle.

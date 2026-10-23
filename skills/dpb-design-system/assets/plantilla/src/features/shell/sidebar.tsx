@@ -1,14 +1,14 @@
+import { Avatar } from "@desarrollospaloblanco/ui/components/base/avatar/avatar";
+import { Dropdown } from "@desarrollospaloblanco/ui/components/base/dropdown/dropdown";
+import { Tooltip } from "@desarrollospaloblanco/ui/components/base/tooltip/tooltip";
+import { cx } from "@desarrollospaloblanco/ui/utils/cx";
 import { ChevronLeftDouble, ChevronRightDouble, ChevronSelectorVertical, LogOut01 } from "@untitledui/icons";
 import { Button as AriaButton, Focusable as AriaFocusable } from "react-aria-components";
 import { NavLink } from "react-router";
 import { AppLogo } from "@/brand/app-logo";
-import { Avatar } from "@/components/base/avatar/avatar";
-import { Dropdown } from "@/components/base/dropdown/dropdown";
-import { Tooltip } from "@/components/base/tooltip/tooltip";
 import { NAV_ITEMS } from "@/features/shell/nav-items";
 import { visibleNavItems } from "@/features/shell/navegacion";
 import { useCuenta } from "@/features/shell/use-cuenta";
-import { cx } from "@/utils/cx";
 
 /**
  * La sidebar de la app: lockup, módulos y menú de la cuenta. Ningún proyecto la edita: los

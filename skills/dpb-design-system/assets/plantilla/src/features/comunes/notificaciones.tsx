@@ -1,8 +1,8 @@
 import type { FC } from "react";
+import { ButtonUtility } from "@desarrollospaloblanco/ui/components/base/buttons/button-utility";
+import { cx } from "@desarrollospaloblanco/ui/utils/cx";
 import { AlertCircle, CheckCircle, X } from "@untitledui/icons";
 import { Toaster, toast } from "sonner";
-import { ButtonUtility } from "@/components/base/buttons/button-utility";
-import { cx } from "@/utils/cx";
 
 /**
  * Avisos flotantes («toasts») arriba al centro, que se van solos a los 5 s. `<Notificaciones />` se
@@ -63,7 +63,11 @@ const mostrar = (tono: Tono, titulo: string, descripcion?: string) =>
 /**
  * Se llama DESPUÉS de que el backend confirmó, nunca antes: un «se guardó» que luego resulta falso es
  * peor que ningún aviso. `error` es para lo que no se corrige en un formulario (una descarga que no llegó).
+ *
+ * Va junto a `Notificaciones` a propósito: las pantallas lo importan de aquí, y separarlo cambiaría ese
+ * import en todas las apps. El costo es que Fast Refresh recarga este archivo entero al editarlo.
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export const notificar = {
     exito: (titulo: string, descripcion?: string) => mostrar("exito", titulo, descripcion),
     error: (titulo: string, descripcion?: string) => mostrar("error", titulo, descripcion),

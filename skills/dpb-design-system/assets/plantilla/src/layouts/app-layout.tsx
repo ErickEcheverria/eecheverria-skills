@@ -1,10 +1,10 @@
 import { type ReactNode, useEffect, useRef } from "react";
+import { Button } from "@desarrollospaloblanco/ui/components/base/buttons/button";
+import { cx } from "@desarrollospaloblanco/ui/utils/cx";
 import { ArrowLeft } from "@untitledui/icons";
 import { useLocation } from "react-router";
-import { Button } from "@/components/base/buttons/button";
 import { Sidebar } from "@/features/shell/sidebar";
 import { useSidebarCollapsed } from "@/features/shell/use-sidebar-collapsed";
-import { cx } from "@/utils/cx";
 
 /**
  * La cáscara de toda pantalla con sesión: cada página de `src/pages/` monta su `AppLayout`.
@@ -26,8 +26,8 @@ import { cx } from "@/utils/cx";
  * «reducir movimiento» en el sistema —por vértigo o sensibilidad vestibular— una pantalla
  * que se desplaza en cada navegación es un síntoma, no un adorno.
  *
- * Va sobre `tailwindcss-animate`, que ya está registrado como plugin en `globals.css` y lo
- * usan los componentes del catálogo. Una animación de entrada sin salida no necesita nada
+ * Va sobre `tailwindcss-animate`, que ya registra el CSS del paquete y usan los componentes
+ * del catálogo. Una animación de entrada sin salida no necesita nada
  * de JavaScript.
  */
 const TRANSICION = "animate-in fade-in slide-in-from-bottom-1 duration-200 ease-out motion-reduce:animate-none";
@@ -72,7 +72,7 @@ interface AppLayoutProps {
 /**
  * Cáscara de la aplicación: dos TARJETAS flotando sobre el lienzo.
  *
- * El fondo de la página es `bg-canvas` (token propio, ver styles/brand-dpb.css) y
+ * El fondo de la página es `bg-canvas` (token DPB del tema del paquete) y
  * tanto la sidebar como el contenido son `bg-primary` con borde, radio y sombra. El
  * aire entre ellas lo da el padding del contenedor, no un margen de cada tarjeta.
  *

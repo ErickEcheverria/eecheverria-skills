@@ -1,18 +1,25 @@
 <!--
-    Fragmento para el CLAUDE.md que deja `npx untitledui init` (es el AGENT.md del proveedor).
-    Va AL INICIO de ese archivo, después del commit base del starter y con la confirmación del
-    usuario. Copia la sección tal cual; solo reemplaza <Nombre de la app>.
+    Sección para el CLAUDE.md del proyecto: va AL INICIO, después del commit base y con la confirmación
+    del usuario. Si no hay CLAUDE.md, créalo con un título `# <Nombre de la app>` y esta sección debajo.
+    Copia la sección tal cual, sin este comentario; solo reemplaza <Nombre de la app>.
 -->
 
 ## Capa DPB — manda sobre lo que sigue
 
-<Nombre de la app> es una app interna de Desarrollos Palo Blanco y usa la capa `dpb-design-system` encima
-de Untitled UI. Donde este archivo y esa skill no coincidan en diseño, manda la skill:
+<Nombre de la app> es una app interna de Desarrollos Palo Blanco: usa el paquete `@desarrollospaloblanco/ui`
+(el design system de la organización, en `desarrollospaloblanco/dpb-ui`) y la capa `dpb-design-system`
+encima. Donde este archivo y esa skill no coincidan en diseño, manda la skill:
 
-- **La marca vive en `src/styles/brand-dpb.css`.** No edites `src/styles/theme.css` (aunque la sección
-  de color de marca de abajo lo indique): lo reescribe `npx untitledui upgrade`.
-- **No edites `src/components/`**: es el catálogo. Las piezas DPB están en `src/features/comunes/`,
-  `src/features/shell/`, `src/layouts/` y `src/brand/`.
-- **Lo que cambia por app está en tres costuras:** `src/features/shell/shell.config.ts`,
-  `nav-items.ts` y `use-cuenta.ts`.
+- **Los componentes del catálogo y el tema vienen del paquete.** No copies componentes de Untitled UI a
+  la app (ni con `npx untitledui add`) ni redefinas sus tokens en un `@theme` (`brand-*`, `accent-*`, la
+  fuente). Si falta un componente o un token está mal, se pide en `desarrollospaloblanco/dpb-ui`.
+- **Antes de usar un componente, lee su API en la versión instalada:** el `.d.ts` de ese componente
+  (`node_modules/@desarrollospaloblanco/ui/dist/components/<ruta>.d.ts`), no el catálogo entero. Se
+  importa desde `@desarrollospaloblanco/ui/components/<ruta>`. Las props heredadas de React Aria no
+  salen ahí: el typecheck las confirma.
+- **Las piezas DPB** están en `src/features/comunes/`, `src/features/shell/`, `src/layouts/` y `src/brand/`.
+  Lo que cambia por app está en tres costuras: `src/features/shell/shell.config.ts`, `nav-items.ts` y
+  `use-cuenta.ts`.
+- **El `.npmrc` del proyecto lleva solo la línea del scope.** El token va en el `~/.npmrc` de cada
+  usuario: nunca en el repo.
 - **Todo el texto visible va en español**, y el modo oscuro se hereda de los tokens (sin `dark:`).

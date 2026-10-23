@@ -3,7 +3,9 @@
 Lo que app-presupuestos descubrió a golpes, sin el negocio: síntoma, causa, arreglo y la plantilla que
 ya lo resuelve. Las reglas generales de Untitled UI (props `is*`, imports `Aria*`, tokens semánticos,
 nada de `dark:`) están en `eecheverria-untitled-ui`; aquí va solo lo que no es obvio. Cómo armar las
-pantallas está en `patrones.md`.
+pantallas está en `patrones.md`. Las de capa **catálogo** viven en el código de Untitled UI que trae
+`@desarrollospaloblanco/ui`: como el paquete no se edita desde la app, se esquivan desde fuera o se
+arreglan en el paquete.
 
 ## Contenido
 
@@ -18,29 +20,35 @@ pantallas está en `patrones.md`.
 9. [Animación, SVG y remontajes](#animación-svg-y-remontajes)
 10. [Datos en pantalla](#datos-en-pantalla)
 11. [Sesión](#sesión)
+12. [Migrar desde el catálogo copiado](#migrar-desde-el-catálogo-copiado)
 
 ---
 
 ## Con qué versiones se observó
 
-| Pieza | app-presupuestos (lockfile al 22/10/2026) | Starter del 22/10/2026 |
-| --- | --- | --- |
-| Untitled UI React | starter del CLI del 17/09/2026 | `npx untitledui@latest init <carpeta> --vite -y` |
-| react-aria-components | 1.21.1 | 1.21.1 / 1.22.1 |
-| Tailwind CSS y `@tailwindcss/vite` | 4.3.3 | 4.3.3 |
-| React y React DOM | 19.3.0 | 19.3 |
-| Vite y rolldown | 8.3.0 y 1.2.11 | Vite 8.3 |
-| react-router | 7.18.4 | 8.5 |
-| TypeScript | 5.9.3 | 6.0.3 |
-| sonner | 2.0.8 | 2.0.8 |
+| Pieza | app-presupuestos (lockfile al 22/10/2026) | Starter del 22/10/2026 | App de prueba con el paquete (23/10/2026) |
+| --- | --- | --- | --- |
+| Untitled UI React | starter del CLI del 17/09/2026 | `npx untitledui@latest init <carpeta> --vite -y` | `@desarrollospaloblanco/ui` 0.2.0 sobre create-vite 9.3.1 |
+| react-aria-components | 1.21.1 | 1.21.1 / 1.22.1 | 1.22.1 |
+| Tailwind CSS y `@tailwindcss/vite` | 4.3.3 | 4.3.3 | 4.3.3 |
+| React y React DOM | 19.3.0 | 19.3 | 19.3.1 |
+| Vite y rolldown | 8.3.0 y 1.2.11 | Vite 8.3 | 8.3.5 y 1.2.15 |
+| react-router | 7.18.4 | 8.5 | 8.5.0 |
+| TypeScript | 5.9.3 | 6.0.3 | 6.0.3, estricto por defecto |
+| sonner | 2.0.8 | 2.0.8 | 2.0.8 |
 
 Cada título dice de qué capa depende; **revalidada** = se reprodujo con el starter del 22/10/2026 (sin
-la marca, solo se vio en el origen). Cuándo revalidar cada capa:
+la marca, solo se vio en el origen). El paquete 0.2.0 compila ese mismo catálogo (lo delatan el
+`calendar.tsx` corregido, el `Dialog` con `max-h-[inherit]` y la falta de `bg-active`): en cada trampa de
+capa catálogo se comprobó que la causa sigue en su código, pero no se volvieron a reproducir en el
+navegador contra el paquete. Cuándo revalidar cada capa:
 
 - **CSS** y **diseño** (una decisión de la app): no caducan.
 - **navegador** (el motor, el lector de pantalla o sus datos): al cambiar de navegador objetivo; `Intl`
   usa los datos de CLDR, que cambian con sus versiones.
-- **catálogo** (lo que genera Untitled UI): tras cada `upgrade` o starter nuevo.
+- **catálogo** (el código de Untitled UI que compila el paquete): con cada versión del paquete; su
+  CHANGELOG dice qué cambió.
+- **plantilla** (los providers que la skill copió del starter): al cambiar la plantilla.
 - **RAC** (react-aria-components) y **Tailwind 4**: al subir de minor. **React**: al subir de mayor.
 - Una herramienta por su nombre (rolldown, MSAL, git): al subirla.
 
@@ -48,72 +56,41 @@ la marca, solo se vio en el origen). Cuándo revalidar cada capa:
 
 ## Instalación y toolchain
 
-### El typecheck falla recién generado el proyecto · catálogo · solo en starters anteriores
-
-- **Síntoma:** 7 errores TS2307 en `src/components/` justo después de `init`: no encuentra
-  `@react-aria/utils`, `@react-stately/utils` ni `@react-types/overlays`.
-- **Causa:** varios componentes generados importaban esos paquetes directo, y el CLI no los declaraba.
-- **Arreglo:** con el starter del 22/10/2026 no se reproduce: no los instales de oficio. Con uno
-  anterior, `npm i -D` de los tres, y quítalos si un `upgrade` deja de importarlos.
-
-### `calendar.tsx` no compila · catálogo + RAC · solo en starters anteriores
-
-- **Síntoma:** `tsc` falla en `src/components/application/date-picker/calendar.tsx` y el build no pasa.
-- **Causa:** el `CalendarContext` de react-aria-components tipa `onChange` con la unión que incluye la
-  selección de rango (`readonly DateValue[]`), y el `CalendarContextProvider` de esos starters guardaba
-  un solo valor.
-- **Arreglo:** el `calendar.tsx` del starter del 22/10/2026 ya trae la corrección. Con uno anterior, la
-  misma como parche local, la única excepción a «no tocar `src/components/`», con un comentario:
-
-  ```ts
-  // PARCHE LOCAL: RAC tipa onChange con la unión de rango. Revisar en cada upgrade.
-  const onChange = (next: DateValue | readonly DateValue[] | null) => {
-      setValue(Array.isArray(next) ? (next[0] ?? null) : next);
-  };
-  // …y pasar `onChange` en el `value` del provider en lugar de `setValue`.
-  ```
-
-  `upgrade` sobrescribe el archivo. Después de cada uno, corre `typecheck` sin el parche y vuelve a
-  aplicarlo solo si falla.
-
 ### Vite se cae en Windows con «Rolldown panicked» · rolldown
 
 - **Síntoma:** `npm run dev` y `vite build` caen con «Rolldown panicked… oxc_codegen sourcemap_builder…
   index out of bounds», o con un segfault sin mensaje, en cuanto `vite.config.ts` pasa de unas líneas.
 - **Causa:** un bug de rolldown 1.2.9 en Windows.
 - **Arreglo:** subir `rolldown` a 1.2.11 en el lockfile, que cabe en el `~1.2.6` que pide Vite 8.3.0. Si
-  reaparece tras un `npm install`, revisa `npm ls rolldown` antes de tocar nada más.
+  reaparece tras un `npm install`, revisa `npm ls rolldown` antes de tocar nada más. Con rolldown 1.2.15
+  (Vite 8.3.5) y el `vite.config.ts` corto del fragmento no apareció.
 
-### El tema parpadea o no respeta lo elegido al recargar · catálogo
+### El tema parpadea o no respeta lo elegido al recargar · plantilla
 
 - **Síntoma:** quien eligió oscuro ve un destello claro al cargar, o al revés: el guardia anti-parpadeo
   de `index.html` no coincide con la preferencia real.
-- **Causa:** el starter leía en `index.html` la clave `theme`, mientras `ThemeProvider` escribe en
-  `ui-theme`.
+- **Causa:** el starter de Untitled UI leía en `index.html` la clave `theme`, mientras su `ThemeProvider`
+  (el que la plantilla copia tal cual) escribe en `ui-theme`.
 - **Arreglo:** la misma clave en los dos (`ui-theme`) y el mismo valor por defecto: `defaultTheme="light"`
   en el provider y «sin valor guardado, claro» en el guardia, que va en `try/catch`.
 - **Ya resuelto en:** los fragmentos `index-head.html` y `main.tsx` de la skill.
 
-### El tema «Sistema» no sobrevive a una recarga · catálogo · revalidada
+### El tema «Sistema» no sobrevive a una recarga · plantilla · revalidada
 
 - **Síntoma:** con un selector de tema, eliges «Sistema» y al recargar la app vuelve a claro.
 - **Causa:** el `ThemeProvider` del starter borra la clave `ui-theme` cuando el tema es `system` y
   arranca con `savedTheme || defaultTheme`: sin clave, manda el `defaultTheme="light"` de la casa.
-- **Arreglo:** DPB no trae selector. Si una app lo agrega, «Claro» y «Oscuro», que sí se guardan;
-  «Sistema» pide cambiar el provider y el guardia de `index.html` a la vez: decídelo con el usuario.
+- **Ya resuelto en:** `src/providers/theme-provider.tsx`, que guarda "system" (el guardia de
+  `index.html` ya lo leía). En una app con el provider del starter, aplica la plantilla.
 
-### Quedan dos lockfiles · catálogo · revalidada
+### La app no arranca con el almacenamiento bloqueado · plantilla
 
-- **Síntoma:** después de `init` hay `bun.lock` y `package-lock.json`.
-- **Causa:** `init` deja los dos, y cada gestor solo actualiza el suyo: con los dos, se desincronizan.
-- **Arreglo:** elige uno antes del commit base. Con npm, borra `bun.lock`; con bun, `package-lock.json`.
-
-### El commit base falla en Windows con «Filename too long» · git
-
-- **Síntoma:** el primer `git add` o `git commit` del starter cae con «Filename too long».
-- **Causa:** Git para Windows no acepta rutas largas mientras `core.longpaths` esté apagado.
-- **Arreglo:** `git config core.longpaths true` en el repo, y vuelve a commitear. Antes, revisa la
-  identidad (`git config user.email`): la del proyecto; en DPB, la cuenta de trabajo (`@paloblanco.com`).
+- **Síntoma:** en incógnito estricto o con las cookies apagadas, pantalla en blanco y un
+  `SecurityError` en la consola.
+- **Causa:** el `ThemeProvider` del starter lee y escribe `localStorage` sin `try/catch`; ahí leerlo
+  lanza, y como el provider envuelve toda la app, tumba el render entero.
+- **Ya resuelto en:** `src/providers/theme-provider.tsx` y el guardia de `index.html`, que caen al tema
+  claro. Todo acceso a `localStorage` va en `try/catch` (`use-sidebar-collapsed.ts` también).
 
 ---
 
@@ -126,7 +103,7 @@ la marca, solo se vio en el origen). Cuándo revalidar cada capa:
   no avisa de un color que no existe, y el anillo cae al color del texto.
 - **Arreglo:** `ring-warning_subtle` y `border-warning_subtle`, definidos sobre la rampa `yellow` del
   tema: yellow-300 en claro y yellow-500 en oscuro.
-- **Ya resuelto en:** `src/styles/brand-dpb.css`.
+- **Ya resuelto en:** el tema del paquete (desde la 0.2.0).
 
 ### `bg-secondary_subtle` no existe · catálogo
 
@@ -134,13 +111,14 @@ la marca, solo se vio en el origen). Cuándo revalidar cada capa:
 - **Causa:** el tema no define `secondary_subtle`, aunque haya aparecido en listas de tokens. Sí existen
   `bg-secondary_alt`, `bg-secondary_hover`, `bg-secondary-solid` y, de estado,
   `bg-{success,warning,error}-{primary,secondary,solid}`.
-- **Arreglo:** `bg-secondary` para atenuar. Antes de usar un token de una lista, búscalo en `theme.css`.
+- **Arreglo:** `bg-secondary` para atenuar. Antes de usar un token de una lista, búscalo en el tema del
+  paquete (`node_modules/@desarrollospaloblanco/ui/dist/styles/theme.css`).
 
 ### `bg-active` y las clases `fg-*` sueltas no pintan nada · catálogo · revalidada
 
 - **Síntoma:** el ítem activo de una navegación sale sin fondo; un ícono con `fg-quaternary` sale con el
   color del texto.
-- **Causa:** `bg-active` existía en el catálogo anterior y el del 22/10/2026 lo quitó. Los tokens `fg-*`
+- **Causa:** `bg-active` existía en el catálogo anterior y el actual (el del paquete) ya no lo trae. Los tokens `fg-*`
   solo generan CSS con prefijo de utilidad.
 - **Arreglo:** el ítem activo es `bg-secondary hover:bg-secondary_hover`, como el `nav-item` del
   catálogo; los `fg-*`, como `text-fg-*`, `bg-fg-*` o `fill-fg-*`.
@@ -148,10 +126,12 @@ la marca, solo se vio en el origen). Cuándo revalidar cada capa:
 
 ### Una variable de `@theme` no aparece en el CSS compilado · Tailwind 4
 
-- **Síntoma:** `--color-accent-500` no está en el CSS del build, y parece que la rampa no se cargó.
-- **Causa:** Tailwind 4 poda las variables de `@theme` que ninguna clase referencia.
+- **Síntoma:** una variable que agregó la app (`--color-chart-3` en `graficas.css`) no está en el CSS del
+  build, y parece que el archivo no se cargó.
+- **Causa:** Tailwind 4 poda las variables de `@theme` que ninguna clase referencia. Las del paquete casi
+  nunca faltan: su `@source` recorre todos sus componentes.
 - **Arreglo:** ninguno: es lo esperado, y la variable aparece en cuanto una clase la usa
-  (`bg-accent-500`). No la des por rota al inspeccionar el CSS.
+  (`text-chart-3`). No la des por rota al inspeccionar el CSS.
 
 ### El token propio genera `bg-bg-canvas` · Tailwind 4
 
@@ -163,7 +143,8 @@ la marca, solo se vio en el origen). Cuándo revalidar cada capa:
   `--border-color-*` y `--ring-color-*`, como `warning_subtle`. En `.dark-mode` se redeclaran las dos:
   un alias declarado solo en la raíz resuelve ahí su `var()` y, bajo un `.dark-mode` anidado en un
   contenedor, se quedaría con el valor claro.
-- **Ya resuelto en:** `src/styles/brand-dpb.css`.
+- **Ya resuelto en:** el tema del paquete (`bg-canvas`, `warning_subtle`). Vale para cualquier token
+  nuevo que agregue la app.
 
 ### Los botones propios no muestran la mano · Tailwind 4
 
@@ -254,23 +235,10 @@ la marca, solo se vio en el origen). Cuándo revalidar cada capa:
 
 ## Diálogos
 
-### `Modal` y `Dialog` no traen tarjeta ni límite de alto · catálogo · solo en el catálogo anterior
-
-- **Síntoma:** el diálogo sale sin fondo, ocupa todo el ancho, o un formulario largo se desplaza entero
-  y se lleva el título y «Guardar».
-- **Causa:** en el catálogo anterior (el del origen, starter del 17/09/2026), `Modal` y `Dialog` solo
-  ponían posición, animación y el fondo del overlay, y `Modal` era `w-full` sin ancho máximo.
-- **Cómo saberlo:** si el `Dialog` de `src/components/application/modals/modal.tsx` no lleva
-  `max-h-[inherit]`, es el catálogo anterior. La versión de react-aria-components no sirve de señal: el
-  actual usa la misma.
-- **Arreglo:** `<TarjetaDialogo className="bg-primary shadow-xl max-h-[85dvh]">` y el `max-w-*` en cada
-  `Modal`. Con el catálogo actual, sin `className`.
-- **Ya resuelto en:** la prop `className` de `src/features/comunes/tarjeta-dialogo.tsx`.
-
 ### El `Dialog` desplaza todo, cabecera y pie incluidos · catálogo · revalidada
 
 - **Síntoma:** en un formulario largo, el título, la × y «Guardar» se van con el scroll.
-- **Causa:** el `Dialog` del catálogo actual es `max-h-[inherit] overflow-y-auto`: el scroll es de todo su
+- **Causa:** el `Dialog` del paquete es `max-h-[inherit] overflow-y-auto`: el scroll es de todo su
   contenido, no solo del cuerpo.
 - **Arreglo:** `TarjetaDialogo` como **hijo directo** de `Dialog`: toma `max-h-[inherit]` y deja el
   scroll solo en el cuerpo.
@@ -282,8 +250,9 @@ la marca, solo se vio en el origen). Cuándo revalidar cada capa:
   cancelar); o el formulario vuelve a sus valores iniciales con cada tecla.
 - **Causa:** el diálogo no se desmonta al cerrarse, así que un `useState(prop)` leyó la prop una sola vez;
   y un efecto de reinicio que depende de un objeto que el padre arma en cada render corre con cada tecla.
-- **Arreglo:** carga los valores en un efecto que corre al abrir (`if (!abierto) return;`, dependencias
-  `[abierto, registro]`), con `registro` estable: el objeto que llegó del servidor.
+- **Arreglo:** el estado del formulario en un componente hijo con una `key` que cambia en cada apertura
+  (un contador que sube al abrir): remonta con los valores de esa apertura, sin efecto de reinicio. Ver
+  «Formularios en diálogo» en `patrones.md`.
 
 ### Escape y el clic fuera se saltan el botón Cancelar · RAC
 
@@ -408,7 +377,7 @@ la marca, solo se vio en el origen). Cuándo revalidar cada capa:
 
 - **Síntoma:** con la lista abierta, cerrar con Escape vacía todo lo elegido.
 - **Causa:** comportamiento de React Aria dentro del componente generado.
-- **Arreglo:** no hay salida sin tocar `src/components/`. Ciérralo con un clic fuera y, si la selección
+- **Arreglo:** no hay salida sin cambiar el componente en el paquete. Ciérralo con un clic fuera y, si la selección
   cuesta trabajo, muestra la lista de lo elegido fuera del campo y guarda de forma explícita.
 
 ### `type="number"` entrega vacío con «3e» · navegador
@@ -431,24 +400,27 @@ la marca, solo se vio en el origen). Cuándo revalidar cada capa:
 
 ### Textos fijos en inglés que no se pueden editar · catálogo
 
-- **Síntoma:** «Previous» y «Next», el pie del `MultiSelect`, el `DropZone`, el `DateRangePicker`, el
-  «Notifications» que anuncia el lector de pantalla, la 404 «We can't find that page». Revalidados con el
-  starter del 22/10/2026: los de `PaginationPageDefault` y el de `sonner`.
-- **Causa:** el catálogo trae texto fijo, y `src/components/` no se edita.
+- **Síntoma:** «Previous», «Next» y «Page 1 of 10», el pie del `MultiSelect` («Reset», «Select all»), el
+  `DropZone`, el `DateRangePicker` y el «Notifications» que anuncia el lector de pantalla. Revalidados con
+  el starter del 22/10/2026: los de `PaginationPageDefault` y el de `sonner`; los de la paginación y el
+  `MultiSelect` siguen en el código del paquete 0.2.0.
+- **Causa:** el catálogo trae texto fijo, y el paquete no se edita desde la app.
 - **Arreglo:** apágalo por props o compón con otras piezas del catálogo (la tabla de salidas está en
-  [Idioma](patrones.md#idioma)). Sin salida: el placeholder «Search» del buscador del `MultiSelect`.
-- **Ya resuelto en:** `paginacion.tsx`, `notificaciones.tsx` y `no-encontrada.tsx`.
+  [Idioma](patrones.md#idioma)). Sin salida: el placeholder «Search» del buscador del `MultiSelect`. Si
+  un texto se repite en varias apps, pide al paquete que lo traduzca.
+- **Ya resuelto en:** `paginacion.tsx` y `notificaciones.tsx`.
 
 ### El toast del catálogo pide `login` · catálogo · revalidada
 
-- **Síntoma:** `npx untitledui@latest add` de las notificaciones pide iniciar sesión.
-- **Causa:** el toast de Untitled UI (`notifications`) es PRO.
+- **Síntoma:** el paquete no trae notificaciones, y `npx untitledui@latest add` de las de Untitled UI pide
+  iniciar sesión.
+- **Causa:** el toast de Untitled UI (`notifications`) es PRO, y el paquete solo compila el catálogo free.
 - **Arreglo:** `sonner`, sobre la que el catálogo monta el suyo, con el aspecto hecho con tokens.
 - **Ya resuelto en:** `src/features/comunes/notificaciones.tsx`.
 
 ### `application/empty-state` no sigue los tokens · catálogo · revalidada
 
-- **Síntoma:** el vacío del starter se ve distinto en oscuro y trae una ilustración ajena a la app.
+- **Síntoma:** el vacío del catálogo se ve distinto en oscuro y trae una ilustración ajena a la app.
 - **Causa:** usa tokens no semánticos (`from-neutral-50 to-neutral-200`) y una ilustración decorativa.
 - **Arreglo:** `EstadoVacio` de la plantilla.
 - **Ya resuelto en:** `src/features/comunes/estado-vacio.tsx`.
@@ -494,14 +466,23 @@ la marca, solo se vio en el origen). Cuándo revalidar cada capa:
 
 ## Datos en pantalla
 
+### `InputDate` y el calendario salen en inglés · RAC
+
+- **Síntoma:** en un equipo con el navegador en inglés, `InputDate` pide mm/dd/yyyy y el calendario
+  trae los meses y los días en inglés, aunque `index.html` diga `lang="es"`.
+- **Causa:** React Aria toma el idioma de `navigator.language` (su `useDefaultLocale`), no del `lang`
+  del documento.
+- **Ya resuelto en:** el fragmento `main.tsx`, que envuelve la app en `<I18nProvider locale="es-GT">`.
+  En una app que no lo tenga, agrégalo por fuera de todo lo demás.
+
 ### Una fecha sale un día antes · navegador
 
 - **Síntoma:** «2026-10-31» se muestra como 30/10/2026.
 - **Causa:** `new Date("2026-10-31")` es medianoche UTC, y en Guatemala (UTC−6) se pinta el día anterior.
 - **Arreglo:** una fecha de calendario (`AAAA-MM-DD`) no pasa por `Date`: se muestra con
-  `formatearFecha`, y para un `InputDate` se convierte con `parseDate` de `@internationalized/date`. El
-  starter del 22/10/2026 ya lo declara (`^3.12.4`); solo en starters anteriores es transitiva sin
-  declarar: si deja de resolver, decláralo en `package.json`.
+  `formatearFecha`, y para un `InputDate` se convierte con `parseDate` de `@internationalized/date`. Es
+  dependencia del paquete (`^3.12.4`), no de la app: si la app lo importa, decláralo en su
+  `package.json`, o puede dejar de resolver al actualizar el paquete.
 - **Ya resuelto en:** `formatearFecha` (`src/utils/formato.ts`).
 
 ### Los montos compactos mezclan sufijos · navegador
@@ -542,3 +523,15 @@ la marca, solo se vio en el origen). Cuándo revalidar cada capa:
 - **Causa:** la ruta protegida redirige antes de que MSAL termine de restaurar la cuenta.
 - **Arreglo:** no redirijas mientras se restaura; muestra en su lugar «Restaurando sesión…», con el
   `LoadingIndicator` en un envoltorio `role="status"` (ver [Acceso](patrones.md#acceso)).
+
+---
+
+## Migrar desde el catálogo copiado
+
+Solo para una app del modelo anterior (el catálogo en `src/components/` y la marca en
+`src/styles/brand-dpb.css`), como el origen. Los pasos, la rampa y el `className` de `TarjetaDialogo`
+están en [`migracion.md`](migracion.md). Dos restos más:
+
+- **El parche local de `calendar.tsx`** se va con `src/components/`: el del paquete ya trae la corrección
+  del `onChange` de rango (React Aria lo tipa con la unión que incluye `readonly DateValue[]`).
+- **`bg-active`** no existe en el paquete: el ítem activo es `bg-secondary`, como en `sidebar.tsx`.

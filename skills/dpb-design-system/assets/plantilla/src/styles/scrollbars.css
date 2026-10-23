@@ -7,7 +7,7 @@
  * - Chrome, Edge y Safari usan `::-webkit-scrollbar`. Las propiedades estándar (`scrollbar-width` y
  *   `scrollbar-color`) van SOLO donde no existe el pseudo-elemento (Firefox): Chrome 121+ ignora
  *   `::-webkit-scrollbar` en cuanto ve una de las estándar, y volverían las flechas.
- * - Colores con tokens semánticos de theme.css, así que el modo oscuro sale solo.
+ * - Colores con tokens semánticos del tema del paquete, así que el modo oscuro sale solo.
  * - El borde transparente con `background-clip` deja la píldora más angosta que el área que se puede arrastrar.
  */
 

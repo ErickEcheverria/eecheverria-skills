@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { cx } from "@/utils/cx";
+import { cx } from "@desarrollospaloblanco/ui/utils/cx";
 
 /**
  * Lo que se pinta cuando una carga terminó bien pero no trajo nada. `relleno` ocupa el área de un

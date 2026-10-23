@@ -1,0 +1,10 @@
+// Fragmento de tsconfig.app.json: el alias `@/` para TypeScript (el de Vite está en vite.config.ts).
+// Se SUMA a "compilerOptions"; lo demás que trae Vite se queda igual. "paths" se resuelve desde este
+// archivo, así que no hace falta "baseUrl".
+{
+    "compilerOptions": {
+        "paths": {
+            "@/*": ["./src/*"]
+        }
+    }
+}
