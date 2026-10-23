@@ -1,9 +1,11 @@
 import { cx } from "@/utils/cx";
 
 /**
- * Lo que se pinta mientras llega una carga: la forma de lo que viene, no un spinner. `Esqueleto` es el
- * de todo listado (N barras); para otra forma (una rejilla de cifras, una gráfica) se compone con
- * `BLOQUE_ESQUELETO` dentro de un contenedor con `aria-busy="true"` y `aria-label`.
+ * Lo que se pinta mientras llega la PRIMERA carga: la forma de lo que viene, no un spinner. `Esqueleto`
+ * es el de todo listado (N barras); para otra forma (una rejilla de cifras, una gráfica) compón bloques
+ * `BLOQUE_ESQUELETO` con `aria-hidden` dentro de un contenedor `relative` con `role="status"` y un texto
+ * `sr-only` («Cargando el inicio»), igual que aquí. En una recarga (página, búsqueda, filtro) no vuelvas
+ * al esqueleto: deja los datos anteriores a la vista.
  */
 
 /** Un bloque gris que late. `motion-reduce` lo deja quieto para quien pidió menos movimiento. */
@@ -14,16 +16,21 @@ interface EsqueletoProps {
     etiqueta: string;
     /** Cuántas barras. Que se parezca a lo que llegará, para que la pantalla no salte al cargar. */
     filas?: number;
-    /** El alto de cada barra, como clase de Tailwind (`h-12` ≈ una fila compacta de tabla). */
+    /** El alto de cada barra, como clase de Tailwind. `h-11` es el de `FILA`, la fila de tabla. */
     altoFila?: string;
     className?: string;
 }
 
-/** `role="status"` para que el `aria-label` cuente: en un `div` sin rol, el lector de pantalla lo ignora. */
-export const Esqueleto = ({ etiqueta, filas = 8, altoFila = "h-12", className }: EsqueletoProps) => (
-    <div role="status" aria-busy="true" aria-label={etiqueta} className={cx("flex flex-col gap-2", className)}>
+/**
+ * Una región `role="status"` anuncia su CONTENIDO, no su `aria-label`, y con `aria-busy` calla hasta que
+ * termina: por eso la etiqueta va como texto `sr-only` dentro, sin `aria-busy`. Las barras son
+ * `aria-hidden`: no hay nada que leer en ellas. `relative` contiene el `sr-only`, que es `absolute`.
+ */
+export const Esqueleto = ({ etiqueta, filas = 8, altoFila = "h-11", className }: EsqueletoProps) => (
+    <div role="status" className={cx("relative flex flex-col gap-2", className)}>
+        <span className="sr-only">{etiqueta}</span>
         {Array.from({ length: filas }, (_, indice) => (
-            <div key={indice} className={cx(BLOQUE_ESQUELETO, altoFila)} />
+            <div key={indice} aria-hidden className={cx(BLOQUE_ESQUELETO, altoFila)} />
         ))}
     </div>
 );

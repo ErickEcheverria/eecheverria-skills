@@ -1,5 +1,5 @@
 import { ChevronLeftDouble, ChevronRightDouble, ChevronSelectorVertical, LogOut01 } from "@untitledui/icons";
-import { Button as AriaButton } from "react-aria-components";
+import { Button as AriaButton, Focusable as AriaFocusable } from "react-aria-components";
 import { NavLink } from "react-router";
 import { AppLogo } from "@/brand/app-logo";
 import { Avatar } from "@/components/base/avatar/avatar";
@@ -16,14 +16,15 @@ import { cx } from "@/utils/cx";
 
 /**
  * El módulo activo se marca con el ICONO en azul de marca, sobre el gris sutil de siempre
- * (`bg-active`): con la barra colapsada, el gris solo casi no se distinguía del resto. El fondo azul
- * sólido se probó y se descartó: basta con el icono.
+ * (`bg-secondary`, el mismo que usa el `nav-item` del catálogo; el `bg-active` del catálogo anterior ya
+ * no existe y no pinta nada): con la barra colapsada, el gris solo casi no se distinguía del resto. El
+ * fondo azul sólido se probó y se descartó: basta con el icono.
  */
 const linkStyles = (isActive: boolean, isCollapsed: boolean) =>
     cx(
         "flex items-center gap-3 rounded-md p-2 text-sm font-semibold outline-focus-ring transition duration-100 ease-linear focus-visible:outline-2 focus-visible:outline-offset-2",
         isCollapsed && "justify-center",
-        isActive ? "bg-active text-secondary_hover" : "text-secondary hover:bg-primary_hover hover:text-secondary_hover",
+        isActive ? "bg-secondary text-secondary_hover hover:bg-secondary_hover" : "text-secondary hover:bg-primary_hover hover:text-secondary_hover",
     );
 
 /** Iniciales para el avatar cuando no hay foto: "Carlos Rivas" → "CR". */
@@ -36,8 +37,8 @@ const inicialesDe = (nombre: string): string =>
         .join("");
 
 /**
- * Nombres en un renglón y apellidos en otro: "Erick Eduardo Echeverria Garrido" →
- * ["Erick Eduardo", "Echeverria Garrido"].
+ * Nombres en un renglón y apellidos en otro: "Ana Lucía Pérez Morales" →
+ * ["Ana Lucía", "Pérez Morales"].
  *
  * Los nombres del directorio vienen completos y en una sola línea se cortaba justo el
  * apellido, que es lo que identifica. El corte es por convención —los dos últimos son los
@@ -90,7 +91,9 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: { isCollapsed: boolea
                         // abre con una raya.
                         const abreSeccion = indice > 0 && grupo !== items[indice - 1].grupo;
                         const link = (
-                            <NavLink to={href} end aria-label={label} className={({ isActive }) => linkStyles(isActive, isCollapsed)}>
+                            // `end` solo en la raíz: sin él, «Inicio» (`/`) quedaría activo en todas las
+                            // pantallas; con él en todos, `/proveedores/7` no marcaría su módulo.
+                            <NavLink to={href} end={href === "/"} aria-label={label} className={({ isActive }) => linkStyles(isActive, isCollapsed)}>
                                 {({ isActive }) => (
                                     <>
                                         <Icon data-icon className={cx("size-5 shrink-0", isActive ? "text-fg-brand-primary" : "text-fg-quaternary")} />
@@ -109,8 +112,12 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: { isCollapsed: boolea
                                     </div>
                                 )}
                                 {isCollapsed ? (
+                                    // `Focusable` le pasa al `<a>` los eventos de foco y hover que el
+                                    // `TooltipTrigger` de React Aria espera de su hijo: un `NavLink`
+                                    // suelto no los escucha y el tooltip no abría nunca, ni con
+                                    // ratón ni con teclado.
                                     <Tooltip title={label} placement="right">
-                                        {link}
+                                        <AriaFocusable>{link}</AriaFocusable>
                                     </Tooltip>
                                 ) : (
                                     link

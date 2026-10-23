@@ -11,14 +11,11 @@ import { SHELL } from "@/features/shell/shell.config";
  * conectado a su autenticación. Por ejemplo, con MSAL:
  *
  *     <PantallaAcceso lineaSuperior="Acceso corporativo" titulo="Inicia sesión" descripcion="Entra con la cuenta de Microsoft 365 de la empresa.">
- *         <Button size="lg" color="secondary" iconLeading={<MicrosoftLogo data-icon className="size-5" />} isLoading={entrando} showTextWhileLoading onClick={entrar}>
+ *         <Button size="lg" color="secondary" iconLeading={<MicrosoftLogo data-icon className="size-5" />} isLoading={entrando} showTextWhileLoading onPress={entrar}>
  *             Continuar con Microsoft 365
  *         </Button>
  *     </PantallaAcceso>
  */
-
-/** El soporte de IT de DPB: el mismo para todas las apps internas. */
-const SOPORTE = "itservices@paloblanco.com";
 
 interface PantallaAccesoProps {
     /** Renglón de contexto sobre el título, en el rojo de marca: «Acceso corporativo». */
@@ -61,8 +58,8 @@ export const PantallaAcceso = ({ lineaSuperior, titulo, descripcion, children }:
                             <p className="font-medium text-secondary">Acceso por el directorio de la organización</p>
                             <p className="mt-1 text-tertiary">
                                 ¿No puedes entrar? Escribe a{" "}
-                                <a href={`mailto:${SOPORTE}`} className="font-medium text-brand-secondary underline-offset-2 hover:underline">
-                                    {SOPORTE}
+                                <a href={`mailto:${SHELL.correoSoporte}`} className="font-medium text-brand-secondary underline-offset-2 hover:underline">
+                                    {SHELL.correoSoporte}
                                 </a>
                                 .
                             </p>
@@ -73,7 +70,7 @@ export const PantallaAcceso = ({ lineaSuperior, titulo, descripcion, children }:
 
             <div className="flex flex-wrap items-center justify-between gap-4 text-xs text-quaternary">
                 <p>© {new Date().getFullYear()} · Desarrollos Palo Blanco</p>
-                <a href={`mailto:${SOPORTE}`} className="underline-offset-2 hover:underline">
+                <a href={`mailto:${SHELL.correoSoporte}`} className="underline-offset-2 hover:underline">
                     Ayuda
                 </a>
             </div>

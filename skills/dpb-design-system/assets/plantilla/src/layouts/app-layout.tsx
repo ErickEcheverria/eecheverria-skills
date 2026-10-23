@@ -51,6 +51,12 @@ interface AppLayoutProps {
      * se busca. Navega con el router, no recarga.
      */
     volverA?: { href: string; label: string };
+    /**
+     * Franja fija sobre la cabecera, a todo el ancho de la tarjeta: lo que cambia el contexto de TODA la
+     * pantalla (modo simulación, mantenimiento, solo lectura). No se va con el scroll. Una `NotaInformativa`
+     * o un `MensajeError` compacto suelen bastar.
+     */
+    aviso?: ReactNode;
     children: ReactNode;
 }
 
@@ -70,7 +76,7 @@ interface AppLayoutProps {
  * posicionado (un `sr-only`, por ejemplo) no lo recorta ningún `overflow` y agranda el
  * documento, y la página gana un segundo scroll. Ver `AREA_TABLA` en `comunes/tabla.ts`.
  */
-export const AppLayout = ({ title, subtitle, action, filtros, volverA, children }: AppLayoutProps) => {
+export const AppLayout = ({ title, subtitle, action, filtros, volverA, aviso, children }: AppLayoutProps) => {
     const { isCollapsed, toggle } = useSidebarCollapsed();
     const { pathname } = useLocation();
 
@@ -84,12 +90,12 @@ export const AppLayout = ({ title, subtitle, action, filtros, volverA, children 
                 la tarjeta entera haría que el panel se despegara del lienzo en cada
                 navegación, que es más movimiento del que el cambio justifica. */}
             <div className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-xl bg-primary shadow-md ring-1 ring-secondary">
-                {/* La `key` es lo que REARRANCA la animación.
-                    Cada pantalla monta su propio `AppLayout`, así que al navegar React
-                    reconcilia el mismo componente en la misma posición en vez de montarlo de
-                    nuevo: sin la key, las clases de `animate-in` ya están aplicadas desde la
-                    primera carga y no vuelven a dispararse nunca. Cambiar la key fuerza un
-                    montaje nuevo, que es justo lo que reinicia el CSS.
+                {/* La `key` es lo que REARRANCA la animación cuando la MISMA página cambia de
+                    parámetro (`/proveedores/1` → `/proveedores/2`): ahí React reconcilia el mismo
+                    componente en la misma posición y, sin la key, las clases de `animate-in` ya
+                    aplicadas no vuelven a dispararse. Entre páginas distintas no hace falta: cada
+                    ruta monta un componente distinto y React remonta todo, sidebar incluida (por eso
+                    su estado colapsado vive en localStorage y no en memoria).
 
                     Se anima cada hijo por separado y no un envoltorio común a propósito: un
                     nivel de flex de más entre la tarjeta y `main` rompería la cadena de
@@ -98,6 +104,12 @@ export const AppLayout = ({ title, subtitle, action, filtros, volverA, children 
                     Las dos keys llevan un prefijo distinto: son HERMANOS, y con la misma key React no
                     sabe cuál es cuál. Si se agrega una franja delante, la cabecera saldría duplicada
                     en cada render. */}
+                {/* Sin animación ni key ligada a la ruta: el aviso es del contexto, no de la pantalla. */}
+                {aviso && (
+                    <div key="aviso" className="shrink-0 px-4 pt-4 sm:px-6 sm:pt-6">
+                        {aviso}
+                    </div>
+                )}
                 {/* En móvil, menos relleno y sin subtítulo: la cabecera no se va con el scroll, así que
                     cada renglón suyo es uno menos para el contenido. */}
                 <header
@@ -121,7 +133,9 @@ export const AppLayout = ({ title, subtitle, action, filtros, volverA, children 
                     {filtros && <div className="flex basis-full flex-wrap items-center gap-3">{filtros}</div>}
                 </header>
 
-                <main key={`contenido:${pathname}`} className={`relative flex min-h-0 flex-1 flex-col overflow-y-auto px-4 pb-4 sm:px-6 sm:pb-6 ${TRANSICION}`}>
+                {/* `pt-px`: el `ring` de una tarjeta que abre el contenido se pinta 1 px por fuera y el
+                    `overflow` de `main` le recortaba el borde de arriba. */}
+                <main key={`contenido:${pathname}`} className={`relative flex min-h-0 flex-1 flex-col overflow-y-auto px-4 pt-px pb-4 sm:px-6 sm:pb-6 ${TRANSICION}`}>
                     {children}
                 </main>
             </div>

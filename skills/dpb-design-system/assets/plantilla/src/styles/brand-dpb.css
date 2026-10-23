@@ -11,14 +11,16 @@
  *   ring. La rampa se construyó sobre hsl(216, 56%, L) manteniendo el 500 exacto.
  *
  * - `accent` = rojo DPB #CC1F37. Rampa NUEVA, no sobrescribe nada de Untitled UI.
- *   Es un acento de marca (destacados, KPIs), NO un color de estado.
+ *   Es un acento de marca puntual (una línea de contexto, un detalle de marca), NO un color
+ *   de estado ni de acción: ni errores, ni KPIs en alerta, ni botones.
  *
  * - Los ramos `error`, `warning` y `success` de Untitled UI se dejan INTACTOS. Son
  *   colores funcionales: un rojo de error tiene que leerse como error, no como marca.
  *   Si se pintara `error` con el rojo DPB, un registro con error y un botón de marca
  *   serían el mismo color.
  *
- * - Tipografía Open Sans 400/600/700, la oficial de DPB. Se carga en index.html.
+ * - Tipografía Open Sans 400/500/600/700, la oficial de DPB. Se carga en index.html; sin el
+ *   500, `font-medium` se pinta en 400.
  */
 
 @theme {
@@ -97,8 +99,10 @@
  * claro y en oscuro. El azul es el de la marca; el naranja, el segundo tono categórico, lejos
  * del rojo DPB y de los colores de estado. Si se agrega una serie, revalidar.
  *
- * Se usan como `var(--color-chart-1)` en el `fill` de recharts y como `bg-chart-1` en las
- * leyendas. El tema oscuro sube un paso cada uno para conservar el contraste.
+ * Se usan con `fill="currentColor"` y la clase `text-chart-1` en recharts, y `bg-chart-1` en las
+ * leyendas: una clase que las use es lo que evita que Tailwind 4 pode la variable. En oscuro, la
+ * serie 1 sube un paso (brand-400) y la 2 baja un poco su luminancia (#D95926) para no deslumbrar;
+ * las dos quedan por encima de 3:1 contra el fondo oscuro.
  */
 @theme {
     --color-chart-1: var(--color-brand-500);

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { SHELL } from "@/features/shell/shell.config";
 
 /**
@@ -25,15 +25,18 @@ export const useSidebarCollapsed = () => {
         return window.matchMedia(PANTALLA_ANGOSTA).matches;
     });
 
-    useEffect(() => {
+    // Se guarda solo cuando el usuario la cambia. Guardar al montar convertiría el ancho de la
+    // primera visita en «preferencia»: quien entró desde una ventana angosta la vería colapsada
+    // para siempre, aunque después maximice.
+    const toggle = useCallback(() => {
+        const siguiente = !isCollapsed;
+        setIsCollapsed(siguiente);
         try {
-            localStorage.setItem(SHELL.claveSidebarColapsada, String(isCollapsed));
+            localStorage.setItem(SHELL.claveSidebarColapsada, String(siguiente));
         } catch {
             // Sin persistencia: la preferencia dura lo que dure la sesión.
         }
     }, [isCollapsed]);
-
-    const toggle = useCallback(() => setIsCollapsed((value) => !value), []);
 
     return { isCollapsed, toggle };
 };

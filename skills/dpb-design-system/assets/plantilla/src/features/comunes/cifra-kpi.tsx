@@ -4,13 +4,17 @@ import { cx } from "@/utils/cx";
 
 /**
  * Una cifra destacada de un tablero o un inicio. Pinta `<dt>`/`<dd>`, así que va dentro de un `<dl>`:
- * `<dl className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"><CifraKpi …/></dl>`.
+ * `<dl className="grid grid-cols-1 gap-4 md:grid-cols-3"><CifraKpi …/></dl>` (tantas columnas como cifras).
  */
 
 interface CifraKpiProps {
     etiqueta: string;
     valor: string;
-    /** La lectura completa en el `title`, cuando `valor` va compacto («Q 1.2 M» → «Q 1,203,450.00»). */
+    /**
+     * La lectura completa cuando `valor` va compacto («Q 1.2M» → «Q 1,203,450.00»). Va en el `title` para
+     * el ratón y como texto `sr-only` para el lector de pantalla; en táctil el `title` no se alcanza, así
+     * que si el exacto importa en móvil, ponlo también en `detalle`.
+     */
     exacto?: string;
     /** Una línea debajo: el desglose o qué significa. */
     detalle?: ReactNode;
@@ -21,24 +25,32 @@ interface CifraKpiProps {
 }
 
 /**
- * El número manda; la etiqueta y el detalle lo explican, y el ícono va arriba a la derecha para que la
- * tarjeta no quede con un hueco. El color nunca va solo: si la cifra alerta, el detalle lo dice.
+ * El `div` de la tarjeta ES el grupo del `<dl>`: el HTML solo admite `dt`/`dd` como hijos directos de un
+ * `div` hijo del `dl`. Un nivel más de `div` para el layout deja la lista inválida y el lector de
+ * pantalla deja de asociar la etiqueta con su cifra. Por eso el ícono va DENTRO del `dt`, posicionado
+ * arriba a la derecha, y no como hermano; y es `relative` también para contener el `sr-only`.
+ *
+ * El número manda; la etiqueta y el detalle lo explican. El color nunca va solo: si la cifra alerta, el
+ * detalle lo dice.
  */
 export const CifraKpi = ({ etiqueta, valor, exacto, detalle, icono, tono = "normal", children }: CifraKpiProps) => (
-    <div className="flex min-w-0 flex-col gap-1 rounded-xl bg-primary p-4 ring-1 ring-secondary">
-        <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-                <dt className="text-sm font-medium text-tertiary">{etiqueta}</dt>
-                <dd
-                    title={exacto}
-                    className={cx("mt-1 truncate text-display-xs font-semibold tabular-nums", tono === "alerta" ? "text-error-primary" : "text-primary")}
-                >
-                    {valor}
-                </dd>
-            </div>
-            {icono && <FeaturedIcon icon={icono} size="md" theme="light" color={tono === "alerta" ? "error" : "brand"} className="shrink-0" />}
-        </div>
+    <div className="relative flex min-w-0 flex-col gap-1 rounded-xl bg-primary p-4 ring-1 ring-secondary">
+        <dt className={cx("text-sm font-medium text-tertiary", icono && "pr-12")}>
+            {etiqueta}
+            {icono && (
+                <span aria-hidden className="absolute top-4 right-4">
+                    <FeaturedIcon icon={icono} size="md" theme="light" color={tono === "alerta" ? "error" : "brand"} />
+                </span>
+            )}
+        </dt>
+        <dd
+            title={exacto}
+            className={cx("truncate text-display-xs font-semibold tabular-nums", icono && "pr-12", tono === "alerta" ? "text-error-primary" : "text-primary")}
+        >
+            {valor}
+            {exacto && <span className="sr-only"> ({exacto})</span>}
+        </dd>
         {detalle && <dd className="text-xs text-tertiary">{detalle}</dd>}
-        {children}
+        {children && <dd>{children}</dd>}
     </div>
 );

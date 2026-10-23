@@ -39,12 +39,12 @@ const ESTILO = {
 
 export const EstadoVacio = ({ titulo, descripcion, accion, variante = "relleno", className }: EstadoVacioProps) => {
     const estilo = ESTILO[variante];
-    // El relleno encabeza el área de un listado; el punteado vive bajo el `<h2>` de su tarjeta.
-    const Titulo = variante === "relleno" ? "h3" : "p";
 
+    // El título es un `<p>`, no un encabezado: el vacío de un listado cae justo bajo el `<h1>` de la
+    // página, y un `<h3>` ahí salta un nivel; además no abre una sección que se pueda navegar.
     return (
         <div role="status" className={cx("flex flex-1 flex-col items-center justify-center text-center", estilo.caja, className)}>
-            <Titulo className={estilo.titulo}>{titulo}</Titulo>
+            <p className={estilo.titulo}>{titulo}</p>
             {descripcion && <p className={cx("mt-1 text-sm text-tertiary", estilo.descripcion)}>{descripcion}</p>}
             {accion && <div className={estilo.accion}>{accion}</div>}
         </div>

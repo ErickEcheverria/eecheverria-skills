@@ -31,7 +31,9 @@ export const ConfirmarDialog = ({
     trabajando,
     onConfirmar,
 }: ConfirmarDialogProps) => (
-    <ModalOverlay isOpen={abierto} onOpenChange={onCambiarApertura} isDismissable>
+    // Mientras trabaja no se cierra ni con Escape ni con el clic fuera, igual que «Cancelar» se apaga:
+    // cerrar a media escritura escondería el resultado, y un error ya no tendría dónde mostrarse.
+    <ModalOverlay isOpen={abierto} onOpenChange={onCambiarApertura} isDismissable={!trabajando} isKeyboardDismissDisabled={trabajando}>
         <Modal className="max-w-md">
             <Dialog aria-label={titulo}>
                 {/* El texto va en el CUERPO y no como `descripcion`: la cabecera es fija y no se desplaza,

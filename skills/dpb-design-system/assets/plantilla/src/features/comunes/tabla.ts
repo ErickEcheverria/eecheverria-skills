@@ -33,8 +33,12 @@ export const AREA_TABLA_PROPIA = "relative min-h-0 flex-1 overflow-auto rounded-
  *
  * El `size` de `<Table>` NO llega a las filas: `TableRoot` lo resuelve con `context?.size ?? size` y el
  * contexto tiene por defecto `{ size: "md" }`, así que el `??` nunca mira la prop y todas salían con
- * `h-18`. `Table.Header` y `Table.Row` sí respetan la suya. La `h-11` (44 px, el mínimo táctil) gana
- * sobre la `h-14` del componente porque `cx` es tailwind-merge. Si la fila usa `claseFila`, pásale
- * `FILA.className` como base.
+ * `h-18`. `Table.Header` y `Table.Row` sí respetan la suya. La `h-11` (44 px) gana sobre la `h-14` del
+ * componente porque `cx` es tailwind-merge.
+ *
+ * `Table.Cell` tampoco ve el `size` de la fila: lo toma del mismo contexto (`md` → `py-4`) y la fila
+ * crecía a 54 px aunque pidiera `h-11`. `*:py-2` baja el relleno vertical de sus celdas sin tocar el
+ * `px-6`, que es lo que las alinea con `Table.Head`; pasar `size="sm"` a cada celda las desalineaba.
+ * Si la fila usa `claseFila`, pásale `FILA.className` como base.
  */
-export const FILA = { size: "sm", className: "h-11" } as const;
+export const FILA = { size: "sm", className: "h-11 *:py-2" } as const;
