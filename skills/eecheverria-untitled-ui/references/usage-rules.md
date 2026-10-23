@@ -289,11 +289,11 @@ import { Checkbox } from "@/components/base/checkbox/checkbox";
 
 `isIndeterminate` es lo correcto para el checkbox de "seleccionar todo" de una tabla cuando hay
 selección parcial. Por defecto, los toggles son para cambios de efecto inmediato; si el cambio
-requiere "Guardar", usa checkbox. Si el proyecto ya usa `Toggle` dentro de formularios que se
-guardan, de forma consistente, o si la skill de design system del proyecto lo fija así
-(`dpb-design-system` en las apps de DPB, nuevas o existentes), sigue al proyecto: en una app DPB
-nueva los sí/no de formulario también son `Toggle`. Lo que confunde al usuario es mezclar las dos
-formas en la misma app.
+requiere "Guardar", usa checkbox. Hay dos excepciones, en este orden: si la skill de design system
+del proyecto lo fija, manda ella (`dpb-design-system`: en las apps de DPB los sí/no de formulario son
+`Toggle`, también al guardar); si no, y el proyecto ya usa `Toggle` dentro de formularios que se
+guardan de forma consistente, sigue al proyecto. Lo que confunde al usuario es mezclar las dos formas
+en la misma app.
 
 ### Badge, Avatar y FeaturedIcon
 
@@ -340,7 +340,7 @@ import { Dialog, Modal, ModalOverlay } from "@/components/application/modals/mod
                 <h2 className="text-lg font-semibold text-primary">Eliminar cliente</h2>
                 <p className="text-sm text-tertiary">Esta acción no se puede deshacer.</p>
                 <div className="flex gap-3">
-                    <Button color="secondary" onClick={close}>Cancelar</Button>
+                    <Button color="secondary" onPress={() => setIsOpen(false)}>Cancelar</Button>
                     <Button color="primary-destructive" isLoading={isDeleting}>Eliminar</Button>
                 </div>
             </div>
@@ -354,7 +354,8 @@ No es un componente compuesto: son tres exports con nombre que se anidan `ModalO
 clic fuera); `Modal` es `w-full` y `Dialog` no trae padding, así que el ancho (`max-w-*`) y el
 padding los pones tú. React Aria ya se encarga del focus trap, del `Escape` y del scroll del fondo:
 no los reimplementes. Para acciones destructivas, la receta es `FeaturedIcon color="error"` + botón
-`primary-destructive`, y el botón seguro (Cancelar) a la izquierda.
+`primary-destructive`, y el botón seguro (Cancelar) a la izquierda. El `Button` del catálogo es de
+React Aria: el clic es `onPress`, no `onClick`.
 
 ### Table
 
@@ -381,12 +382,25 @@ import { Table, TableCard } from "@/components/application/table/table";
 
 La columna es `Table.Head` con `id` y `label` (no `Table.Column` ni `key`), y la primera lleva
 `isRowHeader`. `size="sm"` en `<Table>` no llega a filas ni celdas (`TableRoot` resuelve
-`context?.size ?? size` y el contexto siempre trae `md`): pásalo a `Table.Header`, `Table.Row` y
-`Table.Cell`, o envuelve en `TableCard.Root size="sm"`.
+`context?.size ?? size` y el contexto siempre trae `md`): pásalo a `Table.Header` y a cada
+`Table.Row`, que sí respetan el suyo. A `Table.Cell` no: en `sm` cambia también el relleno horizontal
+(`px-5 py-3` contra el `px-6 py-4` de `md`), mientras `Table.Head` es siempre `px-6`, así que las
+celdas quedan desalineadas del encabezado. `TableCard.Root size="sm"` tampoco: pone `sm` en el
+contexto y las celdas lo heredan, con el mismo desfase. Para filas compactas, baja **solo** el relleno
+vertical de las celdas desde la fila, sin tocar el `px`:
+
+```tsx
+<Table.Header size="sm">…</Table.Header>
+<Table.Row id={item.id} size="sm" className="h-11 *:py-2">…</Table.Row>
+```
+
+`h-11` gana sobre la `h-14` de `sm` porque `cx` es tailwind-merge, y `*:py-2` gana sobre el `py-4` de
+cada celda. Es lo que hace `FILA` en `dpb-design-system`.
 
 El ordenamiento es **controlado**: `sortDescriptor` + `onSortChange` — la tabla no ordena los datos
 sola, tú decides si reordenas en cliente o pides al backend. Cuando `items` viene vacío, no dejes la
-tabla desnuda: renderiza `empty-states`.
+tabla desnuda: renderiza `empty-states` o la pieza equivalente del design system del proyecto (en DPB,
+`EstadoVacio` de `dpb-design-system`).
 
 ### Tabs
 
@@ -450,11 +464,16 @@ vas a rechazar.
 
 ### Estados de carga, vacío y error
 
-No los improvises; el catálogo los tiene y así quedan consistentes en toda la app:
+No los improvises; el catálogo los tiene (o el design system del proyecto, cuando tiene pieza propia)
+y así quedan consistentes en toda la app:
 
 - **Cargando** → `loading-indicators` (o `isLoading` del propio botón/tabla).
-- **Vacío** → `empty-states`, con `FeaturedIcon`, texto explicativo y una acción primaria.
-- **Error de la operación** → `alerts` si es dentro de la página; `notifications` si es un toast.
+- **Vacío** → `empty-states`, con `FeaturedIcon`, texto explicativo y una acción primaria, o la pieza
+  equivalente del design system del proyecto (en DPB, `EstadoVacio` de `dpb-design-system`).
+- **Error de la operación** → `alerts` si es dentro de la página. Si tiene que ser un toast, no lo
+  traigas del catálogo: `notifications` es PRO (sin licencia, `search "toast notification"` no
+  devuelve nada). Usa la alternativa free del proyecto: en DPB, `notificar` de `dpb-design-system`,
+  sobre sonner.
 - **Campo inválido** → `isInvalid` + `hint` del propio input, no un mensaje suelto.
 
 ## Tabla rápida de antipatrones
