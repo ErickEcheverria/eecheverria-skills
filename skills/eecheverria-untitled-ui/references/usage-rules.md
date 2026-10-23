@@ -41,11 +41,15 @@ Cuatro escalas, cada una con su trabajo. La confusión más frecuente es usar `t
 | `text-brand-secondary` | Texto de marca en botones y destacados | `text-blue-600` |
 | `text-brand-secondary_hover` | Ese texto en hover | — |
 | `text-brand-tertiary` · `text-brand-tertiary_alt` | Acentos de marca más claros | — |
-| `text-error-primary` | Mensajes de error | `text-red-600` |
+| `text-error-primary` · `text-error-primary_hover` | Mensajes de error · su hover (enlace destructivo) | `text-red-600` |
 | `text-warning-primary` | Mensajes de advertencia | `text-amber-600` |
 | `text-success-primary` | Mensajes de éxito | `text-green-600` |
 
 ### `fg-*` — elementos no textuales (iconos, indicadores)
+
+Como clase llevan la propiedad delante: `text-fg-quaternary` en un icono (los de `@untitledui/icons`
+pintan con `currentColor`), `bg-fg-*` en un punto, `fill-fg-*` en un SVG propio. `fg-quaternary` a
+secas no genera CSS.
 
 | Token | Cuándo |
 | --- | --- |
@@ -55,7 +59,7 @@ Cuatro escalas, cada una con su trabajo. La confusión más frecuente es usar `t
 | `fg-quaternary` · `fg-quaternary_hover` | Iconos de bajo contraste: ayuda, dentro de inputs y botones |
 | `fg-white` | Blanco siempre |
 | `fg-brand-primary` · `fg-brand-primary_alt` | Iconos de marca (`_alt` pasa a gris en dark) |
-| `fg-brand-secondary` · `fg-brand-secondary_alt` | Acentos y flechas de marca |
+| `fg-brand-secondary` · `fg-brand-secondary_alt` · `fg-brand-secondary_hover` | Acentos y flechas de marca, con su hover |
 | `fg-error-primary` · `fg-error-secondary` | Iconos de error (el secundario, en inputs y gráficas) |
 | `fg-warning-primary` · `fg-warning-secondary` | Iconos de advertencia |
 | `fg-success-primary` · `fg-success-secondary` | Iconos y puntos de éxito |
@@ -77,12 +81,12 @@ Cuatro escalas, cada una con su trabajo. La confusión más frecuente es usar `t
 | --- | --- | --- |
 | `bg-primary` | Fondo base de layouts y tarjetas | `bg-white` |
 | `bg-primary_alt` · `bg-primary_hover` | Variante que se invierte en dark · hover | — |
-| `bg-primary-solid` | Fondo oscuro primario | — |
-| `bg-secondary` | Secciones con contraste respecto al fondo base | `bg-gray-50` |
+| `bg-primary-solid` | Fondo oscuro primario (tooltips) | — |
+| `bg-secondary` | Secciones con contraste respecto al fondo base; ítem activo de la navegación | `bg-gray-50` |
 | `bg-secondary_alt` · `bg-secondary_hover` | Variantes de la secundaria | — |
+| `bg-secondary-solid` | Gris sólido: el par neutro de `bg-brand-solid` (`FeaturedIcon` gris en `gradient`/`dark`) | `bg-gray-600` |
 | `bg-tertiary` | Fondos de control (toggles) | `bg-gray-100` |
 | `bg-quaternary` | Pistas de sliders y barras de progreso | `bg-gray-200` |
-| `bg-active` | Ítem seleccionado en menús y navegación | `bg-gray-50` |
 | `bg-overlay` | Velo detrás de modales | `bg-black/50` |
 | `bg-brand-primary` · `bg-brand-primary_alt` | Fondo de marca suave (fondo de iconos check) | `bg-blue-50` |
 | `bg-brand-secondary` | Fondo de marca secundario | `bg-blue-100` |
@@ -90,8 +94,12 @@ Cuatro escalas, cada una con su trabajo. La confusión más frecuente es usar `t
 | `bg-brand-section` · `bg-brand-section_subtle` | Secciones oscuras de marca | — |
 | `bg-error-primary` · `bg-error-secondary` | Fondo suave de error (alertas, iconos) | `bg-red-50` |
 | `bg-error-solid` · `bg-error-solid_hover` | Botón destructivo sólido | `bg-red-600` |
-| `bg-warning-primary` · `bg-warning-secondary` · `bg-warning-solid` · `bg-warning-solid_hover` | Advertencia | `bg-amber-*` |
-| `bg-success-primary` · `bg-success-secondary` · `bg-success-solid` · `bg-success-solid_hover` | Éxito | `bg-green-*` |
+| `bg-warning-primary` · `bg-warning-secondary` · `bg-warning-solid` | Advertencia (sin `_hover`) | `bg-amber-*` |
+| `bg-success-primary` · `bg-success-secondary` · `bg-success-solid` | Éxito (sin `_hover`) | `bg-green-*` |
+
+Las cuatro tablas están validadas contra el `theme.css` del starter Vite de Untitled UI del 2026-10-22
+(Tailwind 4.3): cada token de la tabla genera CSS, y lo que no está aquí (`bg-active`,
+`bg-*-solid_hover` de warning/success) no existe.
 
 Regla mnemotécnica: **`primary` es el fondo base, `solid` es el fondo intenso.** `bg-brand-primary`
 es el azul clarito de un fondo de icono; `bg-brand-solid` es el azul fuerte del botón.
@@ -102,10 +110,10 @@ es el azul clarito de un fondo de icono; `bg-brand-solid` es el azul fuerte del 
 import { cx } from "@/utils/cx";
 
 // ✅ cx envuelve tailwind-merge: la clase que llega por props gana sobre la del componente
-<div className={cx("rounded-lg bg-primary p-4", isActive && "bg-active", className)} />
+<div className={cx("rounded-lg bg-primary p-4", isActive && "bg-secondary", className)} />
 
 // ❌ template string: las clases se pelean y gana la del CSS, no la intención
-<div className={`rounded-lg bg-primary p-4 ${isActive ? "bg-active" : ""} ${className}`} />
+<div className={`rounded-lg bg-primary p-4 ${isActive ? "bg-secondary" : ""} ${className}`} />
 ```
 
 Para variantes, agrúpalas con `sortCx` en vez de encadenar ternarios en el JSX:
@@ -157,12 +165,12 @@ npx untitledui@latest search "flecha" --type icons --limit 10
 ```
 
 ```typescript
-import { Check, Trash02, Mail01 } from "@untitledui/icons";   // ✅ named import (tree-shakeable)
+import { Check, Home01 } from "@untitledui/icons";             // ✅ named import (tree-shakeable)
 
 <Button iconLeading={Check}>Guardar</Button>                  // ✅ referencia del componente
 <Button iconLeading={<Check data-icon className="size-4" />}>Guardar</Button> // ✅ JSX con data-icon
 <Button iconLeading={<Check className="size-4" />}>Guardar</Button>           // ❌ pierde los estilos del slot
-<Home01 className="size-5 text-brand-secondary" aria-hidden="true" />         // ✅ suelto en el JSX
+<Home01 className="size-5 text-fg-brand-secondary" aria-hidden="true" />      // ✅ suelto en el JSX
 ```
 
 Cuando pasas un icono como prop, **pasa la referencia** (`iconLeading={Check}`) y deja que el
@@ -190,13 +198,13 @@ link-destructive` · `iconLeading` · `iconTrailing` · `isDisabled` · `isLoadi
 
 // Enlaces: son Button con href y color link-*
 <Button href="/dashboard" color="link-color">Ver panel</Button>
-<Button href="https://ejemplo.com" color="link-color" iconTrailing={ExternalLink01}>Sitio</Button>
+<Button href="https://ejemplo.com" color="link-color" iconTrailing={LinkExternal01}>Sitio</Button>
 ```
 
 ### Input, InputGroup y Textarea
 
 ```typescript
-import { Input } from "@/components/base/input/input";
+import { Input, InputBase } from "@/components/base/input/input";
 import { InputGroup } from "@/components/base/input/input-group";
 ```
 
@@ -230,27 +238,33 @@ import { MultiSelect } from "@/components/base/select/multi-select";
 ```
 
 Props del select: `size` · `label` · `placeholder` · `hint` · `items` · `icon` · `isRequired` ·
-`isDisabled`. Props del ítem: `id` · `supportingText` · `icon` · `avatarUrl` · `isDisabled`.
+`isDisabled`. Props del ítem: `id` (obligatorio) · `label` · `supportingText` · `icon` · `avatarUrl` ·
+`isDisabled`.
+
+`items` es `SelectItemType[]` y el render prop recibe ese tipo, no el tuyo: mapea tus datos a esa
+forma antes (`item.email` no existe; `item.supportingText`, sí).
 
 ```tsx
+const usuarios = data.map((u) => ({ id: u.id, label: u.name, supportingText: u.email, avatarUrl: u.avatar }));
+
 <Select label="Responsable" placeholder="Selecciona" items={usuarios}>
     {(item) => (
-        <Select.Item id={item.id} supportingText={item.email}>
-            {item.name}
+        <Select.Item id={item.id} supportingText={item.supportingText}>
+            {item.label}
         </Select.Item>
     )}
 </Select>
 
 // Con búsqueda
 <Select.ComboBox label="Buscar" placeholder="Busca un usuario" items={usuarios}>
-    {(item) => <Select.Item id={item.id}>{item.name}</Select.Item>}
+    {(item) => <Select.Item id={item.id}>{item.label}</Select.Item>}
 </Select.ComboBox>
 
 // Con avatar y texto de apoyo
 <Select items={usuarios} icon={User01}>
     {(item) => (
-        <Select.Item avatarUrl={item.avatar} supportingText={item.role}>
-            {item.name}
+        <Select.Item id={item.id} avatarUrl={item.avatarUrl} supportingText={item.supportingText}>
+            {item.label}
         </Select.Item>
     )}
 </Select>
@@ -276,8 +290,10 @@ import { Checkbox } from "@/components/base/checkbox/checkbox";
 `isIndeterminate` es lo correcto para el checkbox de "seleccionar todo" de una tabla cuando hay
 selección parcial. Por defecto, los toggles son para cambios de efecto inmediato; si el cambio
 requiere "Guardar", usa checkbox. Si el proyecto ya usa `Toggle` dentro de formularios que se
-guardan, de forma consistente (las apps de DPB lo hacen; ver `dpb-design-system`), sigue al
-proyecto: lo que confunde al usuario es mezclar las dos formas en la misma app.
+guardan, de forma consistente, o si la skill de design system del proyecto lo fija así
+(`dpb-design-system` en las apps de DPB, nuevas o existentes), sigue al proyecto: en una app DPB
+nueva los sí/no de formulario también son `Toggle`. Lo que confunde al usuario es mezclar las dos
+formas en la misma app.
 
 ### Badge, Avatar y FeaturedIcon
 
@@ -312,26 +328,32 @@ usa los semánticos; los decorativos son para categorías sin significado de est
 ### Modal
 
 ```typescript
-import { Modal } from "@/components/application/modals/modal";
+import { Dialog, Modal, ModalOverlay } from "@/components/application/modals/modal";
 ```
 
 ```tsx
-<Modal isOpen={isOpen} onClose={close}>
-    <Modal.Overlay />
-    <Modal.Dialog>
-        <FeaturedIcon icon={Trash02} color="error" theme="light" size="lg" />
-        <h2 className="text-lg font-semibold text-primary">Eliminar cliente</h2>
-        <p className="text-sm text-tertiary">Esta acción no se puede deshacer.</p>
-        <div className="flex gap-3">
-            <Button color="secondary" onClick={close}>Cancelar</Button>
-            <Button color="primary-destructive" isLoading={isDeleting}>Eliminar</Button>
-        </div>
-    </Modal.Dialog>
-</Modal>
+<ModalOverlay isOpen={isOpen} onOpenChange={setIsOpen} isDismissable>
+    <Modal className="max-w-md">
+        <Dialog aria-label="Eliminar cliente">
+            <div className="flex flex-col gap-4 p-6">
+                <FeaturedIcon icon={Trash02} color="error" theme="light" size="lg" />
+                <h2 className="text-lg font-semibold text-primary">Eliminar cliente</h2>
+                <p className="text-sm text-tertiary">Esta acción no se puede deshacer.</p>
+                <div className="flex gap-3">
+                    <Button color="secondary" onClick={close}>Cancelar</Button>
+                    <Button color="primary-destructive" isLoading={isDeleting}>Eliminar</Button>
+                </div>
+            </div>
+        </Dialog>
+    </Modal>
+</ModalOverlay>
 ```
 
-React Aria ya se encarga del focus trap, del `Escape` y del scroll del fondo: no los reimplementes.
-Para acciones destructivas, la receta es `FeaturedIcon color="error"` + botón
+No es un componente compuesto: son tres exports con nombre que se anidan `ModalOverlay` › `Modal` ›
+`Dialog`. El estado va en `ModalOverlay` (`isOpen`, `onOpenChange`, `isDismissable` para cerrar con
+clic fuera); `Modal` es `w-full` y `Dialog` no trae padding, así que el ancho (`max-w-*`) y el
+padding los pones tú. React Aria ya se encarga del focus trap, del `Escape` y del scroll del fondo:
+no los reimplementes. Para acciones destructivas, la receta es `FeaturedIcon color="error"` + botón
 `primary-destructive`, y el botón seguro (Cancelar) a la izquierda.
 
 ### Table
@@ -343,12 +365,12 @@ import { Table, TableCard } from "@/components/application/table/table";
 ```tsx
 <Table sortDescriptor={sort} onSortChange={setSort} selectionMode="multiple">
     <Table.Header>
-        <Table.Column key="name" allowsSorting>Nombre</Table.Column>
-        <Table.Column key="email">Correo</Table.Column>
+        <Table.Head id="name" label="Nombre" isRowHeader allowsSorting />
+        <Table.Head id="email" label="Correo" />
     </Table.Header>
     <Table.Body items={data}>
         {(item) => (
-            <Table.Row key={item.id}>
+            <Table.Row id={item.id}>
                 <Table.Cell>{item.name}</Table.Cell>
                 <Table.Cell>{item.email}</Table.Cell>
             </Table.Row>
@@ -356,6 +378,11 @@ import { Table, TableCard } from "@/components/application/table/table";
     </Table.Body>
 </Table>
 ```
+
+La columna es `Table.Head` con `id` y `label` (no `Table.Column` ni `key`), y la primera lleva
+`isRowHeader`. `size="sm"` en `<Table>` no llega a filas ni celdas (`TableRoot` resuelve
+`context?.size ?? size` y el contexto siempre trae `md`): pásalo a `Table.Header`, `Table.Row` y
+`Table.Cell`, o envuelve en `TableCard.Root size="sm"`.
 
 El ordenamiento es **controlado**: `sortDescriptor` + `onSortChange` — la tabla no ordena los datos
 sola, tú decides si reordenas en cliente o pides al backend. Cuando `items` viene vacío, no dejes la
@@ -391,19 +418,20 @@ refresh o compartirse por URL, controla `selectedKey`/`onSelectionChange` contra
 ### Pagination
 
 ```typescript
-import { Pagination } from "@/components/application/pagination/pagination";
+import { PaginationPageDefault } from "@/components/application/pagination/pagination";
 ```
 
 ```tsx
-<Pagination total={total} pageSize={20} currentPage={page} onChange={setPage}>
-    <Pagination.PrevButton />
-    <Pagination.Items />
-    <Pagination.NextButton />
-</Pagination>
+<PaginationPageDefault page={page} total={Math.ceil(totalRegistros / 20)} onPageChange={setPage} />
 ```
 
-`total` es el total de **registros**, no de páginas. Con datos del servidor, ese número viene del
-backend — ver la sección de paginación de `eecheverria-api-design`.
+`pagination.tsx` no exporta un `Pagination` compuesto: exporta variantes ya armadas
+(`PaginationPageDefault`, `PaginationPageMinimalCenter`, `PaginationCardDefault`,
+`PaginationCardMinimal` con selector de tamaño de página, `PaginationButtonGroup`…) con `page`,
+`total` y `onPageChange`. Las primitivas para armar una propia (`Pagination.Root`, `PrevTrigger`,
+`NextTrigger`, `Item`, `Context`) están en `pagination-base.tsx`. `total` es el total de **páginas**,
+no de registros. Con datos del servidor, el total viene del backend — ver la sección de paginación de
+`eecheverria-api-design`.
 
 ### DatePicker
 
@@ -412,13 +440,12 @@ import { DatePicker } from "@/components/application/date-picker/date-picker";
 ```
 
 ```tsx
-<DatePicker label="Fecha de nacimiento" value={date} onChange={setDate} maxValue={hoy}>
-    <DatePicker.Input />
-    <DatePicker.Calendar />
-</DatePicker>
+<DatePicker aria-label="Fecha de nacimiento" value={date} onChange={setDate} maxValue={hoy} />
 ```
 
-Usa `minValue`/`maxValue` para acotar en vez de validar después: evita que el usuario elija algo que
+Es autocontenido: pinta su botón, el calendario y los botones de aplicar/cancelar, así que no lleva
+hijos ni `label` (usa `aria-label`). El rango es `DateRangePicker` (`date-range-picker.tsx`). Usa
+`minValue`/`maxValue` para acotar en vez de validar después: evita que el usuario elija algo que
 vas a rechazar.
 
 ### Estados de carga, vacío y error
@@ -435,7 +462,7 @@ No los improvises; el catálogo los tiene y así quedan consistentes en toda la 
 | ❌ | ✅ | Por qué |
 | --- | --- | --- |
 | `className="bg-blue-600"` | `className="bg-brand-solid"` | Sigue el color de marca y el dark mode |
-| `className="text-gray-400"` en un icono | `className="fg-quaternary"` | `fg-*` es la escala de no-texto |
+| `className="text-gray-400"` en un icono | `className="text-fg-quaternary"` | `fg-*` es la escala de no-texto |
 | `dark:bg-gray-900` | Nada: los tokens se invierten solos | El sistema ya lo resuelve |
 | `<button disabled>` | `<Button isDisabled>` | La prop HTML no hace nada aquí |
 | `import { Button } from "react-aria-components"` | `import { Button as AriaButton } …` | Colisiona con el componente del sistema |
@@ -444,4 +471,4 @@ No los improvises; el catálogo los tiene y así quedan consistentes en toda la 
 | `<a className="text-blue-600">` | `<Button href color="link-color">` | Estilo, foco y estados del sistema |
 | `items.map(...)` dentro de `Select` | render prop sobre `items` | Conserva teclado y manejo de colección |
 | `<Check className="size-4" />` como prop | `iconLeading={Check}` o JSX con `data-icon` | El slot necesita reconocer el icono |
-| Escribir una tabla a mano | `npx untitledui add tables` | Ordenamiento, selección y accesibilidad gratis |
+| Escribir una tabla a mano | `npx untitledui add table` | Ordenamiento, selección y accesibilidad gratis |

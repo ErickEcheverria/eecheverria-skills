@@ -174,10 +174,12 @@ reglas que más se violan. El detalle completo y los ejemplos por componente est
 | `border-gray-200` | `border-secondary` | el default del sistema |
 | `text-red-600` (error) | `text-error-primary` | semántica, no color |
 | `bg-white` | `bg-primary` | en dark mode deja de ser blanco |
-| iconos `text-gray-400` | `fg-quaternary` | los no-texto tienen su propia escala (`fg-*`) |
+| iconos `text-gray-400` | `text-fg-quaternary` | los no-texto tienen su propia escala (`fg-*`) |
 
 La escala `fg-*` es para elementos **no textuales** (iconos, indicadores); `text-*` es para texto.
-Confundirlas es el error más común. Tabla completa de los ~80 tokens en `references/usage-rules.md`.
+Como clase, `fg-*` lleva la propiedad delante (`text-fg-*` en un icono): `fg-quaternary` a secas no
+genera CSS. Confundirlas es el error más común. Tabla completa de los ~80 tokens en
+`references/usage-rules.md`.
 
 **2. Dark mode se hereda, no se escribe.** No uses el prefijo `dark:` de Tailwind. El sistema define
 `@custom-variant dark (&:where(.dark-mode, .dark-mode *))`: basta con la clase `dark-mode` en un
@@ -205,13 +207,14 @@ simplemente **no hace nada**, y eso se descubre tarde.
 así la clase que pasas por props gana sobre la del componente) en vez de template strings o `clsx`.
 Cuando definas variantes, agrúpalas con `sortCx({ common, sizes, colors })`.
 
-**7. Componentes compuestos (dot notation).** `Select.Item`, `Select.ComboBox`, `Table.Row`,
-`Tabs.Panel`, `Modal.Dialog`. No inventes wrappers propios alrededor de ellos.
+**7. Componentes compuestos (dot notation).** `Select.Item`, `Select.ComboBox`, `Table.Head`,
+`Table.Row`, `Tabs.Panel`. No inventes wrappers propios alrededor de ellos. El modal no es compuesto:
+son exports con nombre que se anidan `ModalOverlay` › `Modal` › `Dialog`.
 
 **8. Iconos de `@untitledui/icons`, pasados como referencia.**
 
 ```typescript
-import { Check, Trash02 } from "@untitledui/icons";
+import { Check } from "@untitledui/icons";
 
 <Button iconLeading={Check}>Guardar</Button>                        // ✅ referencia
 <Button iconLeading={<Check data-icon className="size-4" />}>…</Button> // ✅ JSX: marca con data-icon
@@ -276,7 +279,7 @@ Reglas:
 
 - **No propongas PRO como si fuera gratis.** Si algo solo existe en PRO, dilo claro y **arma la
   alternativa con componentes free** — casi siempre se puede: un "dashboard de ejemplo" PRO se
-  reconstruye con `metrics` + `charts` + `table` + `sidebar-navigations`.
+  reconstruye con `metrics` + `charts-base` + `table` + `sidebar-navigations`.
 - **La comprobación fiable es en runtime, no en el catálogo:** si `npx untitledui@latest add <x>` te
   pide `login`, ese componente es PRO. El catálogo de esta skill marca el tier de forma *indicativa*.
 - **No leas el botón "Get PRO" de la web como veredicto.** Aparece también en páginas de componentes
@@ -364,7 +367,7 @@ Antes de decir "listo" en una UI con Untitled UI:
 - [ ] Cada pieza salió del catálogo (o está justificado por qué no existía ahí).
 - [ ] Los componentes se trajeron con `npx untitledui add`, no copiados a mano.
 - [ ] Cero clases de color genéricas de Tailwind; todo con tokens semánticos.
-- [ ] `text-*` para texto y `fg-*` para iconos/elementos no textuales, sin mezclarlos.
+- [ ] `text-*` para texto y `fg-*` (`text-fg-*`) para iconos/elementos no textuales, sin mezclarlos.
 - [ ] La vista se revisó **en dark mode** (clase `dark-mode`) y ningún color quedó fijo.
 - [ ] Imports de React Aria con prefijo `Aria*`; imports del design system por su ruta `@/components/…`.
 - [ ] Props de React Aria (`isDisabled`, `isInvalid`, `isRequired`, `isLoading`), no las de HTML.
@@ -373,7 +376,8 @@ Antes de decir "listo" en una UI con Untitled UI:
 - [ ] Formularios con `Controller`; errores en `hint` + `isInvalid`, no en un texto suelto.
 - [ ] El flujo completo se recorre **solo con teclado**, y el foco es visible en cada parada.
 - [ ] Estados de carga, vacío y error resueltos con componentes del catálogo
-      (`loading-indicator`, `empty-state`, `alerts`), no improvisados.
+      (`loading-indicator`, `empty-state`, `alerts`) o las piezas equivalentes del design system del
+      proyecto (p. ej. `dpb-design-system`), no improvisados.
 - [ ] Nada del cambio depende de un componente PRO sin que el usuario lo sepa.
 - [ ] Typecheck y build del proyecto pasan; resultado real reportado.
 
