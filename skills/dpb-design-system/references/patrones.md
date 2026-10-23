@@ -1,14 +1,14 @@
 # Patrones de pantalla DPB
 
 Cómo se arma una pantalla de una app interna de DPB para que todas se vean y se comporten igual. El
-origen es **app-presupuestos**: «Origen: …» es procedencia, no algo que abrir, y lo marcado «en el
-origen» es un ejemplo de su negocio. Las rutas en `código` son las del proyecto después de copiar la
-plantilla (`assets/plantilla/` de esta skill).
+origen es **app-presupuestos**: lo que se cita «del origen» es un ejemplo de su negocio, no algo que
+abrir. Las rutas en `código` son las del proyecto después de copiar la plantilla.
 
 Lo general de Untitled UI —catálogo, CLI, tabla de tokens semánticos, imports `Aria*`, props `is*`
 de React Aria, `cx`/`sortCx`, iconos con `data-icon`, `Button href`, dark mode con `.dark-mode`,
 free vs. PRO— está en `eecheverria-untitled-ui`, y aquí no se repite. Lo que ya mordió, con
-síntoma, causa y arreglo, está en [`trampas.md`](trampas.md).
+síntoma, causa y arreglo, está en [`trampas.md`](trampas.md). Lee las secciones de las piezas que vas a
+usar; en una app nueva serán casi todas.
 
 ## Contenido
 
@@ -42,7 +42,7 @@ síntoma, causa y arreglo, está en [`trampas.md`](trampas.md).
   desplegable, el `dd/mm/aaaa`) y rompen la identidad. `NativeSelect` es justo el `<select>` del
   sistema: tampoco.
 - **Tema claro por defecto** (`ThemeProvider defaultTheme="light"`), sin seguir al sistema: son apps
-  que se usan junto a Excel e impresos. El oscuro queda disponible porque los tokens lo resuelven.
+  que se usan junto a Excel e impresos. El oscuro queda disponible por los tokens.
 - **Página delgada.** Componentes de presentación en `features/x/` y una página en `src/pages/` que
   solo compone. Cómo se piden y se guardan los datos lo decide `eecheverria-frontend-react`.
 - **Ocultar no autoriza.** Un botón o una entrada del menú se ocultan por rol para no ofrecer algo
@@ -54,9 +54,10 @@ síntoma, causa y arreglo, está en [`trampas.md`](trampas.md).
 
 ## Anatomía del shell
 
-Plantillas: `src/layouts/app-layout.tsx` y `src/features/shell/` (`sidebar.tsx`, `nav-items.ts`,
-`use-sidebar-collapsed.ts`, `shell.config.ts` para lo propio de cada app, `use-cuenta.ts` para el
-usuario y la salida).
+Plantillas: `src/layouts/app-layout.tsx` y `src/features/shell/`. Las costuras, lo propio de cada app,
+son `shell.config.ts`, `nav-items.ts` (solo `NAV_ITEMS`) y `use-cuenta.ts` (`Rol` y `useCuenta`). Los
+tipos y la lógica (`navegacion.ts` con `NavItem` y `visibleNavItems`, `cuenta.ts` con `Cuenta` y
+`UseCuenta`) no son costura: llegan con cada versión de la plantilla, como la sidebar.
 
 ```
 bg-canvas  (h-dvh · p-3 · gap-3 · overflow-hidden)
@@ -65,68 +66,62 @@ bg-canvas  (h-dvh · p-3 · gap-3 · overflow-hidden)
 │   ├── piso 2  navegación                     lo único que se desplaza
 │   └── piso 3  cuenta + «Colapsar»            fijo, con border-t
 └── Contenido  la misma tarjeta
-    ├── aviso     franja global (opcional)                         fija
+    ├── aviso     franja de aviso (opcional)                       fija
     ├── <header>  volverA · h1 · subtítulo · action · filtros      fijo
     └── <main>    relative · flex-col · min-h-0 · flex-1 · overflow-y-auto · pt-px
 ```
 
-**Lienzo y tarjetas.** El fondo es `bg-canvas` (token propio de `brand-dpb.css`, gris azulado) y
-sobre él flotan dos tarjetas. No uses `bg-secondary` como lienzo: en claro es casi blanco y el efecto
-flotante se pierde.
+**Lienzo y tarjetas.** Sobre `bg-canvas` (gris azulado, de `brand-dpb.css`) flotan dos tarjetas. No
+uses `bg-secondary` como lienzo: en claro es casi blanco y el efecto se pierde.
 
-**El scroll vive dentro de la tarjeta de contenido.** `h-dvh` + `overflow-hidden` en la raíz y
-`overflow-y-auto` en `main`: la cabecera no se va con el scroll y las tarjetas nunca se salen del
-viewport. `main` es columna flex para que una pantalla pida todo el alto con `flex-1`, `relative`
-como red contra los `absolute` que escapan del recorte, y `pt-px` para que el `ring` de su primer hijo
-no se recorte arriba. Entre `main` y el área con scroll de una tabla, cada nivel flex lleva `min-h-0`.
+**El scroll vive dentro de la tarjeta de contenido**, en `main`: la cabecera no se va con el scroll y
+las tarjetas nunca se salen del viewport. `main` es columna flex, así que una pantalla pide todo el
+alto con `flex-1`. Entre `main` y el área con scroll de una tabla, cada nivel flex lleva `min-h-0`.
 
 **Sidebar de tres pisos.** Solo se desplaza la navegación: así el perfil no se va de la vista.
 
-- **Ancho:** 72 px colapsada; expandida, lo decide el contenido (`w-auto min-w-60 max-w-80`), para que
-  el nombre del usuario quepa sin cortar el apellido.
-- **Ítem activo:** el ícono en `text-fg-brand-primary` sobre `bg-secondary hover:bg-secondary_hover`
-  (el fondo azul sólido se probó y se descartó). El `NavLink` lleva `end` solo en `/`, para que un
-  detalle (`/proveedores/7`) marque su módulo.
+- **Ya viene en `sidebar.tsx`:** 72 px colapsada y, expandida, el ancho del contenido; el ítem activo
+  con el ícono en `text-fg-brand-primary` sobre `bg-secondary` (el fondo azul sólido se descartó);
+  `end` solo en `/`, para que un detalle (`/proveedores/7`) marque su módulo; tooltip por enlace al
+  colapsar.
 - **Grupos:** `NAV_ITEMS` sigue el orden del proceso, no el alfabeto, y no lista pantallas que todavía
-  no existen: un enlace a una pantalla vacía es peor que no tenerlo.
-- **Colapsada:** cada enlace lleva `Tooltip` a la derecha, envuelto en `Focusable` (con el `NavLink`
-  suelto no abría), y `aria-label` con su nombre.
-- **Cuenta:** el usuario (avatar, nombre en dos renglones —nombres y apellidos— y debajo su rol o
-  área) **es** el menú. «Cerrar sesión» vive dentro y no como entrada suelta de la navegación, donde
-  competía con los módulos y quedaba a un clic accidental. Sin sesión (`cuenta: null`, lo que trae
-  `use-cuenta.ts` por defecto), el menú no aparece: una app que todavía no tiene login es un caso válido.
+  no existen: un enlace a una pantalla vacía es peor que no tenerlo. El `<nav>` se llama «Navegación
+  principal»: otro `<nav>` en la pantalla lleva su propio `aria-label` (el de `Paginacion`, «Paginación»).
+- **Cuenta:** el usuario (avatar, nombres y apellidos, y su rol o área) **es** el menú, con «Cerrar
+  sesión» dentro y no suelto en la navegación, a un clic accidental. Sin sesión (`cuenta: null`, lo que
+  trae `use-cuenta.ts`), el menú no aparece: una app sin login todavía es un caso válido.
 - **Se remonta al cambiar de página:** cada ruta monta una página distinta y React desmonta todo,
   sidebar incluida. Lo que deba pasar una vez por sesión (la entrada del logo) va en estado de módulo,
   no en `useState`; los datos que arman el menú, en la caché de la capa de datos.
 
 **Header de página** (props de `AppLayout`):
 
-- `title` es el único `<h1>` de la pantalla.
-- `subtitle` es una línea de apoyo, oculta bajo `sm`: la cabecera es fija y en móvil cada renglón suyo
-  es uno menos de contenido.
+- `title` es el único `<h1>` de la pantalla. En móvil parte en dos renglones y desde `sm` se trunca en
+  uno. Tras cada navegación (no en la primera carga) recibe el foco (`tabIndex={-1}`, sin anillo):
+  como cada ruta remonta todo, el foco caía en `<body>`.
+- `subtitle`, una línea de apoyo, se oculta bajo `sm`: en móvil, cada renglón de la cabecera fija es
+  uno menos de contenido.
 - `action` lleva los botones de la pantalla, arriba a la derecha.
 - `filtros` es el contexto que se está viendo (periodo, área…) en un renglón propio dentro del header:
   no se va con el scroll ni empuja los botones fuera de la esquina. Los filtros de búsqueda de un
   listado no van aquí, sino en el cuerpo, encima de la tabla.
-- `volverA` es `{ href, label }`: un `Button color="link-gray" size="sm"` con `ArrowLeft`, encima del
-  título.
+- `volverA` es `{ href, label }`: un enlace `link-gray` con `ArrowLeft`, encima del título.
 
-**`volverA` en vez de breadcrumbs.** Úsalo en el detalle de un listado (`/proveedores/:id` → «Volver a
-proveedores»), también en sus estados de carga y error: un enlace mal escrito no debe dejar a nadie
-atrapado. Con un nivel, dice lo mismo que unas migas en menos espacio. Con dos
-(`/proveedores/:id/contratos/:id`), lleva al padre inmediato y lo nombra («Volver a Acme»), no al
-listado. Desde tres, evalúa breadcrumbs: el origen no pasó de un nivel.
+**`volverA` en vez de breadcrumbs**, en el detalle de un listado («Volver a proveedores») y también en
+sus estados de carga y error: un enlace mal escrito no debe dejar a nadie atrapado. Con dos niveles
+(`/proveedores/:id/contratos/:id`), lleva al padre inmediato y lo nombra («Volver a Acme»). Desde
+tres, evalúa breadcrumbs.
 
 **Transición entre pantallas.** Header y `main` entran con un fundido de 200 ms y 4 px (`TRANSICION`
-de `app-layout.tsx`, con `motion-reduce:animate-none`): por encima de ~300 ms se lee como lentitud. La
-tarjeta no se anima. Entre páginas distintas la entrada se dispara sola, porque React monta todo de
-nuevo; la `key` con el `pathname` es para cuando la misma página cambia de parámetro (`/x/1` → `/x/2`)
-(ver [Animación](trampas.md#animación-svg-y-remontajes)).
+de `app-layout.tsx`, con `motion-reduce`); más de ~300 ms se lee como lentitud, y la tarjeta no se
+anima. Por qué lleva una `key` con el `pathname`, en [Animación](trampas.md#animación-svg-y-remontajes).
 
-**Franja global.** Lo que cambia el contexto de toda la pantalla (modo simulación, mantenimiento) va
-en la prop `aviso` de `AppLayout`, que lo pinta fijo sobre el header, dentro de la tarjeta y sin
-animación. Suele bastar una `NotaInformativa`; si exige atención, en `bg-warning-primary` con
-`ring-warning_subtle`. `role="status"` si aparece a media sesión, y texto corto en móvil.
+**Franja de aviso.** Lo que cambia el contexto (modo de pruebas, mantenimiento) va en la prop `aviso` de
+`AppLayout`, fijo sobre el header y sin animación: una `NotaInformativa tono="advertencia"`, con texto
+corto en móvil. `aviso` es por página. Si vale para toda la app, el proyecto define su propio layout que
+envuelve a `AppLayout` y le pasa ese `aviso`, y toda página usa ese envoltorio: así no se olvida en las
+ramas de carga y de error. La 404 no lleva franja: no tiene shell. Si aparece a media sesión, el anuncio
+pide una región viva que ya exista (ver [Accesibilidad](#accesibilidad)).
 
 ---
 
@@ -134,7 +129,7 @@ animación. Suele bastar una `NotaInformativa`; si exige atención, en `bg-warni
 
 ### Listado
 
-Origen: `cuentas.tsx`. Orden de bloques:
+Orden de bloques:
 
 1. **`AppLayout`** con `title`, `subtitle` y `action`. La acción es un
    `flex flex-wrap items-center justify-end gap-3` con «Recargar» (`secondary`, `RefreshCw01`), las
@@ -145,13 +140,13 @@ Origen: `cuentas.tsx`. Orden de bloques:
    abierto (ver [Estados](#estados-carga-vacío-error-y-avisos)).
 4. **Filtros:** `flex flex-wrap items-end gap-3`. La búsqueda, con `Input` + `SearchLg`
    (`min-w-56 flex-1`) y un retardo de ~300 ms. Los `Select`, en `w-full sm:w-44` (todo el ancho en
-   móvil), con `placeholder` en español (el del catálogo es «Select») y una opción centinela para
-   «Todas» (ver la trampa del `Select` en [Selects](trampas.md#selects-campos-y-controles)). Desde
-   react-aria-components 1.22, usa `value`/`onChange`: `selectedKey`/`onSelectionChange` quedaron
-   deprecados. Un selector con una sola opción no se muestra: ocupa sitio y no decide nada.
+   móvil), con `label` visible («Estado»), `placeholder` en español (el del catálogo es «Select») y una
+   opción centinela corta, «Todos»: en `w-44`, «Todos los estados» se corta (ver
+   [Selects](trampas.md#selects-campos-y-controles)). Desde react-aria-components 1.22, `value`/`onChange`:
+   `selectedKey`/`onSelectionChange` quedaron deprecados. Un selector con una sola opción no se muestra.
 5. **Contenido según el estado** (ver [Estados](#estados-carga-vacío-error-y-avisos)): `Esqueleto` con
    las `filas` y el `altoFila` de la tabla real en la primera carga; en cada recarga, la tabla anterior
-   a la vista con `Paginacion isDisabled`; el error centrado (`flex-1 items-center justify-center`) con
+   a la vista y `Paginacion` habilitada; el error centrado (`flex-1 items-center justify-center`) con
    `onReintentar`; `EstadoVacio` con dos textos; y con datos, `<div className={AREA_TABLA}>` con la
    tabla y, fuera del área, `Paginacion`.
 6. **Diálogos al final**, como hermanos: alta y edición (uno solo para las dos), importaciones y
@@ -165,8 +160,6 @@ fila no navega, porque prometería algo que no existe.
 
 ### Detalle
 
-Origen: `ciclo-detalle.tsx`.
-
 - **`AppLayout`:** `title` = nombre del registro, `subtitle` = su contexto, `volverA` al listado,
   `action` = las acciones de estado, con «Recargar» como secundaria.
 - **Mientras carga:** un título genérico, `volverA` y un esqueleto compuesto (ver `Esqueleto` en
@@ -179,68 +172,63 @@ Origen: `ciclo-detalle.tsx`.
   3. Bloques `Seccion` apilados, cada uno con su `accion` arriba a la derecha.
 - **Secciones y no pestañas**, a propósito: la configuración completa se ve de un vistazo y no queda
   escondido tras una pestaña el dato que bloquea el siguiente paso.
-- **Dos caras por sección.** En solo lectura, un `<dl>` en rejilla `sm:grid-cols-2 lg:grid-cols-4`, con
-  `dt` en `text-xs font-semibold tracking-wide text-quaternary uppercase` y `dd` en
-  `text-sm text-primary`. Editable, los campos en la misma rejilla y «Guardar cambios» como `accion`,
-  deshabilitado sin cambios. Un campo que no se puede guardar no se muestra: se explica en la
-  `descripcion` de la sección.
+- **Dos caras por sección.** En solo lectura, `<Datos>` con un `<Dato etiqueta>` por campo
+  (`seccion.tsx`: el `<dl>` en rejilla de 1, 2 y 3 columnas), con fechas en `formatearFecha` y montos
+  en `formatearMonto`; no escribas la rejilla a mano. Editable, los campos en las mismas columnas y
+  «Guardar cambios» como `accion`, deshabilitado sin cambios. Un campo que no se puede guardar no se
+  muestra: se explica en la `descripcion` de la sección.
 - **Listas dentro de una sección:** en una tarjeta `overflow-hidden rounded-lg bg-primary ring-1
   ring-secondary` (blanca sobre el gris de la sección). Vacía, una línea de texto con `role="status"`:
   la sección ya tiene título y más contenido, y un `EstadoVacio` pesaría más que la lista. Con error,
   `MensajeError` dentro de la misma sección.
 - **Estado local que nace de props:** dale a la sección una `key` hecha con los valores del servidor.
   Así se reinicia cuando el servidor responde algo distinto y no mientras se escribe.
-- La acción destructiva que inicia un flujo («Anular solicitud») va a la izquierda del grupo de
-  acciones, en `secondary-destructive`.
 
 ### Inicio con KPIs y gráficas
 
-Origen: `inicio.tsx`.
-
 - **`AppLayout`:** título personal («Hola, <nombre>») solo con sesión; sin login, el nombre de la
   pantalla. Subtítulo con el propósito, el selector de contexto (el periodo) en `filtros` y «Recargar»
-  en `action` (solo ícono bajo `sm`).
+  en `action` (solo ícono bajo `sm`). La franja de contexto, el periodo y la próxima fecha que importa,
+  es una línea `text-sm text-tertiary` en `filtros`, junto al selector, o como `subtitle`.
 - **Una sola petición** trae el inicio y la página pinta los bloques que lleguen: no decide quién ve qué.
 - **Cuerpo** `flex flex-col gap-4`:
-  1. Franja de contexto: el periodo y la próxima fecha que importa.
-  2. Fila de `CifraKpi` en un `<dl className="grid grid-cols-1 gap-4 …">` con tantas columnas como
+  1. Fila de `CifraKpi` en un `<dl className="grid grid-cols-1 gap-4 …">` con tantas columnas como
      cifras: tres, `md:grid-cols-3`; cuatro, `sm:grid-cols-2 xl:grid-cols-4`.
-  3. Tarjetas en rejilla `grid-cols-1 lg:grid-cols-2`, o `lg:grid-cols-3` con la gráfica en
+  2. Tarjetas en rejilla `grid-cols-1 lg:grid-cols-2`, o `lg:grid-cols-3` con la gráfica en
      `lg:col-span-2`.
-- **Tarjetas: `<Seccion className="bg-primary p-5">`**, no sobre su gris de siempre: con muchas
-  apiladas, el gris las vuelve una sola mancha. Su acción típica es
+- **Tarjetas: `<Seccion className="bg-primary p-5">`**, no en su gris: con muchas apiladas, el gris
+  las vuelve una mancha. Su acción típica es
   `Button color="link-color" size="sm" iconTrailing={ArrowRight}` hacia la pantalla completa.
 - **Tarjeta sin datos:** `EstadoVacio variante="punteado"` en lugar del cuerpo, que dice por qué: aquí
-  la tarjeta entera es ese dato. En el inicio casi todo empieza vacío, y eso también informa. Si falta
-  el contexto entero (no hay periodo abierto), un solo vacío en lugar de todos los bloques.
-- **Esqueleto compuesto** con la forma real: la franja, las cifras y las tarjetas.
-- **Cuida los huecos.** Las tarjetas de una misma fila se estiran al alto de la más alta, así que una
-  lista larga deja espacio muerto al lado. Antes de agregar algo, mira qué hay junto. El equipo pidió
-  dos veces quitar huecos, y por eso tampoco se agregan tarjetas cuando el dato cabe en una existente.
+  la tarjeta entera es ese dato. Si falta el contexto entero (no hay periodo abierto), un solo vacío en
+  lugar de todos los bloques.
+- **Esqueleto compuesto** con la forma real: las cifras y las tarjetas.
+- **Cuida los huecos:** las tarjetas de una fila se estiran a la más alta, y una lista larga deja espacio
+  muerto al lado. Si el dato cabe en una tarjeta existente, no agregues otra.
 
 ### Acceso
 
 Plantilla: `src/layouts/pantalla-acceso.tsx`.
 
-- **Dos columnas** a `min-h-dvh`: el acceso sobre `bg-primary`, con el lockup arriba y un pie con el ©
-  y «Ayuda», y el panel de marca (`bg-brand-500`, isotipo `white`, `IsoPattern`), que se oculta bajo
-  `lg` porque es apoyo y no contenido; por eso el lockup de la izquierda se queda siempre.
-- **Bloque de acceso:** un antetítulo corto en `text-accent-600` (`lineaSuperior`, uno de los pocos
-  usos legítimos del acento), el `<h1>` «Inicia sesión», una línea sobre qué cuenta usar, el error si lo
+- **Ya viene en `PantallaAcceso`:** las dos columnas (el acceso con el lockup, y el panel de marca
+  `bg-brand-500`, que se oculta bajo `lg` porque es apoyo), su `<main>` y los enlaces de soporte
+  (`SHELL.correoSoporte`). No los agregues.
+- **Bloque de acceso:** un antetítulo corto (`lineaSuperior`, en `text-accent`, uno de los pocos usos
+  legítimos del acento), el `<h1>` «Inicia sesión», una línea sobre qué cuenta usar, el error si lo
   hay y un solo botón `size="lg" color="secondary" className="w-full"` con `MicrosoftLogo` como
-  `iconLeading`. La nota de soporte la pone `PantallaAcceso`, con `SHELL.correoSoporte`; no la agregues.
+  `iconLeading`.
 - **Un solo método y ningún campo de correo o contraseña:** quien autentica es Microsoft 365, y un campo
   que no sirve para nada confunde.
 - **El error** dice qué pasó y qué hacer según su código (no registrado, inactivo, conflicto de cuenta,
   Microsoft caído, servidor inalcanzable), con la anatomía de `MensajeError`.
-- **Mientras se restaura la sesión**, `LoadingIndicator type="dot-circle"` a pantalla completa con
-  «Restaurando sesión…», no el formulario: si no, quien ya tiene sesión ve el login un instante.
+- **Mientras se restaura la sesión**, a pantalla completa y no el formulario (si no, quien ya tiene sesión
+  ve el login un instante): `LoadingIndicator type="dot-circle" label="Restaurando sesión…"` dentro de
+  un `<div role="status" className="motion-reduce:[&_svg]:animate-none">`. El indicador no tiene `role`,
+  no acepta `className` y su giro no mira `motion-reduce`.
 - El logo de Microsoft lleva sus colores oficiales, fuera de los tokens: es la marca de un tercero y
   no cambia con el tema.
 
 ### Pestañas con la vista en la URL
-
-Origen: `usuarios.tsx` y `consolidado.tsx`.
 
 - **La pestaña vive en `?vista=`** y no en estado local: recargar o compartir el enlace deja a la
   persona donde estaba. La vista por defecto no lleva parámetro.
@@ -252,8 +240,8 @@ Origen: `usuarios.tsx` y `consolidado.tsx`.
   `Tabs.List type="underline" aria-label` › `Tabs.Item id label`; y cada `Tabs.Panel id` con
   `flex min-h-0 flex-1 flex-col`, para que la tabla de dentro conserve su scroll.
 - **Datos perezosos:** una pestaña solo pide sus datos con ella abierta.
-- **Las acciones del header son de la pestaña.** En una pestaña de solo lectura, «Recargar» y
-  «Agregar» no tienen objeto: no se muestran.
+- **Las acciones del header son de la pestaña:** en una de solo lectura, «Recargar» y «Agregar» no se
+  muestran.
 - **Si renombras una vista, deja el valor viejo como alias:** hay enlaces y correos ya enviados con él.
 - Una sub-vista dentro de una pestaña lleva su propio parámetro (`?vista=solicitudes&tipo=pendientes`).
 
@@ -267,12 +255,11 @@ Cuándo sí y cuándo no. El código está en la plantilla; no lo repitas a mano
   [Anatomía del shell](#anatomía-del-shell).
 - **`TarjetaDialogo`** (`src/features/comunes/tarjeta-dialogo.tsx`). El contenido de todo diálogo, como
   **hijo directo de `Dialog`**: cabecera y pie fijos, scroll solo en el cuerpo. El `Dialog` del
-  catálogo actual (`max-h-[inherit] overflow-y-auto`) desplazaría todo, cabecera y pie incluidos, y
-  `TarjetaDialogo` hereda su tope. Si ese `Dialog` no lleva `max-h-[inherit]`, es el catálogo
-  anterior: pásale `className="bg-primary shadow-xl max-h-[85dvh]"` (ver [Diálogos](trampas.md#diálogos));
-  con el actual, nada. Con `onSubmit` es un `<form noValidate>`: Enter envía y ella misma llama a
-  `preventDefault()`. El ancho va en el `Modal` de cada diálogo (`max-w-md` las confirmaciones,
-  `max-w-lg` los formularios). No metas otra área con `overflow-y-auto` alrededor.
+  catálogo (`max-h-[inherit] overflow-y-auto`) desplazaría todo, cabecera y pie incluidos, y
+  `TarjetaDialogo` hereda su tope; con el catálogo anterior, ver [Diálogos](trampas.md#diálogos). Con
+  `onSubmit` es un `<form noValidate>`: Enter envía y ella misma llama a `preventDefault()`. El ancho va
+  en el `Modal` de cada diálogo (`max-w-md` las confirmaciones, `max-w-lg` los formularios). No metas
+  otra área con `overflow-y-auto` alrededor.
 - **`ConfirmarDialog`** (`confirmar-dialog.tsx`). Para lo irreversible y para lo que tiene efectos que
   no se deshacen (un correo enviado a todos). `tono="primary-destructive"` si destruye; `primary` si
   solo es definitivo. El texto va en el cuerpo, nunca en la cabecera, y anticipa lo que el backend
@@ -283,38 +270,42 @@ Cuándo sí y cuándo no. El código está en la plantilla; no lo repitas a mano
   a la persona sin salida. El remedio sale de una tabla por motivo de cada app, no del texto. Con
   `onReintentar` trae el «Reintentar» (`secondary`). Arriba del cuerpo de un diálogo, en la página o
   dentro de una sección; no para avisos que se van solos.
-- **`NotaInformativa`** (en `mensaje-error.tsx`). La anatomía de `MensajeError` en tono neutro, para
-  explicar sin alarmar: cómo funciona el acceso, por qué un registro ya no se edita. Sin `role`: es
-  contenido estático. No compite con un error cuando los dos están en pantalla.
+- **`NotaInformativa`** (en `mensaje-error.tsx`). La anatomía de `MensajeError` para explicar sin
+  alarmar: cómo funciona el acceso, por qué un registro ya no se edita. Sin `role`: es contenido
+  estático. No compite con un error cuando los dos están en pantalla. `tono="advertencia"`
+  (`bg-warning-primary ring-warning_subtle` y `AlertTriangle`) es para la franja de `aviso`.
 - **`EstadoVacio`** (`estado-vacio.tsx`). `titulo` (un `<p>`, para no saltar niveles de encabezado),
   `descripcion` y `accion` opcional, con `role="status"`. `variante="relleno"` para un listado sin filas
   (con dos textos según haya filtros o no); `"punteado"` para una tarjeta del inicio sin datos. Una
   lista vacía dentro de una `Seccion` con más contenido no lo usa: basta una línea de texto. No uses
-  `application/empty-state` del starter: trae tokens no semánticos y una ilustración decorativa.
+  `application/empty-state` del starter: no sigue los tokens.
 - **`Esqueleto`** (`esqueleto.tsx`). Toda primera carga con forma conocida pasa por él:
   `role="status"` con la `etiqueta` como texto `sr-only` dentro (sin `aria-busy`), `filas` y `altoFila`
   (por defecto `h-11`, el de `FILA`). Para otras formas (un detalle, el inicio), compón: un contenedor
   `relative` con `role="status"` y un texto `sr-only` («Cargando el inicio»), y dentro bloques de
   `BLOQUE_ESQUELETO` en `aria-hidden`.
 - **`Paginacion`** (`paginacion.tsx`). «Anterior · Página N de M · T registros · Siguiente», con
-  `aria-live`. Props `page`, `totalPages`, `total`, `onCambiarPagina` e `isDisabled`. Con el contrato
-  de `eecheverria-api-design` (`pagination: { page, pageSize, totalItems, totalPages }`), `page` y
-  `totalPages` pasan tal cual y `total={pagination.totalItems}`. Sin números de página: en un listado
-  que se filtra, nadie salta a la página once. Con una sola página muestra solo el total.
+  `aria-live`. Props `page`, `totalPages`, `total`, `onCambiarPagina` e `isDisabled`, mapeadas desde el
+  contrato de `eecheverria-api-design`: `total={pagination.totalItems}`. **Sin `isDisabled` en una
+  recarga**: deshabilitar el botón con foco lo manda a `<body>`; ignora el clic si ya hay una carga en
+  curso. En la primera o la última página, el foco pasa solo al botón contrario. Sin números de página:
+  en un listado que se filtra, nadie salta a la página once. Con una sola página, solo el total.
 - **`notificar`** (`notificaciones.tsx`). `notificar.exito(titulo, descripcion?)` después de que el
-  backend confirmó; `<Notificaciones />` se monta una vez en la raíz. Va sobre `sonner` porque el
-  toast del catálogo es PRO, con el aspecto de los tokens.
+  backend confirmó; `<Notificaciones />` se monta una vez en la raíz. Sobre `sonner` (el toast del
+  catálogo es PRO), con los tokens.
 - **`Seccion`** (`seccion.tsx`). Un bloque del detalle: `<section aria-labelledby>` con `<h2>` real,
   `rounded-xl bg-secondary p-6 ring-1 ring-secondary` y `accion` arriba a la derecha. Es lo que deja al
   lector de pantalla saltar entre bloques. No la anides. Sobre `bg-primary`, es la tarjeta del inicio.
-- **`CifraKpi`** (`cifra-kpi.tsx`). Una cifra destacada, dentro de un `<dl>`: el `div` de la tarjeta es
-  el grupo del `dl`, con `dt` y `dd` como hijos directos. Manda el número; la etiqueta va arriba, el
-  detalle debajo y el ícono arriba a la derecha. Si el valor va compacto (`formatearCompacto`), el
-  exacto va en `exacto` (`formatearMonto`): sale en el `title` y como texto `sr-only`. El `title` no se
-  alcanza con toque ni con teclado: si el exacto importa en móvil, no compactes bajo `sm` o ponlo en
-  `detalle`. `tono="alerta"` pinta en rojo, y entonces el detalle tiene que decir por qué con palabras.
-- **`Explicacion`** (`explicacion.tsx`). Un «?» con la explicación en tooltip, alcanzable con teclado,
-  para franjas compactas donde el texto no cabe. Es para la explicación, no para el dato.
+  El mismo archivo trae `Datos` y `Dato` (`etiqueta`, `children`), la rejilla de solo lectura del detalle.
+- **`CifraKpi`** (`cifra-kpi.tsx`). Una cifra destacada dentro de un `<dl>`: el `div` de la tarjeta es el
+  grupo del `dl`, con `dt` y `dd` como únicos hijos (el ícono va dentro del `dt`). Manda el número. Si
+  va compacto (`formatearCompacto`), el exacto (`formatearMonto`) va en `exacto`: sale en el `title` y
+  como texto `sr-only`. El `title` no se alcanza con toque ni con teclado: si el exacto importa en
+  móvil, no compactes bajo `sm` o ponlo en `detalle`. `tono="alerta"` pinta en rojo, y entonces el
+  detalle dice por qué con palabras.
+- **`Explicacion`** (`explicacion.tsx`, props `titulo` y `texto`). Un «?» de `size-6` que al pulsarlo
+  abre la explicación en un popover (con toque, ratón o teclado), para franjas compactas donde el texto
+  no cabe. Es para la explicación, no para el dato.
 - **`tabla.ts`**. `AREA_TABLA` + `ENCABEZADO_FIJO`, siempre juntos, para el `Table` del catálogo;
   `AREA_TABLA_PROPIA` para una `<table>` propia, y `FILA` para el alto de las filas. Ver [Tablas](#tablas).
 - **`estado-fila.ts`**. `claseFila(base, activo)`, `TACHADO_INACTIVO` y `SIN_TACHAR`, para las filas
@@ -322,8 +313,10 @@ Cuándo sí y cuándo no. El código está en la plantilla; no lo repitas a mano
 - **`toggle.ts`**. `TOGGLE_ANCHO_COMPLETO`, en todo `Toggle` que lleve `hint`.
 - **`formato.ts`** (`src/utils/`). `formatearMonto(n)` → «Q 4,500.00», «-Q 250.50» (es-GT, GTQ, dos
   decimales; el espacio lo pone `Intl`, no lo quites) y `formatearCompacto(n)` → «1.9k», «184.5k»,
-  «1.4M», «-1.9k», sin «Q». El compacto es propio porque `Intl` compacto en es-GT da «1.7 K» y
-  «184.5 k». Donde va el compacto, el exacto sigue alcanzable.
+  «1.4M», «-1.9k», sin «Q». Es propio (`Intl` compacto en es-GT da «1.7 K» y «184.5 k») y redondea
+  antes de elegir la escala: 999 950 → «1M», 999.6 → «1k», -0.4 → «0». Donde va el compacto, el exacto
+  sigue alcanzable. `formatearFecha("AAAA-MM-DD")` → «dd/mm/aaaa», sin pasar por `Date`, y `MESES`
+  («Ene» … «Dic») para ejes y encabezados.
 
 ---
 
@@ -332,36 +325,37 @@ Cuándo sí y cuándo no. El código está en la plantilla; no lo repitas a mano
 - **Área con encabezado fijo.** Envuelve el `Table` del catálogo en `<div className={AREA_TABLA}>` y
   pasa `ENCABEZADO_FIJO` al `Table.Header`. El área es la única que se desplaza (también en
   horizontal), lleva el contorno y es `relative`. La paginación va fuera de ella.
-- **`size` en el header y en cada fila**, nunca solo en `<Table>`, donde se ignora. Para listados
-  densos, `{...FILA}` (`size: "sm"`, `h-11 *:py-2`) en cada `Table.Row` y `size={FILA.size}` en
-  `Table.Header`: 44 px reales y casi el doble de filas a la vista. El `*:py-2` es por `Table.Cell`, que
-  toma su relleno del contexto (ver [Tablas y filas](trampas.md#tablas-y-filas)). Las filas que navegan
-  van en `md`.
+- **`size` en el header y en cada fila**, nunca solo en `<Table>`, donde se ignora: `{...FILA}`
+  (`size: "sm"`, `h-11 *:py-2`) en cada `Table.Row` y `size={FILA.size}` en `Table.Header`, 44 px reales
+  y casi el doble de filas a la vista. El `*:py-2` es por `Table.Cell`, que toma su relleno del contexto
+  (ver [Tablas y filas](trampas.md#tablas-y-filas)). Todas las filas van con `FILA`, también las que
+  navegan, para que el `Esqueleto` (`altoFila="h-11"`) coincida: la que navega se distingue por su
+  cursor y su enlace, no por su alto.
 - **`dependencies` en `Table.Body`.** Todo lo que una celda lea de fuera de su item (`trabajando`,
   `puedeEditar`, un mapa que llega después) va en `dependencies={[…]}`; si no, la fila no se repinta.
 - **Acciones de fila.** `ButtonUtility size="xs" color="tertiary"` con su ícono y `tooltip`, en un
   `<div className="flex justify-end gap-1">`, todas en un renglón. El tooltip es el nombre accesible y
   lleva el identificador del registro («Editar 61103025»): veinticinco botones que dicen «Editar» son
-  indistinguibles con lector de pantalla. La columna lleva `label=""`. Deshabilítalas mientras se guarda.
+  indistinguibles con lector de pantalla. La columna lleva un nombre que no se ve:
+  `<Table.Head id="acciones"><span className="sr-only">Acciones</span></Table.Head>`, no `label=""`.
+  Deshabilítalas mientras se guarda.
 - **Códigos y números.** Códigos en `font-mono text-sm font-medium text-primary tabular-nums`. Montos
   con `formatearMonto` y `text-right tabular-nums` en la celda, y `className="*:justify-end"` en el
   `Table.Head`, porque `text-right` no mueve su etiqueta. Un valor ausente es «—».
 - **Una columna que no decide nada no se muestra.** La de área, solo si hay más de una.
 - **Filas inactivas.** `className={claseFila(FILA.className, activo)}`: fondo gris y todo el texto
-  tachado y apagado: con decenas de filas, un badge gris solo se pierde. El badge de estado va dentro de
-  `<span className={SIN_TACHAR}>` para seguir legible; ese `inline-block` no puede ser hijo directo de un
-  flex (se *blockifica* y se tacha igual). El texto que vive en una caja `inline-flex`, o que trae su
-  propio color (el código), lleva `TACHADO_INACTIVO` explícito. Lo pendiente (un borrador, algo sin
-  abrir) va **atenuado, no tachado**: no está inactivo, le falta un paso.
+  tachado y apagado (entre decenas de filas, un badge gris solo se pierde). El badge de estado va en
+  `<span className={SIN_TACHAR}>`, nunca hijo directo de un flex; el texto de una caja `inline-flex` o
+  con color propio (el código) lleva `TACHADO_INACTIVO` (ver [Tablas y filas](trampas.md#tablas-y-filas)).
+  Lo pendiente (un borrador) va **atenuado, no tachado**: no está inactivo, le falta un paso.
 - **Fila que navega.** `Table.Row href` (el `RouteProvider` de React Aria ya está conectado a
   react-router), `cursor-pointer` a mano y una señal estática en la última celda («Configurar ›», en
   `text-brand-secondary` y `aria-hidden`), porque el hover solo aparece cuando el cursor ya está
   encima. No es un botón: serían dos paradas de foco para el mismo destino. Si esa columna fuerza
   scroll horizontal en una tabla densa, quítala.
 - **Tablas densas.** Como mucho dos renglones por fila (el dato secundario debajo, la hora como chip
-  bajo la fecha) y `whitespace-nowrap`. Montos compactos con `formatearCompacto` («1.9k», «1.4M») solo
-  si el exacto sigue alcanzable, no solo en un `title` (ver `CifraKpi`).
-- **Personas:** iniciales en el `Avatar` de cada fila. La foto se pide solo al abrir una persona.
+  bajo la fecha) y `whitespace-nowrap`. Montos compactos solo si el exacto sigue alcanzable, no solo en
+  un `title` (ver `CifraKpi`).
 - **Cuándo pasar a una `<table>` propia:** cuando la rejilla de React Aria pelea con lo que la tabla
   tiene que hacer.
   - Una rejilla editable con campos (captura por filas): el `Table` del catálogo trae su propio
@@ -386,15 +380,13 @@ Cuándo sí y cuándo no. El código está en la plantilla; no lo repitas a mano
   `titulo`, `descripcion`, `onCerrar`, `cerrarDeshabilitado={trabajando}`, `onSubmit` y `pie`. Mientras
   guarda, ni Escape ni el clic fuera lo cierran. Si alta y edición tienen los mismos campos, van en un
   solo diálogo: cambian el título, el texto del botón y a qué función se llama.
-- **El manejo del estado no lo fija esta skill.** `TarjetaDialogo` solo recibe `onSubmit(evento)` y
-  llama ella misma a `preventDefault()`, así que sirve igual con el `handleSubmit` de React Hook Form
-  que con estado plano. La decisión la toman `eecheverria-frontend-react` y `eecheverria-untitled-ui`;
-  lo que sigue aplica con cualquiera.
-- **Reinicio al abrir.** El diálogo no se desmonta al cerrarse (se cierra el overlay), así que carga los
-  valores cuando `abierto` pasa a `true`, no al montar. Con las dependencias `[abierto, registro]`,
-  `abierto` hace que reabrir (aunque sea el mismo registro) descarte lo que se escribió antes, y
-  `registro` que se lea el actual. `registro` tiene que ser estable (el objeto que llegó del servidor):
-  uno que el padre arma en cada render vaciaría el formulario con cada tecla.
+- **El manejo del estado no lo fija esta skill:** `TarjetaDialogo` sirve igual con el `handleSubmit` de
+  React Hook Form que con estado plano. Lo deciden `eecheverria-frontend-react` y
+  `eecheverria-untitled-ui`; lo que sigue aplica con cualquiera.
+- **Reinicio al abrir.** El diálogo no se desmonta al cerrarse, así que carga los valores cuando
+  `abierto` pasa a `true`, con las dependencias `[abierto, registro]`: reabrir descarta lo escrito y se
+  lee el registro actual. `registro` tiene que ser estable (el objeto que llegó del servidor): uno que
+  el padre arma en cada render vaciaría el formulario con cada tecla.
 - **Todas las salidas por un solo handler.** Cancelar, la ×, Escape y el clic fuera; los dos últimos los
   dispara el overlay por `onOpenChange`. Limpia el error ahí, no solo en el botón.
 - **Se cierra solo si salió bien.** Si falló, el usuario necesita ver el error junto a lo que escribió.
@@ -414,11 +406,9 @@ Cuándo sí y cuándo no. El código está en la plantilla; no lo repitas a mano
   lugar de validar después. Un rango son dos `InputDate` encadenados por esos límites. Lo que una fecha
   significa («Fecha límite») va como chip (`BadgeWithIcon`) en el `hint`, no como párrafo.
 - **`Toggle` a ancho completo:** siempre `className={TOGGLE_ANCHO_COMPLETO}` si lleva `hint`; en una
-  rejilla, que ocupe todas las columnas, o el hint parte en cinco renglones. En DPB el `Toggle`
-  también va dentro de formularios que se guardan con «Guardar» (una cuenta activa). Es la excepción
-  que `eecheverria-untitled-ui` admite a su regla general (toggle para efecto inmediato; checkbox si
-  hay que guardar) cuando el proyecto la sigue de forma consistente: en una misma app, los sí/no de
-  formulario son todos `Toggle`, sin mezclar con `Checkbox`.
+  rejilla, que ocupe todas las columnas, o el hint parte en cinco renglones. En DPB los sí/no de un
+  formulario que se guarda con «Guardar» (una cuenta activa) también son `Toggle`, todos, sin mezclar
+  con `Checkbox`: la excepción consistente que `eecheverria-untitled-ui` admite a su regla general.
 - **Números:** `Input` con `inputMode="numeric"` para enteros y `inputMode="decimal"` para montos (en
   iOS, `numeric` no trae punto decimal), nunca `type="number"`. El monto se formatea con
   `formatearMonto` al salir del campo.
@@ -434,37 +424,38 @@ Cuándo sí y cuándo no. El código está en la plantilla; no lo repitas a mano
 
 ## Estados: carga, vacío, error y avisos
 
-- **Cómo se piden los datos no lo fija esta skill.** Lo decide `eecheverria-frontend-react` (TanStack
-  Query o similar), igual que con los formularios, incluido que una respuesta vieja no pise a una
-  nueva. Lo que sí se fija aquí es qué se ve en cada estado:
+- **Cómo se piden los datos no lo fija esta skill.** Carga `eecheverria-frontend-react` para pedirlos
+  (TanStack Query o similar) y para que una respuesta vieja no pise a una nueva. Sin backend todavía,
+  un módulo con datos en memoria y una latencia artificial, detrás del mismo contrato: así se ven los
+  estados y cambiar al backend real no toca las pantallas. Lo que sí se fija aquí es qué se ve en cada
+  estado:
   - **primera carga:** `Esqueleto`;
   - **recarga** (cambio de página, búsqueda, filtro): los datos anteriores siguen a la vista y
-    `Paginacion` va con `isDisabled`. Nunca vuelvas al esqueleto: desmontaría el paginador, perdería el
-    foco y mataría el `aria-live`;
+    `Paginacion` sigue habilitada, ignorando el clic mientras carga (ver [Piezas comunes](#piezas-comunes)).
+    Nunca vuelvas al esqueleto: desmontaría el paginador, perdería el foco y mataría el `aria-live`;
   - **búsqueda:** con un retardo de ~300 ms tras la última tecla;
   - **error:** `MensajeError`;
   - **vacío:** `EstadoVacio`.
 - **`Esqueleto` o `LoadingIndicator`.** `Esqueleto` cuando el contenido tiene forma conocida (una tabla,
   las secciones de un detalle, el inicio). `LoadingIndicator type="dot-circle"` cuando no hay forma que
   copiar: al restaurar la sesión (pantalla completa, con `label`) o en una carga chica dentro de algo
-  que ya está (la lista de un `Select` en un diálogo), con el texto al lado. En un botón, `isLoading`.
-- **Vacío con dos textos:** «no hay nada» y «nada coincide con la búsqueda». Con el mismo texto, quien
-  filtró creería que el catálogo está vacío y volvería a importar sin necesidad. La acción primaria
+  que ya está (la lista de un `Select` en un diálogo), con el texto al lado. Siempre en un envoltorio
+  con `role="status"` y el freno de movimiento (ver [Acceso](#acceso)). En un botón, `isLoading`.
+- **Vacío con dos textos:** «no hay nada» y «nada coincide con la búsqueda». Con uno solo, quien filtró
+  creería vacío el catálogo y volvería a importar. La acción primaria
   («Importar») solo en el vacío real; en el filtrado, el texto dice qué filtro quitar. Si el listado no
   puede estar vacío sin filtros (los usuarios, que ve un usuario), no hay rama «no hay nada».
 - **Error en línea, con remedio.** `MensajeError` con `onReintentar`, o con un botón «Volver al listado»
   si el registro no existe.
 - **Un error, un sitio.** Si un diálogo está abierto, el error va en él y la página no lo pinta: el mismo
   `role="alert"` se anunciaría dos veces y quedaría un error visible detrás del diálogo. Las escrituras
-  sin diálogo propio, arriba del contenido de la página. El error de una confirmación va dentro de ella
-  (un 409 que lista lo pendiente, dentro del diálogo).
+  sin diálogo propio, arriba del contenido de la página. El de una confirmación, dentro de ella (un 409
+  que lista lo pendiente).
 - **429:** el remedio dice que no se perdió nada y que hay que esperar y pulsar «Recargar».
-- **Toasts solo para confirmar lo que el backend ya confirmó.** Un «se guardó» que resulta falso es peor
-  que ningún aviso. Van arriba al centro, el único sitio sin acciones, y duran 5 s. Los errores que
-  hay que corregir no van en toast, porque se iría antes de que alguien lo lea y lo arregle.
-  Tampoco las escrituras muy frecuentes (un autoguardado por fila serían decenas por sesión): ahí el
-  acuse va en la propia fila. `notificar.error` queda para un aviso que no tiene dónde vivir en la
-  pantalla, una sola vez.
+- **Toasts solo para confirmar lo que el backend ya confirmó:** un «se guardó» falso es peor que ningún
+  aviso. Van arriba al centro, el único sitio sin acciones, y duran 5 s. Ni errores que hay que
+  corregir (se irían antes de leerlos) ni escrituras muy frecuentes (un autoguardado por fila): ahí el
+  acuse va en la propia fila. `notificar.error`, para un aviso sin dónde vivir en la pantalla.
 - **Avisos en cabeceras densas:** antes que una caja entera que empuje la tabla hacia abajo, una píldora
   del tamaño de un botón, del color del aviso y con su conteo, que abre el detalle en un popover. No
   viene en la plantilla.
@@ -473,9 +464,8 @@ Cuándo sí y cuándo no. El código está en la plantilla; no lo repitas a mano
 
 ## Badges de estado
 
-Una tabla `ESTILO` por dominio, de estado a color y etiqueta. El `Record` sobre la unión de estados
-hace que TypeScript exija cubrir un estado nuevo, y la etiqueta exportada sirve donde el estado va en
-texto (un selector), con una sola fuente para las dos cosas.
+Una tabla `ESTILO` por dominio, de estado a color y etiqueta: el `Record` sobre la unión obliga a
+cubrir un estado nuevo, y la etiqueta exportada sirve donde el estado va en texto (un selector).
 
 ```tsx
 import { Badge } from "@/components/base/badges/badges";
@@ -517,11 +507,11 @@ export const EstadoSolicitudBadge = ({ estado }: { estado: EstadoSolicitud }) =>
 
 ## Botones
 
-- **`secondary` domina.** En el origen hay unos 114 botones `secondary` contra un puñado de primarios:
-  recargar, importar, exportar, ver, reintentar, el Cancelar del pie y toda acción que no cierra el trabajo.
+- **`secondary` domina:** recargar, importar, exportar, ver, reintentar, el Cancelar del pie y toda
+  acción que no cierra el trabajo.
 - **Primario por defecto** (sin `color`) para la acción que cierra el trabajo de su zona: «Nueva cuenta»,
-  «Guardar cambios», «Revisar y enviar», «Aprobar». Normalmente uno por zona (cabecera, pie del diálogo,
-  acción de sección) y al final del grupo, a la derecha.
+  «Guardar cambios», «Aprobar». Normalmente uno por zona (cabecera, pie del diálogo, acción de sección) y
+  al final del grupo, a la derecha.
 - **`tertiary`:** los `ButtonUtility` de las filas y la × de diálogos y avisos.
 - **`link-color`:** el enlace a la pantalla completa desde una tarjeta («Ver todo →»).
 - **`link-gray`:** volver (`volverA`).
@@ -532,8 +522,8 @@ export const EstadoSolicitudBadge = ({ estado }: { estado: EstadoSolicitud }) =>
 - **En móvil (bajo `sm`)**, los secundarios de la cabecera van solo con ícono: el texto en
   `<span className="hidden sm:inline">` y el nombre completo en `aria-label`. El primario conserva su
   texto. Con todos los textos, el primario se salía de la pantalla.
-- **`onPress`, no `onClick`,** en `Button` y `ButtonUtility` del catálogo: son de React Aria y sus tipos
-  marcan `onClick` como no recomendado (`onPress` unifica ratón, teclado y toque).
+- **`onPress`, no `onClick`,** en `Button` y `ButtonUtility`: son de React Aria, y `onPress` unifica
+  ratón, teclado y toque.
 - **Botones propios** (`AriaButton`, `<button>`) con `cursor-pointer` explícito. Los del catálogo ya lo
   traen.
 
@@ -543,31 +533,32 @@ export const EstadoSolicitudBadge = ({ estado }: { estado: EstadoSolicitud }) =>
 
 - **recharts**, compuesto en la propia feature, con `ChartTooltipContent` y `ChartLegendContent` de
   `components/application/charts/charts-base.tsx`. El catálogo free no trae gráficas armadas, solo esa
-  base (verificado con `npx untitledui search chart`).
+  base.
 - **Color por `currentColor`:** `fill="currentColor"` con `className="text-chart-1"` en el `Bar` o el
-  `Cell`, y `bg-chart-1` en el punto de una leyenda propia. El color sale del token y cambia solo en
-  oscuro: `chart-1` sube un paso (brand-400) y `chart-2` baja un poco su luminancia (#D95926), para
-  seguir en 3:1 o más contra el fondo oscuro.
+  `Cell`, y `bg-chart-1` en el punto de una leyenda propia. El token cambia solo en oscuro (`chart-1` a
+  brand-400, `chart-2` a #D95926) para seguir en 3:1 o más contra el fondo.
 - **Rejilla y ejes con tokens:** `CartesianGrid vertical={false} stroke="currentColor"
-  className="text-utility-neutral-100"`; ejes con `axisLine={false} tickLine={false} className="text-xs"`
-  y `tick={{ fill: "var(--color-text-tertiary)" }}`; `Tooltip cursor={{ className: "fill-bg-secondary" }}`.
+  className="text-utility-neutral-100"`; ejes con `axisLine={false} tickLine={false}` y
+  `tick={{ fill: "var(--color-text-tertiary)", fontSize: 12 }}` (con recharts 3.10, `className="text-xs"`
+  en el eje no llega a las etiquetas: salían a 16 px); `Tooltip cursor={{ className: "fill-bg-secondary" }}`.
   Los segmentos apilados y las partes de una dona se separan con un trazo del color de la superficie
   (`stroke="var(--color-bg-primary)"`).
 - **Leyenda siempre**, y el color nunca identifica solo: la dona del origen repite monto y porcentaje en
   su leyenda, y el total va en el centro.
-- **Eje de meses en móvil:** `interval="preserveStartEnd"` con `minTickGap`; con `interval={0}` las doce
-  etiquetas se enciman.
+- **Eje de meses:** las etiquetas de `MESES` (`formato.ts`). En móvil, `interval="preserveStartEnd"` con
+  `minTickGap`; con `interval={0}` las doce se enciman.
+- **Bundle:** el aviso de Vite de un chunk de más de 500 kB viene del catálogo más recharts; partir por
+  ruta es de `eecheverria-performance`.
 - **Accesibilidad:** la gráfica va en un elemento con `role="img"` y un `aria-label` que la resume y
-  remite a la tabla. La tabla con los números va **fuera** de ese elemento, como hermana, porque
-  `role="img"` vuelve presentacional todo lo de dentro:
-  `<div className="sr-only"><table><caption>…</caption>…</table></div>`. El `sr-only` va en el `div`, no
-  en la tabla, y los dos dentro de un contenedor `relative`.
-- **Paleta:** dos series validadas con el script de `dataviz` en claro y oscuro: `--color-chart-1`, el
-  azul de marca, y `--color-chart-2`, el naranja `#EB6834`. **Al agregar una serie, revalida la paleta
-  con la skill `dataviz`**; si no la tienes (no viene en este plugin), el mínimo es 3:1 o más contra el
-  fondo, en claro y en oscuro, y series que se distingan sin depender solo del color. El naranja se
-  eligió lejos del rojo DPB y de los colores de estado; una serie nueva tampoco debe confundirse con
-  `error`, `warning`, `success` ni con `accent`.
+  remite a la tabla. La tabla va **fuera**, como hermana (`role="img"` vuelve presentacional lo de
+  dentro): `<div className="sr-only"><table><caption>…</caption>…</table></div>`, con el `sr-only` en el
+  `div` y no en la tabla, y los dos dentro de un contenedor `relative`.
+- **Paleta:** `--color-chart-1` (el azul de marca) y `--color-chart-2` (el naranja `#EB6834`), validadas
+  con `dataviz` en claro y oscuro. **Al agregar una serie, revalida con `dataviz`**; sin ella (no viene
+  en este plugin), 3:1 o más contra el fondo en los dos temas, series que no dependan solo del color y
+  nada que se confunda con `error`, `warning`, `success` ni `accent`. La serie nueva va en un CSS del
+  proyecto (`src/styles/graficas.css`, importado después de `brand-dpb.css`), no en `brand-dpb.css`:
+  ese archivo no se edita, o cada actualización lo marcaría como conflicto.
 
 ---
 
@@ -585,43 +576,45 @@ aprobado, y aun así con el texto en Open Sans y los colores de DPB.
 - `mono`, una sola tinta, para cuando no hay color.
 - No rotes, no recolorees y no deformes.
 
-> **Tamaño: 32 px como mínimo**, sin excepción. El contorno de la casa es fino (≈2 % del ancho del
-> isotipo: a 30 px queda en ~0,6 px) y por debajo se pierde. No lo engroses: es una regla de marca, el
-> dibujo no se cambia. Con la barra colapsada (72 px de ancho) cabe.
+> **Tamaño en la UI: 32 px como mínimo.** El contorno de la casa es fino (≈2 % del ancho del isotipo: a
+> 30 px queda en ~0,6 px) y por debajo se pierde. No lo engroses: es una regla de marca, el dibujo no se
+> cambia. Con la barra colapsada (72 px de ancho) cabe.
 
-La app usa el componente inline, no el archivo: el SVG de `public/marca/` queda para el favicon y para
-quien necesite el archivo suelto.
+La app usa el componente inline, no el archivo: el SVG de `public/marca/` queda para el favicon, que va
+al tamaño que define el navegador, y para quien necesite el archivo suelto.
 
 **Azul de acción.** `brand-500` = `#2C589A` y `accent-500` = `#CC1F37`, exactos, en `brand-dpb.css`.
 `bg-brand-solid` (el botón primario) resuelve a `brand-600` (`#234B85`): así reparte la rampa Untitled
-UI, no lo "corrijas" a 500. El `#2C589A` exacto sale en el anillo de foco, en `border-brand` y en
-`bg-brand-500` (el panel de acceso).
+UI, no lo "corrijas" a 500. El `#2C589A` no lo escribas a mano: llega por los tokens
+(`fg-brand-secondary`, el anillo de foco en claro, `bg-brand-primary` en oscuro…) y por las superficies
+de marca (`bg-brand-500`). En oscuro, el anillo de foco, `fg-brand-primary` y `border-brand` son
+brand-400: con brand-500 el anillo daba ≈2.8:1 sobre el fondo, bajo el 3:1 de WCAG 1.4.11.
 
 **Acento.** La rampa `accent` es para acentos puntuales de marca (un antetítulo, un destacado), no para
-KPIs, acciones ni estados. Las acciones son azules, y `error`, `warning` y `success` se dejan intactos
-porque son funcionales: si `error` fuera el rojo DPB, un exceso y un elemento de marca se verían iguales.
+KPIs, acciones ni estados. Como texto, `text-accent` (accent-600 en claro, 6.8:1 sobre blanco;
+accent-400 en oscuro, ≈5.8:1), que se invierte con el tema; `text-accent-600` no. Las acciones son
+azules, y `error`, `warning` y `success` se dejan intactos porque son funcionales: si `error` fuera el
+rojo DPB, un exceso y un elemento de marca se verían iguales.
 
 **Tipografía.** Open Sans 400/500/600/700 e itálica 400 (`--font-body` y `--font-display`), cargada en
 `index.html` desde Google Fonts. El 500 es el de `font-medium`: sin él, se pintaba en 400.
 
-**Retícula isométrica** (`src/brand/iso-pattern.tsx`). La textura del panel de marca, en `text-white/10`
-y con `aria-hidden`. Es fondo, no marca: no la pongas en superficies de trabajo.
+**Retícula isométrica** (`src/brand/iso-pattern.tsx`). La textura del panel de marca: es fondo, no
+marca, y no va en superficies de trabajo.
 
-**Movimiento del logo.** Nada en bucle junto al trabajo, porque distrae. En la sidebar, como mucho una
-entrada por sesión y un leve realce al pasar el ratón; en el panel de acceso puede flotar. Todo bajo
-`motion-reduce`.
+**Movimiento del logo.** Nada en bucle junto al trabajo: en la sidebar, como mucho una entrada por
+sesión y un realce al pasar el ratón; en el panel de acceso puede flotar. Todo bajo `motion-reduce`.
 
 ---
 
 ## Responsive
 
-- **Rejillas `grid-cols-1` de base**, que suben con `sm:`, `md:`, `lg:` y `xl:`.
-- **Selectores a todo el ancho en móvil** (`w-full sm:w-44`): a la mitad cortaban los nombres.
-- **La sidebar no desaparece**, solo se colapsa a 72 px. Prueba a 440 px (Chrome en modo dispositivo):
-  con la barra quedan ~330 px útiles y nada debe salirse del ancho.
+- **Rejillas `grid-cols-1` de base**, que suben con `sm:`, `md:`, `lg:` y `xl:`. Los selectores, a todo
+  el ancho en móvil (`w-full sm:w-44`).
+- **La sidebar no desaparece**, solo se colapsa a 72 px. Prueba a 320 px (el mínimo de
+  `eecheverria-frontend-react`) y a 440 px, en Chrome en modo dispositivo: con la barra quedan ~210 y
+  ~330 px útiles, y nada debe salirse del ancho.
 - **Para cazar desbordes**, compara `main.scrollWidth` con `main.clientWidth` en la consola.
-- **Cifras compactas en móvil** con `formatearCompacto` («1.4M»), sin dejar el exacto solo en el
-  `title` (ver `CifraKpi`).
 
 ---
 
@@ -630,18 +623,20 @@ entrada por sesión y un leve realce al pasar el ratón; en el panel de acceso p
 - **Un solo `<h1>` por página**, el de `AppLayout`. Cada bloque es un `<section aria-labelledby>` con su
   `<h2>` (`Seccion`). Si el título visible sobraría, `Seccion` no sirve, porque siempre lo pinta: escribe
   un `<section aria-labelledby>` propio con el `<h2 className="sr-only">`.
-- **Filas de 44 px** (`FILA`) y objetivos táctiles de al menos 24 px (WCAG 2.5.8).
+- **Objetivos táctiles: aquí manda esta skill.** `eecheverria-frontend-react` pide 44×44 px; en DPB las
+  filas miden 44 px (`FILA`) y las acciones de fila (`ButtonUtility xs`, 28 px) se aceptan bajo WCAG
+  2.5.8 (24 px o más), para que quepan en un renglón de una tabla densa.
 - **Movimiento:** `motion-reduce:animate-none` en entradas y esqueletos, y `motion-reduce:transition-none`
   en los realces.
 - **El color nunca va solo:** badges con texto, ✓ y ○ en celdas, «Excede el límite por…» con ícono, una
   diferencia con signo y texto («+Q 50.00», «sin cambio»), y el fondo con un punto para marcar un cambio.
 - **Anuncios:** `aria-live="polite"` en la paginación, `role="status"` en vacíos y esqueletos (con el
   texto dentro, no en `aria-label`), ninguno en las notas, que son estáticas, `role="alert"` en errores
-  (uno a la vez) y `containerAriaLabel="Notificaciones"` en el `Toaster`.
+  (uno a la vez) y `containerAriaLabel="Notificaciones"` en el `Toaster`. Un `role="status"` que se
+  monta ya con su texto no lo anuncian todos los lectores: lo expone a quien llega a él. Un anuncio
+  fiable pide una región viva que exista antes del cambio.
 - **El anillo de foco no se recorta:** un área con scroll que contiene enlaces o campos lleva holgura
-  (`-mx-1 px-1` en la navegación, `py-1` en el cuerpo del diálogo, `pt-px` en `main`).
-- El recorrido con teclado y lector de pantalla se verifica como dicen `eecheverria-untitled-ui` y
-  `eecheverria-frontend-react`.
+  (`-mx-1 px-1 pt-1` en la navegación, `py-1` en el cuerpo del diálogo, `pt-px` en `main`).
 
 ---
 
@@ -663,6 +658,6 @@ entrada por sesión y un leve realce al pasar el ratón; en el panel de acceso p
   | `not-found.tsx` del starter | `src/pages/no-encontrada.tsx` |
 
 - **Antes de usar un componente nuevo del catálogo, busca su texto fijo.**
-- **Fechas en `dd/mm/aaaa`**, sin pasar por `Date`, y montos con `formatearMonto` y `formatearCompacto`
-  de `src/utils/formato.ts`, nunca con un `Intl` sin revisar (ver
+- **Fechas con `formatearFecha`** («dd/mm/aaaa», sin pasar por `Date`) y montos con `formatearMonto` y
+  `formatearCompacto`, de `src/utils/formato.ts`, nunca con un `Intl` sin revisar (ver
   [Datos en pantalla](trampas.md#datos-en-pantalla)).

@@ -25,7 +25,7 @@ pantallas está en `patrones.md`.
 
 | Pieza | app-presupuestos (lockfile al 22/10/2026) | Starter del 22/10/2026 |
 | --- | --- | --- |
-| Untitled UI React | starter del CLI del 17/09/2026 | `npx untitledui@latest init . --vite` |
+| Untitled UI React | starter del CLI del 17/09/2026 | `npx untitledui@latest init <carpeta> --vite -y` |
 | react-aria-components | 1.21.1 | 1.21.1 / 1.22.1 |
 | Tailwind CSS y `@tailwindcss/vite` | 4.3.3 | 4.3.3 |
 | React y React DOM | 19.3.0 | 19.3 |
@@ -34,15 +34,15 @@ pantallas está en `patrones.md`.
 | TypeScript | 5.9.3 | 6.0.3 |
 | sonner | 2.0.8 | 2.0.8 |
 
-Cada título dice de qué capa depende; **revalidada** = se reprodujo también con el starter del
-22/10/2026 (sin la marca, solo se vio en el origen). Cuándo revalidar cada capa:
+Cada título dice de qué capa depende; **revalidada** = se reprodujo con el starter del 22/10/2026 (sin
+la marca, solo se vio en el origen). Cuándo revalidar cada capa:
 
 - **CSS** y **diseño** (una decisión de la app): no caducan.
 - **navegador** (el motor, el lector de pantalla o sus datos): al cambiar de navegador objetivo; `Intl`
   usa los datos de CLDR, que cambian con sus versiones.
 - **catálogo** (lo que genera Untitled UI): tras cada `upgrade` o starter nuevo.
 - **RAC** (react-aria-components) y **Tailwind 4**: al subir de minor. **React**: al subir de mayor.
-- Una librería por su nombre (rolldown, MSAL): al subir esa librería.
+- Una herramienta por su nombre (rolldown, MSAL, git): al subirla.
 
 ---
 
@@ -53,10 +53,8 @@ Cada título dice de qué capa depende; **revalidada** = se reprodujo también c
 - **Síntoma:** 7 errores TS2307 en `src/components/` justo después de `init`: no encuentra
   `@react-aria/utils`, `@react-stately/utils` ni `@react-types/overlays`.
 - **Causa:** varios componentes generados importaban esos paquetes directo, y el CLI no los declaraba.
-- **Arreglo:** con el starter del 22/10/2026 no se reproduce (typecheck y build limpios): no los
-  instales de oficio. Con uno anterior que dé esos errores,
-  `npm i -D @react-aria/utils @react-stately/utils @react-types/overlays`. Si un `upgrade` deja de
-  importarlos, quítalos.
+- **Arreglo:** con el starter del 22/10/2026 no se reproduce: no los instales de oficio. Con uno
+  anterior, `npm i -D` de los tres, y quítalos si un `upgrade` deja de importarlos.
 
 ### `calendar.tsx` no compila · catálogo + RAC · solo en starters anteriores
 
@@ -64,13 +62,13 @@ Cada título dice de qué capa depende; **revalidada** = se reprodujo también c
 - **Causa:** el `CalendarContext` de react-aria-components tipa `onChange` con la unión que incluye la
   selección de rango (`readonly DateValue[]`), y el `CalendarContextProvider` de esos starters guardaba
   un solo valor.
-- **Arreglo:** el `calendar.tsx` del starter del 22/10/2026 ya trae la corrección. Con uno anterior, un
-  parche local, la única excepción a «no tocar `src/components/`», con un comentario que diga por qué:
+- **Arreglo:** el `calendar.tsx` del starter del 22/10/2026 ya trae la corrección. Con uno anterior, la
+  misma como parche local, la única excepción a «no tocar `src/components/`», con un comentario:
 
   ```ts
   // PARCHE LOCAL: RAC tipa onChange con la unión de rango. Revisar en cada upgrade.
-  const onChange = (next: DateValue | readonly DateValue[]) => {
-      setValue(Array.isArray(next) ? (next[0] ?? null) : (next as DateValue));
+  const onChange = (next: DateValue | readonly DateValue[] | null) => {
+      setValue(Array.isArray(next) ? (next[0] ?? null) : next);
   };
   // …y pasar `onChange` en el `value` del provider en lugar de `setValue`.
   ```
@@ -84,17 +82,38 @@ Cada título dice de qué capa depende; **revalidada** = se reprodujo también c
   index out of bounds», o con un segfault sin mensaje, en cuanto `vite.config.ts` pasa de unas líneas.
 - **Causa:** un bug de rolldown 1.2.9 en Windows.
 - **Arreglo:** subir `rolldown` a 1.2.11 en el lockfile, que cabe en el `~1.2.6` que pide Vite 8.3.0. Si
-  reaparece después de un `npm install`, mira qué versión quedó (`npm ls rolldown`) antes de tocar nada más.
+  reaparece tras un `npm install`, revisa `npm ls rolldown` antes de tocar nada más.
 
 ### El tema parpadea o no respeta lo elegido al recargar · catálogo
 
-- **Síntoma:** quien eligió el tema oscuro ve un destello claro al cargar, o al revés. El guardia
-  anti-parpadeo de `index.html` nunca coincide con la preferencia real.
+- **Síntoma:** quien eligió oscuro ve un destello claro al cargar, o al revés: el guardia anti-parpadeo
+  de `index.html` no coincide con la preferencia real.
 - **Causa:** el starter leía en `index.html` la clave `theme`, mientras `ThemeProvider` escribe en
   `ui-theme`.
 - **Arreglo:** la misma clave en los dos (`ui-theme`) y el mismo valor por defecto: `defaultTheme="light"`
   en el provider y «sin valor guardado, claro» en el guardia, que va en `try/catch`.
 - **Ya resuelto en:** los fragmentos `index-head.html` y `main.tsx` de la skill.
+
+### El tema «Sistema» no sobrevive a una recarga · catálogo · revalidada
+
+- **Síntoma:** con un selector de tema, eliges «Sistema» y al recargar la app vuelve a claro.
+- **Causa:** el `ThemeProvider` del starter borra la clave `ui-theme` cuando el tema es `system` y
+  arranca con `savedTheme || defaultTheme`: sin clave, manda el `defaultTheme="light"` de la casa.
+- **Arreglo:** DPB no trae selector. Si una app lo agrega, «Claro» y «Oscuro», que sí se guardan;
+  «Sistema» pide cambiar el provider y el guardia de `index.html` a la vez: decídelo con el usuario.
+
+### Quedan dos lockfiles · catálogo · revalidada
+
+- **Síntoma:** después de `init` hay `bun.lock` y `package-lock.json`.
+- **Causa:** `init` deja los dos, y cada gestor solo actualiza el suyo: con los dos, se desincronizan.
+- **Arreglo:** elige uno antes del commit base. Con npm, borra `bun.lock`; con bun, `package-lock.json`.
+
+### El commit base falla en Windows con «Filename too long» · git
+
+- **Síntoma:** el primer `git add` o `git commit` del starter cae con «Filename too long».
+- **Causa:** Git para Windows no acepta rutas largas mientras `core.longpaths` esté apagado.
+- **Arreglo:** `git config core.longpaths true` en el repo, y vuelve a commitear. Antes, revisa la
+  identidad (`git config user.email`): la del proyecto; en DPB, la cuenta de trabajo (`@paloblanco.com`).
 
 ---
 
@@ -112,8 +131,8 @@ Cada título dice de qué capa depende; **revalidada** = se reprodujo también c
 ### `bg-secondary_subtle` no existe · catálogo
 
 - **Síntoma:** una fila «atenuada» sale sin fondo.
-- **Causa:** el tema no define `secondary_subtle`, aunque haya aparecido en listas de tokens. Las variantes de la secundaria que existen son `bg-secondary_alt`,
-  `bg-secondary_hover` y `bg-secondary-solid`. Los fondos de estado que sí existen son
+- **Causa:** el tema no define `secondary_subtle`, aunque haya aparecido en listas de tokens. Sí existen
+  `bg-secondary_alt`, `bg-secondary_hover`, `bg-secondary-solid` y, de estado,
   `bg-{success,warning,error}-{primary,secondary,solid}`.
 - **Arreglo:** `bg-secondary` para atenuar. Antes de usar un token de una lista, búscalo en `theme.css`.
 
@@ -132,16 +151,18 @@ Cada título dice de qué capa depende; **revalidada** = se reprodujo también c
 - **Síntoma:** `--color-accent-500` no está en el CSS del build, y parece que la rampa no se cargó.
 - **Causa:** Tailwind 4 poda las variables de `@theme` que ninguna clase referencia.
 - **Arreglo:** ninguno: es lo esperado, y la variable aparece en cuanto una clase la usa
-  (`text-accent-600`). No la des por rota al inspeccionar el CSS.
+  (`bg-accent-500`). No la des por rota al inspeccionar el CSS.
 
 ### El token propio genera `bg-bg-canvas` · Tailwind 4
 
 - **Síntoma:** declaraste `--color-bg-canvas` y la utilidad que existe es `bg-bg-canvas`.
 - **Causa:** Tailwind arma `bg-*` desde el espacio `--color-*`, así que el `bg-` del nombre se duplica.
   Untitled UI resuelve sus fondos con un segundo espacio, `--background-color-*`.
-- **Arreglo:** dos variables. `--color-bg-canvas` guarda el valor y es la que se redefine en
-  `.dark-mode`; `--background-color-canvas: var(--color-bg-canvas)` es la que genera `bg-canvas`. Para un
-  token de borde o de anillo, lo mismo con `--border-color-*` y `--ring-color-*`, como `warning_subtle`.
+- **Arreglo:** dos variables. `--color-bg-canvas` guarda el valor; `--background-color-canvas:
+  var(--color-bg-canvas)` es la que genera `bg-canvas`. Para un token de borde o de anillo, lo mismo con
+  `--border-color-*` y `--ring-color-*`, como `warning_subtle`. En `.dark-mode` se redeclaran las dos:
+  un alias declarado solo en la raíz resuelve ahí su `var()` y, bajo un `.dark-mode` anidado en un
+  contenedor, se quedaría con el valor claro.
 - **Ya resuelto en:** `src/styles/brand-dpb.css`.
 
 ### Los botones propios no muestran la mano · Tailwind 4
@@ -166,13 +187,11 @@ Cada título dice de qué capa depende; **revalidada** = se reprodujo también c
 
 ### Un área con scroll se confunde con la página · CSS
 
-- **Síntoma:** la rueda «no hace nada» o la página parece trabada; una lista larga se lee como parte de la
-  página.
-- **Causa:** un área con scroll sin borde no se distingue, y anidada dentro de otra que también se
-  desplaza, la rueda mueve la de dentro.
+- **Síntoma:** la rueda «no hace nada» o la página parece trabada; una lista larga se lee como página.
+- **Causa:** un área con scroll sin borde no se distingue, y anidada en otra que también se desplaza, la
+  rueda mueve la de dentro.
 - **Arreglo:** el scroll va en un `div` con contorno (`rounded-lg ring-1 ring-secondary`) que lleva el
-  `max-h-*` y el `overflow-y-auto`, no en el `<ul>` pelado. Y no anides áreas con scroll: dentro de un
-  diálogo, el cuerpo ya se desplaza.
+  `max-h-*` y el `overflow-y-auto`, no en el `<ul>` pelado. Y no anides áreas con scroll.
 - **Ya resuelto en:** `AREA_TABLA` (`tabla.ts`).
 
 ### El encabezado fijo de la tabla se va con las filas · catálogo · revalidada
@@ -183,7 +202,7 @@ Cada título dice de qué capa depende; **revalidada** = se reprodujo también c
   en horizontal.
 - **Arreglo:** el área de fuera anula esos overflow (`[&>div]:overflow-visible
   [&_table]:overflow-visible`) y hace todo el scroll; el encabezado lleva `sticky top-0 z-10` (su fondo ya
-  es opaco, así que las filas pasan por debajo sin transparentarse).
+  es opaco).
 - **Ya resuelto en:** `AREA_TABLA` + `ENCABEZADO_FIJO` (`tabla.ts`).
 
 ### Aparece un segundo scroll, el de la página entera · CSS · revalidada
@@ -200,9 +219,9 @@ Cada título dice de qué capa depende; **revalidada** = se reprodujo también c
 
 - **Síntoma:** en una ventana baja, con una casilla o un interruptor al final del cuerpo, el fondo del
   diálogo se estira y el diálogo completo se mueve.
-- **Causa:** `Checkbox` y `Toggle` de React Aria esconden su `<input>` con `position: absolute`, y un
-  `overflow` solo recorta a los `absolute` cuyo bloque contenedor es él o algo dentro de él: si nada
-  entre el input y el cuerpo con scroll es `relative`, el input escapa del recorte y estira el diálogo.
+- **Causa:** `Checkbox` y `Toggle` de React Aria esconden su `<input>` con `position: absolute` y, como
+  en la trampa anterior, si nada entre el input y el cuerpo con scroll es `relative`, escapa del recorte
+  y estira el diálogo.
 - **Arreglo:** el cuerpo con scroll es `relative`. No lo resuelvas con un margen negativo: dentro del área
   con scroll, lo que sube se recorta.
 - **Ya resuelto en:** `TarjetaDialogo`.
@@ -211,8 +230,7 @@ Cada título dice de qué capa depende; **revalidada** = se reprodujo también c
 
 - **Síntoma:** scroll horizontal en móvil sin nada visible que desborde (la tabla accesible de una gráfica).
 - **Causa:** `sr-only` pone `width: 1px`, pero una tabla ignora el ancho y se estira a su contenido.
-- **Arreglo:** el `sr-only` va en un `<div>` que envuelve la tabla, nunca en la tabla. Para cazar
-  desbordes así, compara `main.scrollWidth` con `main.clientWidth` en la consola.
+- **Arreglo:** el `sr-only` va en un `<div>` que envuelve la tabla, nunca en la tabla.
 
 ### El scroll se va a `main` y se lleva los filtros y el paginador · CSS
 
@@ -228,8 +246,8 @@ Cada título dice de qué capa depende; **revalidada** = se reprodujo también c
 - **Síntoma:** el primer o el último campo de un área con scroll, o un enlace de la navegación, muestran
   el anillo de foco cortado; la tarjeta que abre el contenido de la página pierde su borde de arriba.
 - **Causa:** el `overflow` recorta lo que sale de la caja, y el anillo (`ring`) se pinta por fuera.
-- **Arreglo:** holgura dentro del área: `-mx-1 px-1` en la navegación, `py-1` en el cuerpo del diálogo y
-  `pt-px` en `main`.
+- **Arreglo:** holgura dentro del área: `-mx-1 px-1 pt-1` en la navegación, `py-1` en el cuerpo del
+  diálogo y `pt-px` en `main`.
 - **Ya resuelto en:** `sidebar.tsx`, `TarjetaDialogo` y `app-layout.tsx`.
 
 ---
@@ -255,29 +273,22 @@ Cada título dice de qué capa depende; **revalidada** = se reprodujo también c
 - **Causa:** el `Dialog` del catálogo actual es `max-h-[inherit] overflow-y-auto`: el scroll es de todo su
   contenido, no solo del cuerpo.
 - **Arreglo:** `TarjetaDialogo` como **hijo directo** de `Dialog`: toma `max-h-[inherit]` y deja el
-  scroll solo en el cuerpo. No le pongas otra área con `overflow-y-auto` alrededor.
+  scroll solo en el cuerpo.
 - **Ya resuelto en:** `src/features/comunes/tarjeta-dialogo.tsx`.
 
-### El diálogo muestra los datos del registro anterior · React
+### El diálogo muestra datos viejos o se vacía con cada tecla · React
 
-- **Síntoma:** abres «Editar» sobre otro registro y salen los valores del primero que editaste, o lo que
-  habías escrito antes de cancelar.
-- **Causa:** el diálogo no se desmonta al cerrarse (se cierra el overlay), así que un `useState(prop)`
-  leyó la prop solo la primera vez.
-- **Arreglo:** carga los valores en un efecto que corre al abrir (`if (!abierto) return;` y las
-  dependencias `[abierto, registro]`, con `registro` estable: el objeto que llegó del servidor).
-
-### El formulario se vacía con cada tecla · React
-
-- **Síntoma:** escribes en un campo y el formulario vuelve a sus valores iniciales.
-- **Causa:** el efecto de reinicio tiene en sus dependencias un objeto (`inicial`) que el padre arma nuevo
-  en cada render.
-- **Arreglo:** reinicia solo al abrir, con `abierto` como dependencia y sin ese objeto.
+- **Síntoma:** «Editar» sobre otro registro muestra los valores del primero (o lo escrito antes de
+  cancelar); o el formulario vuelve a sus valores iniciales con cada tecla.
+- **Causa:** el diálogo no se desmonta al cerrarse, así que un `useState(prop)` leyó la prop una sola vez;
+  y un efecto de reinicio que depende de un objeto que el padre arma en cada render corre con cada tecla.
+- **Arreglo:** carga los valores en un efecto que corre al abrir (`if (!abierto) return;`, dependencias
+  `[abierto, registro]`), con `registro` estable: el objeto que llegó del servidor.
 
 ### Escape y el clic fuera se saltan el botón Cancelar · RAC
 
-- **Síntoma:** al reabrir, el error del intento anterior sigue a la vista; o Escape cierra el diálogo a
-  media escritura y el resultado ya no tiene dónde mostrarse.
+- **Síntoma:** al reabrir, el error del intento anterior sigue a la vista; o Escape cierra el diálogo
+  mientras guarda y el resultado se pierde.
 - **Causa:** Escape y el clic fuera los dispara el overlay por `onOpenChange`; no pasan por el handler del
   botón Cancelar ni miran si se está guardando.
 - **Arreglo:** todas las salidas por un solo handler conectado a `onOpenChange`, que limpia el error al
@@ -296,9 +307,9 @@ Cada título dice de qué capa depende; **revalidada** = se reprodujo también c
   defecto: el contexto nunca es `undefined` y la prop no se lee jamás. `Table.Cell` toma su tamaño del
   mismo contexto, siempre `md` (`py-4`), y estira la fila.
 - **Arreglo:** el `size` va en `Table.Header` y en cada `Table.Row`, que sí respetan el suyo, y la fila
-  lleva `h-11 *:py-2`. La `h-11` gana sobre la `h-14` del componente porque `cx` es tailwind-merge, y
-  `*:py-2` baja el relleno vertical de las celdas sin tocar su `px-6`, que las alinea con `Table.Head`
-  (`size="sm"` en cada celda las desalinea).
+  lleva `h-11 *:py-2`: la `h-11` gana a la `h-14` del componente (`cx` es tailwind-merge), y `*:py-2`
+  baja el relleno de las celdas sin tocar el `px-6` que las alinea con `Table.Head` (`size="sm"` en cada
+  celda las desalinea).
 - **Ya resuelto en:** `FILA` (`tabla.ts`).
 
 ### Una celda muestra un dato viejo o un botón no se deshabilita · RAC
@@ -322,10 +333,9 @@ Cada título dice de qué capa depende; **revalidada** = se reprodujo también c
   que vive dentro de una caja `inline-flex` no se tacha.
 - **Causa:** el `line-through` de la celda lo heredan todos sus hijos, en bloque y en flex, salvo las
   cajas en línea atómicas (`inline-block`, `inline-flex`).
-- **Arreglo:** envuelve el badge en un `inline-block` (`SIN_TACHAR`) para que no se tache, y al texto que
-  vive dentro de una caja atómica, o que trae su propio color, ponle el tachado explícito. Ojo: el hijo
-  directo de un contenedor flex se *blockifica*, y ese `inline-block` pasa a bloque y se tacha igual;
-  dentro de una celda `flex`, mete el `SIN_TACHAR` en un `<span>` más.
+- **Arreglo:** el badge, en un `inline-block` (`SIN_TACHAR`); dentro de una celda `flex`, en un `<span>`
+  más, porque el hijo directo de un flex se *blockifica* y se tacha igual. El texto de una caja atómica,
+  o con color propio, lleva el tachado explícito.
 - **Ya resuelto en:** `claseFila`, `SIN_TACHAR` y `TACHADO_INACTIVO` (`estado-fila.ts`).
 
 ### La columna fija de una `<table>` propia casi no se mueve · CSS
@@ -405,14 +415,15 @@ Cada título dice de qué capa depende; **revalidada** = se reprodujo también c
 
 - **Síntoma:** un campo numérico con «3e» se guarda como vacío, que puede significar otra cosa.
 - **Causa:** con `type="number"`, el navegador entrega una cadena vacía ante un valor que no es número.
-- **Arreglo:** `inputMode="numeric"` para enteros o `inputMode="decimal"` para montos (en iOS, `numeric`
-  no trae punto decimal), y valida tú el texto.
+- **Arreglo:** un `Input` de texto con `inputMode` (ver [Formularios](patrones.md#formularios-en-diálogo))
+  y valida tú el texto.
 
-### `Select` no vuelve a «Todas» · RAC
+### `Select` no vuelve a «Todos» · RAC
 
 - **Síntoma:** una vez elegido un filtro, no hay forma de volver a «sin filtrar».
 - **Causa:** `Select` necesita una clave, y `undefined` no lo es.
-- **Arreglo:** una opción centinela (`"__todas__"`) que el filtro traduce a `undefined`.
+- **Arreglo:** una opción centinela (`"__todos__"`) que el filtro traduce a `undefined`, con texto corto
+  («Todos») y el nombre del filtro en el `label` visible («Estado»): en `w-44`, «Todos los estados» se corta.
 
 ---
 
@@ -424,19 +435,15 @@ Cada título dice de qué capa depende; **revalidada** = se reprodujo también c
   «Notifications» que anuncia el lector de pantalla, la 404 «We can't find that page». Revalidados con el
   starter del 22/10/2026: los de `PaginationPageDefault` y el de `sonner`.
 - **Causa:** el catálogo trae texto fijo, y `src/components/` no se edita.
-- **Arreglo:** apágalo por props o compón con otras piezas del catálogo; la tabla de salidas está en
-  [Idioma](patrones.md#idioma) de `patrones.md`. De `DropZone` y los ítems de `file-upload` se sale con
-  `FileTrigger` + `Button`, cuyo `<input>` va con `display: none` y no escapa de ningún recorte. Sin
-  salida: el placeholder «Search» del buscador del `MultiSelect`; se acepta cuando perder la búsqueda
-  es peor que un texto en inglés.
+- **Arreglo:** apágalo por props o compón con otras piezas del catálogo (la tabla de salidas está en
+  [Idioma](patrones.md#idioma)). Sin salida: el placeholder «Search» del buscador del `MultiSelect`.
 - **Ya resuelto en:** `paginacion.tsx`, `notificaciones.tsx` y `no-encontrada.tsx`.
 
 ### El toast del catálogo pide `login` · catálogo · revalidada
 
 - **Síntoma:** `npx untitledui@latest add` de las notificaciones pide iniciar sesión.
 - **Causa:** el toast de Untitled UI (`notifications`) es PRO.
-- **Arreglo:** `sonner`, la misma librería sobre la que el catálogo monta el suyo (pone la pila, el tiempo,
-  la pausa y el `aria-live`), con el aspecto hecho con tokens.
+- **Arreglo:** `sonner`, sobre la que el catálogo monta el suyo, con el aspecto hecho con tokens.
 - **Ya resuelto en:** `src/features/comunes/notificaciones.tsx`.
 
 ### `application/empty-state` no sigue los tokens · catálogo · revalidada
@@ -453,10 +460,9 @@ Cada título dice de qué capa depende; **revalidada** = se reprodujo también c
 ### La transición no se repite al cambiar de registro · React
 
 - **Síntoma:** al pasar de `/proveedores/1` a `/proveedores/2` no hay transición; entre módulos, sí.
-- **Causa:** `animate-in` se aplica al montar. Entre páginas distintas, cada ruta monta otro componente y
-  React remonta todo, así que la entrada se dispara sola. Cuando la misma página cambia de parámetro,
-  React la reconcilia en la misma posición en vez de montarla, y las clases ya aplicadas no vuelven a
-  correr.
+- **Causa:** `animate-in` corre al montar. Entre páginas distintas React remonta todo y la entrada se
+  dispara sola; cuando la misma página cambia de parámetro, la reconcilia en la misma posición y las
+  clases ya aplicadas no vuelven a correr.
 - **Arreglo:** una `key` con el `pathname` en lo que se anima, siempre con `motion-reduce:animate-none`.
 - **Ya resuelto en:** `src/layouts/app-layout.tsx`.
 
@@ -468,13 +474,6 @@ Cada título dice de qué capa depende; **revalidada** = se reprodujo también c
 - **Arreglo:** prefijos distintos: `encabezado:${pathname}` y `contenido:${pathname}`.
 - **Ya resuelto en:** `src/layouts/app-layout.tsx`.
 
-### Un `transform` de CSS borra el del dibujo SVG · CSS
-
-- **Síntoma:** al animar una parte de un logo SVG, se mueve de lugar o pierde un detalle.
-- **Causa:** un `transform` de CSS pisa el atributo `transform` del mismo elemento.
-- **Arreglo:** cada movimiento en su propio `<g>`, por fuera del `<g>` que lleva la transformación del
-  dibujo.
-
 ### Con dos SVG iguales en pantalla, uno sale sin degradado o sin patrón · navegador
 
 - **Síntoma:** la segunda instancia de un SVG con `<linearGradient>` o `<pattern>` se pinta mal.
@@ -485,8 +484,8 @@ Cada título dice de qué capa depende; **revalidada** = se reprodujo también c
 ### Lo que debe pasar una vez por sesión pasa en cada pantalla · React
 
 - **Síntoma:** la entrada del logo, o la petición que arma el menú, se repite en cada navegación.
-- **Causa:** al cambiar de página, React remonta todo, sidebar incluida (cada ruta monta una página
-  distinta con su `AppLayout`), y un `useState` se pierde con ella.
+- **Causa:** cada ruta monta una página distinta con su `AppLayout`, y React remonta todo, sidebar
+  incluida: un `useState` se pierde con ella.
 - **Arreglo:** una bandera a nivel de módulo; los datos, en la caché de la capa de datos (la decide
   `eecheverria-frontend-react`). Márcala en un efecto, no en el inicializador del estado: en desarrollo,
   StrictMode llama dos veces al inicializador y en la segunda llamada ya no animaría.
@@ -499,18 +498,20 @@ Cada título dice de qué capa depende; **revalidada** = se reprodujo también c
 
 - **Síntoma:** «2026-10-31» se muestra como 30/10/2026.
 - **Causa:** `new Date("2026-10-31")` es medianoche UTC, y en Guatemala (UTC−6) se pinta el día anterior.
-- **Arreglo:** una fecha de calendario (`AAAA-MM-DD`) no pasa por `Date`: se formatea partiendo la cadena,
-  y para un `InputDate` se convierte con `parseDate` de `@internationalized/date`. Es dependencia
-  transitiva de react-aria-components, sin declarar (3.12.4 en el origen): si deja de resolver tras un
-  `npm install`, decláralo en `package.json`.
+- **Arreglo:** una fecha de calendario (`AAAA-MM-DD`) no pasa por `Date`: se muestra con
+  `formatearFecha`, y para un `InputDate` se convierte con `parseDate` de `@internationalized/date`. El
+  starter del 22/10/2026 ya lo declara (`^3.12.4`); solo en starters anteriores es transitiva sin
+  declarar: si deja de resolver, decláralo en `package.json`.
+- **Ya resuelto en:** `formatearFecha` (`src/utils/formato.ts`).
 
 ### Los montos compactos mezclan sufijos · navegador
 
 - **Síntoma:** «1.7 K» (1700) y «184.5 k» (184500) en la misma columna.
 - **Causa:** `Intl.NumberFormat` con `notation: "compact"` en `es-GT`.
-- **Arreglo:** `formatearCompacto` («1.9k», «184.5k», «1.4M», «-1.9k»), con el exacto de `formatearMonto`
-  («Q 4,500.00») siempre alcanzable, no solo en un `title`.
-- **Ya resuelto en:** `src/utils/formato.ts`.
+- **Arreglo:** `formatearCompacto` («1.9k», «184.5k», «1.4M»), con el exacto (`formatearMonto`) a mano.
+  `CifraKpi` lo pone en `title` y en `sr-only`, que no se alcanzan con toque ni solo con teclado: si el
+  exacto importa en móvil, ponlo también en `detalle`, o no compactes bajo `sm`.
+- **Ya resuelto en:** `src/utils/formato.ts` (el formato); el exacto en táctil lo resuelve la pantalla.
 
 ### Las fotos por fila agotan el rate limit · diseño
 
@@ -528,7 +529,7 @@ Cada título dice de qué capa depende; **revalidada** = se reprodujo también c
 
 - **Síntoma:** al salir de la app, el usuario pierde también la sesión de Outlook, Teams y SharePoint.
 - **Causa:** `logoutRedirect()` hace un cierre federado contra Entra ID.
-- **Arreglo:** cierre local con `clearCache()`. Como la cookie de Microsoft sobrevive, el inicio de sesión
+- **Una salida (con costo):** cierre local con `clearCache()`. Como la cookie de Microsoft sobrevive, el inicio de sesión
   fuerza `prompt: "select_account"`: sin eso, el siguiente clic devuelve en silencio a la misma cuenta y
   parece que salir no hizo nada. Los dos cambios van juntos; no toques uno sin el otro.
 - **El costo:** en un equipo compartido, quien llega después ve la cuenta del anterior en el selector y
@@ -539,5 +540,5 @@ Cada título dice de qué capa depende; **revalidada** = se reprodujo también c
 
 - **Síntoma:** con la sesión viva, recargar muestra la pantalla de acceso un momento antes de volver.
 - **Causa:** la ruta protegida redirige antes de que MSAL termine de restaurar la cuenta.
-- **Arreglo:** no redirijas mientras se restaura; muestra `LoadingIndicator` con «Restaurando sesión…» en
-  su lugar.
+- **Arreglo:** no redirijas mientras se restaura; muestra en su lugar «Restaurando sesión…», con el
+  `LoadingIndicator` en un envoltorio `role="status"` (ver [Acceso](patrones.md#acceso)).
