@@ -4,11 +4,14 @@ Cómo se arma una pantalla de una app interna de DPB para que todas se vean y se
 origen es **app-presupuestos**: lo que se cita «del origen» es un ejemplo de su negocio, no algo que
 abrir. Las rutas en `código` son las del proyecto después de copiar la plantilla.
 
-Lo general de Untitled UI —catálogo, CLI, tabla de tokens semánticos, imports `Aria*`, props `is*`
-de React Aria, `cx`/`sortCx`, iconos con `data-icon`, `Button href`, dark mode con `.dark-mode`,
-free vs. PRO— está en `eecheverria-untitled-ui`, y aquí no se repite. Lo que ya mordió, con
-síntoma, causa y arreglo, está en [`trampas.md`](trampas.md). Lee las secciones de las piezas que vas a
-usar; en una app nueva serán casi todas.
+Los componentes del catálogo vienen de `@desarrollospaloblanco/ui` y se importan desde
+`@desarrollospaloblanco/ui/components/<ruta>`; qué hay y qué props acepta la versión instalada lo dice
+`scripts/catalogo.mjs` (`indice`, `ver <ruta-o-nombre>`). Las reglas generales de uso de Untitled UI
+—tabla de tokens semánticos, imports `Aria*`, props `is*` de React Aria, `cx`/`sortCx`, iconos con
+`data-icon`, `Button href`, dark mode con `.dark-mode`, free vs. PRO— están en `eecheverria-untitled-ui`,
+y aquí no se repiten; su CLI no se usa en una app DPB. Lo que ya mordió, con síntoma, causa y arreglo,
+está en [`trampas.md`](trampas.md). Lee las secciones de las piezas que vas a usar; en una app nueva
+serán casi todas.
 
 ## Contenido
 
@@ -31,12 +34,11 @@ usar; en una app nueva serán casi todas.
 
 ## Reglas de la casa
 
-- **No edites `src/components/` ni `src/styles/theme.css`.** Los regenera
-  `npx untitledui@latest upgrade` y el cambio se perdería en silencio. La marca va en
-  `src/styles/brand-dpb.css`, que se importa después de `theme.css`. Lo que haya que corregir de un
-  componente se corrige desde fuera: props, una `className` (gana por `cx`) o una constante en
-  `features/comunes/`. La única excepción es el parche de `calendar.tsx`, y solo con un starter
-  anterior al del 22/10/2026 (ver [Instalación](trampas.md#instalación-y-toolchain)).
+- **El paquete no se toca desde la app.** Ni se copian sus componentes a `src/` (tampoco con
+  `npx untitledui add`) ni se redefinen sus tokens en un `@theme` (`brand-*`, `accent-*`, la fuente):
+  esa app dejaría de verse como las demás. Lo que haya que corregir de un componente se corrige desde
+  fuera: props, una `className` (gana por `cx`) o una constante en `features/comunes/`. Si el arreglo
+  es del componente o del tema, va al paquete (issue o PR en `desarrollospaloblanco/dpb-ui`).
 - **Todo control sale del catálogo.** `Select` y no `<select>`, `InputDate` y no
   `<input type="date">`. Los nativos pintan el chrome del navegador (el azul del sistema en el
   desplegable, el `dd/mm/aaaa`) y rompen la identidad. `NativeSelect` es justo el `<select>` del
@@ -71,7 +73,7 @@ bg-canvas  (h-dvh · p-3 · gap-3 · overflow-hidden)
     └── <main>    relative · flex-col · min-h-0 · flex-1 · overflow-y-auto · pt-px
 ```
 
-**Lienzo y tarjetas.** Sobre `bg-canvas` (gris azulado, de `brand-dpb.css`) flotan dos tarjetas. No
+**Lienzo y tarjetas.** Sobre `bg-canvas` (gris azulado, token DPB del tema del paquete) flotan dos tarjetas. No
 uses `bg-secondary` como lienzo: en claro es casi blanco y el efecto se pierde.
 
 **El scroll vive dentro de la tarjeta de contenido**, en `main`: la cabecera no se va con el scroll y
@@ -211,7 +213,7 @@ fila no navega, porque prometería algo que no existe.
 Plantilla: `src/layouts/pantalla-acceso.tsx`.
 
 - **Ya viene en `PantallaAcceso`:** las dos columnas (el acceso con el lockup, y el panel de marca
-  `bg-brand-500`, que se oculta bajo `lg` porque es apoyo), su `<main>` y los enlaces de soporte
+  `bg-brand-600`, que se oculta bajo `lg` porque es apoyo), su `<main>` y los enlaces de soporte
   (`SHELL.correoSoporte`). No los agregues.
 - **Bloque de acceso:** un antetítulo corto (`lineaSuperior`, en `text-accent`, uno de los pocos usos
   legítimos del acento), el `<h1>` «Inicia sesión», una línea sobre qué cuenta usar, el error si lo
@@ -256,7 +258,7 @@ Cuándo sí y cuándo no. El código está en la plantilla; no lo repitas a mano
 - **`TarjetaDialogo`** (`src/features/comunes/tarjeta-dialogo.tsx`). El contenido de todo diálogo, como
   **hijo directo de `Dialog`**: cabecera y pie fijos, scroll solo en el cuerpo. El `Dialog` del
   catálogo (`max-h-[inherit] overflow-y-auto`) desplazaría todo, cabecera y pie incluidos, y
-  `TarjetaDialogo` hereda su tope; con el catálogo anterior, ver [Diálogos](trampas.md#diálogos). Con
+  `TarjetaDialogo` hereda su tope (ver [Diálogos](trampas.md#diálogos)). Con
   `onSubmit` es un `<form noValidate>`: Enter envía y ella misma llama a `preventDefault()`. El ancho va
   en el `Modal` de cada diálogo (`max-w-md` las confirmaciones, `max-w-lg` los formularios). No metas
   otra área con `overflow-y-auto` alrededor.
@@ -278,7 +280,7 @@ Cuándo sí y cuándo no. El código está en la plantilla; no lo repitas a mano
   `descripcion` y `accion` opcional, con `role="status"`. `variante="relleno"` para un listado sin filas
   (con dos textos según haya filtros o no); `"punteado"` para una tarjeta del inicio sin datos. Una
   lista vacía dentro de una `Seccion` con más contenido no lo usa: basta una línea de texto. No uses
-  `application/empty-state` del starter: no sigue los tokens.
+  `application/empty-state` del catálogo: no sigue los tokens.
 - **`Esqueleto`** (`esqueleto.tsx`). Toda primera carga con forma conocida pasa por él:
   `role="status"` con la `etiqueta` como texto `sr-only` dentro (sin `aria-busy`), `filas` y `altoFila`
   (por defecto `h-11`, el de `FILA`). Para otras formas (un detalle, el inicio), compón: un contenedor
@@ -312,7 +314,8 @@ Cuándo sí y cuándo no. El código está en la plantilla; no lo repitas a mano
   inactivas.
 - **`toggle.ts`**. `TOGGLE_ANCHO_COMPLETO`, en todo `Toggle` que lleve `hint`.
 - **`formato.ts`** (`src/utils/`). `formatearMonto(n)` → «Q 4,500.00», «-Q 250.50» (es-GT, GTQ, dos
-  decimales; el espacio lo pone `Intl`, no lo quites) y `formatearCompacto(n)` → «1.9k», «184.5k»,
+  decimales; el espacio lo pone `Intl`, no lo quites), su inverso `leerMonto(texto)` → `4500` o `null`,
+  y `formatearCompacto(n)` → «1.9k», «184.5k»,
   «1.4M», «-1.9k», sin «Q». Es propio (`Intl` compacto en es-GT da «1.7 K» y «184.5 k») y redondea
   antes de elegir la escala: 999 950 → «1M», 999.6 → «1k», -0.4 → «0». Donde va el compacto, el exacto
   sigue alcanzable. `formatearFecha("AAAA-MM-DD")` → «dd/mm/aaaa», sin pasar por `Date`, y `MESES`
@@ -383,10 +386,14 @@ Cuándo sí y cuándo no. El código está en la plantilla; no lo repitas a mano
 - **El manejo del estado no lo fija esta skill:** `TarjetaDialogo` sirve igual con el `handleSubmit` de
   React Hook Form que con estado plano. Lo deciden `eecheverria-frontend-react` y
   `eecheverria-untitled-ui`; lo que sigue aplica con cualquiera.
-- **Reinicio al abrir.** El diálogo no se desmonta al cerrarse, así que carga los valores cuando
-  `abierto` pasa a `true`, con las dependencias `[abierto, registro]`: reabrir descarta lo escrito y se
-  lee el registro actual. `registro` tiene que ser estable (el objeto que llegó del servidor): uno que
-  el padre arma en cada render vaciaría el formulario con cada tecla.
+- **Reinicio al abrir.** El diálogo no se desmonta al cerrarse, así que un `useState(registro)` leería
+  el registro una sola vez. El estado del formulario vive en un componente hijo con una `key` que
+  cambia en cada apertura: un contador que sube en el handler que abre (`setApertura((n) => n + 1)`) y
+  `<FormularioOrden key={apertura} registro={registro} />`. Al remontar, `useState(() =>
+  valoresDe(registro))` lee el registro de esa apertura y reabrir descarta lo escrito; al cerrar, la
+  `key` no cambia y el contenido sigue ahí durante la animación de salida. Sin un efecto que copie el
+  registro al estado: el lint de React lo marca, y con un `registro` que el padre arma en cada render
+  vaciaba el formulario con cada tecla.
 - **Todas las salidas por un solo handler.** Cancelar, la ×, Escape y el clic fuera; los dos últimos los
   dispara el overlay por `onOpenChange`. Limpia el error ahí, no solo en el botón.
 - **Se cierra solo si salió bien.** Si falló, el usuario necesita ver el error junto a lo que escribió.
@@ -411,7 +418,8 @@ Cuándo sí y cuándo no. El código está en la plantilla; no lo repitas a mano
   con `Checkbox`: la excepción consistente que `eecheverria-untitled-ui` admite a su regla general.
 - **Números:** `Input` con `inputMode="numeric"` para enteros y `inputMode="decimal"` para montos (en
   iOS, `numeric` no trae punto decimal), nunca `type="number"`. El monto se formatea con
-  `formatearMonto` al salir del campo.
+  `formatearMonto` al salir del campo y se lee con `leerMonto`, que acepta lo formateado y lo escrito a
+  mano y da `null` si no es un número.
 - **Selects:** con una sola opción posible, elígela sola y no muestres el control. Mientras carga su
   lista, un `LoadingIndicator` chico con texto («Cargando proveedores…»); si falla, `MensajeError` en
   lugar del campo.
@@ -465,14 +473,15 @@ Cuándo sí y cuándo no. El código está en la plantilla; no lo repitas a mano
 ## Badges de estado
 
 Una tabla `ESTILO` por dominio, de estado a color y etiqueta: el `Record` sobre la unión obliga a
-cubrir un estado nuevo, y la etiqueta exportada sirve donde el estado va en texto (un selector).
+cubrir un estado nuevo, y la etiqueta exportada sirve donde el estado va en texto (un selector). La
+tabla y la etiqueta van en un `.ts` y el badge en su `.tsx`: un archivo de componentes que también
+exporta funciones rompe Fast Refresh, y el lint de Vite lo marca.
 
 ```tsx
-import { Badge } from "@/components/base/badges/badges";
+// estado-solicitud.ts
+export type EstadoSolicitud = "BORRADOR" | "ENVIADA" | "EN_REVISION" | "APROBADA" | "DEVUELTA" | "ARCHIVADA";
 
-type EstadoSolicitud = "BORRADOR" | "ENVIADA" | "EN_REVISION" | "APROBADA" | "DEVUELTA" | "ARCHIVADA";
-
-const ESTILO: Record<EstadoSolicitud, { color: "gray" | "brand" | "warning" | "success" | "error"; etiqueta: string }> = {
+export const ESTILO: Record<EstadoSolicitud, { color: "gray" | "brand" | "warning" | "success" | "error"; etiqueta: string }> = {
     BORRADOR: { color: "gray", etiqueta: "Borrador" },
     ENVIADA: { color: "brand", etiqueta: "Enviada" },
     EN_REVISION: { color: "warning", etiqueta: "En revisión" },
@@ -482,6 +491,10 @@ const ESTILO: Record<EstadoSolicitud, { color: "gray" | "brand" | "warning" | "s
 };
 
 export const etiquetaEstadoSolicitud = (estado: EstadoSolicitud): string => ESTILO[estado].etiqueta;
+
+// estado-solicitud-badge.tsx
+import { Badge } from "@desarrollospaloblanco/ui/components/base/badges/badges";
+import { ESTILO, type EstadoSolicitud } from "./estado-solicitud";
 
 export const EstadoSolicitudBadge = ({ estado }: { estado: EstadoSolicitud }) => {
     const { color, etiqueta } = ESTILO[estado];
@@ -532,11 +545,11 @@ export const EstadoSolicitudBadge = ({ estado }: { estado: EstadoSolicitud }) =>
 ## Gráficas
 
 - **recharts**, compuesto en la propia feature, con `ChartTooltipContent` y `ChartLegendContent` de
-  `components/application/charts/charts-base.tsx`. El catálogo free no trae gráficas armadas, solo esa
-  base.
+  `@desarrollospaloblanco/ui/components/application/charts/charts-base`. El catálogo free no trae
+  gráficas armadas, solo esa base. `recharts` va en las dependencias de la app si la feature lo importa.
 - **Color por `currentColor`:** `fill="currentColor"` con `className="text-chart-1"` en el `Bar` o el
   `Cell`, y `bg-chart-1` en el punto de una leyenda propia. El token cambia solo en oscuro (`chart-1` a
-  brand-400, `chart-2` a #D95926) para seguir en 3:1 o más contra el fondo.
+  brand-500 #537CB9, `chart-2` a #D95926) para seguir en 3:1 o más contra el fondo.
 - **Rejilla y ejes con tokens:** `CartesianGrid vertical={false} stroke="currentColor"
   className="text-utility-neutral-100"`; ejes con `axisLine={false} tickLine={false}` y
   `tick={{ fill: "var(--color-text-tertiary)", fontSize: 12 }}` (con recharts 3.10, `className="text-xs"`
@@ -547,8 +560,8 @@ export const EstadoSolicitudBadge = ({ estado }: { estado: EstadoSolicitud }) =>
   su leyenda, y el total va en el centro.
 - **Eje de meses:** las etiquetas de `MESES` (`formato.ts`). En móvil, `interval="preserveStartEnd"` con
   `minTickGap`; con `interval={0}` las doce se enciman.
-- **Bundle:** el aviso de Vite de un chunk de más de 500 kB viene del catálogo más recharts; partir por
-  ruta es de `eecheverria-performance`.
+- **Bundle:** el aviso de Vite de un chunk de más de 500 kB sale ya con el shell solo (≈515 kB con el
+  paquete 0.2.0), y recharts lo agranda; partir por ruta es de `eecheverria-performance`.
 - **Accesibilidad:** la gráfica va en un elemento con `role="img"` y un `aria-label` que la resume y
   remite a la tabla. La tabla va **fuera**, como hermana (`role="img"` vuelve presentacional lo de
   dentro): `<div className="sr-only"><table><caption>…</caption>…</table></div>`, con el `sr-only` en el
@@ -556,9 +569,10 @@ export const EstadoSolicitudBadge = ({ estado }: { estado: EstadoSolicitud }) =>
 - **Paleta:** `--color-chart-1` (el azul de marca) y `--color-chart-2` (el naranja `#EB6834`), validadas
   con `dataviz` en claro y oscuro. **Al agregar una serie, revalida con `dataviz`**; sin ella (no viene
   en este plugin), 3:1 o más contra el fondo en los dos temas, series que no dependan solo del color y
-  nada que se confunda con `error`, `warning`, `success` ni `accent`. La serie nueva va en un CSS del
-  proyecto (`src/styles/graficas.css`, importado después de `brand-dpb.css`), no en `brand-dpb.css`:
-  ese archivo no se edita, o cada actualización lo marcaría como conflicto.
+  nada que se confunda con `error`, `warning`, `success` ni `accent`. La serie nueva es un token NUEVO
+  (`--color-chart-3`) en un CSS del proyecto (`src/styles/graficas.css`, importado en `globals.css`
+  después de `@import "@desarrollospaloblanco/ui/styles.css"`), nunca una redefinición de
+  `chart-1`/`chart-2`. Si sirve a varias apps, proponla al paquete.
 
 ---
 
@@ -566,13 +580,13 @@ export const EstadoSolicitudBadge = ({ estado }: { estado: EstadoSolicitud }) =>
 
 **Isotipo DPB o marca propia.** Por defecto, toda app interna lleva el isotipo DPB
 (`src/brand/dpb-isotipo.tsx`) en el lockup (`src/brand/app-logo.tsx`). Una marca propia solo con un kit
-aprobado, y aun así con el texto en Open Sans y los colores de DPB.
+aprobado, y aun así con la tipografía y los colores del tema del paquete.
 
 **Variantes por fondo:**
 
 - `color` sobre superficies claras (la sidebar, la columna de acceso) y también sobre el fondo oscuro de
   la app: es lo que pide el manual de marca.
-- `white` sobre el azul o el rojo de marca: el panel de acceso (`bg-brand-500`).
+- `white` sobre el azul o el rojo de marca: el panel de acceso (`bg-brand-600`).
 - `mono`, una sola tinta, para cuando no hay color.
 - No rotes, no recolorees y no deformes.
 
@@ -583,21 +597,26 @@ aprobado, y aun así con el texto en Open Sans y los colores de DPB.
 La app usa el componente inline, no el archivo: el SVG de `public/marca/` queda para el favicon, que va
 al tamaño que define el navegador, y para quien necesite el archivo suelto.
 
-**Azul de acción.** `brand-500` = `#2C589A` y `accent-500` = `#CC1F37`, exactos, en `brand-dpb.css`.
-`bg-brand-solid` (el botón primario) resuelve a `brand-600` (`#234B85`): así reparte la rampa Untitled
-UI, no lo "corrijas" a 500. El `#2C589A` no lo escribas a mano: llega por los tokens
-(`fg-brand-secondary`, el anillo de foco en claro, `bg-brand-primary` en oscuro…) y por las superficies
-de marca (`bg-brand-500`). En oscuro, el anillo de foco, `fg-brand-primary` y `border-brand` son
-brand-400: con brand-500 el anillo daba ≈2.8:1 sobre el fondo, bajo el 3:1 de WCAG 1.4.11.
+**Azul de acción.** En la escala del paquete, `brand-600` = `#2C589A` y `accent-600` = `#CC1F37`,
+exactos. `bg-brand-solid` (el botón primario) resuelve a `brand-600`, el azul oficial, en los dos
+temas; su hover es `brand-700` (`#1B488A`) en claro y `brand-500` en oscuro. El `#2C589A` no lo
+escribas a mano: llega por los tokens (`bg-brand-solid`, `fg-brand-primary` y `chart-1` en claro…) y
+por las superficies de marca (`bg-brand-600`). `brand-500` (`#537CB9`) es más claro: es el anillo de
+foco en los dos temas y `border-brand` en claro, y en oscuro también `fg-brand-primary` y `chart-1`.
+El anillo de foco en oscuro da ≈4.7:1 sobre el fondo, por encima del 3:1 de WCAG 1.4.11.
 
 **Acento.** La rampa `accent` es para acentos puntuales de marca (un antetítulo, un destacado), no para
-KPIs, acciones ni estados. Como texto, `text-accent` (accent-600 en claro, 6.8:1 sobre blanco;
-accent-400 en oscuro, ≈5.8:1), que se invierte con el tema; `text-accent-600` no. Las acciones son
-azules, y `error`, `warning` y `success` se dejan intactos porque son funcionales: si `error` fuera el
-rojo DPB, un exceso y un elemento de marca se verían iguales.
+KPIs, acciones ni estados. Como texto, `text-accent` (accent-600 en claro, ≈5.5:1 sobre blanco;
+accent-400 `#F6797A` en oscuro, ≈7.5:1), que se invierte con el tema; `text-accent-600` no. El paquete
+trae también los semánticos (`text-accent-primary`/`secondary`/`tertiary`, `bg-accent-primary`/
+`secondary`/`solid`, `border-accent`, `outline-focus-ring-accent`, `utility-accent-*`): úsalos antes que un
+paso crudo de la rampa. Las acciones son azules, y `error`, `warning` y `success` se dejan intactos
+porque son funcionales: si `error` fuera el rojo DPB, un exceso y un elemento de marca se verían iguales.
 
-**Tipografía.** Open Sans 400/500/600/700 e itálica 400 (`--font-body` y `--font-display`), cargada en
-`index.html` desde Google Fonts. El 500 es el de `font-medium`: sin él, se pintaba en 400.
+**Tipografía.** Inter 400/500/600/700, la del tema del paquete (`--font-body` y `--font-display`). El
+paquete no la carga: va en `index.html` desde Google Fonts. El 500 es el de `font-medium`: sin él, se
+pinta en 400. No la cambies desde la app; los documentos con la marca siguen en Open Sans
+(`dpbranding`).
 
 **Retícula isométrica** (`src/brand/iso-pattern.tsx`). La textura del panel de marca: es fondo, no
 marca, y no va en superficies de trabajo.
@@ -643,9 +662,11 @@ sesión y un realce al pasar el ratón; en el panel de acceso puede flotar. Todo
 ## Idioma
 
 - **Todo en español:** textos, `aria-label`, tooltips, nombres de archivos descargados y mensajes.
-  `<html lang="es">`.
-- **El catálogo trae textos fijos en inglés**, y como `src/components/` no se toca, se apagan por props o
-  se compone con otras piezas del catálogo:
+  `<html lang="es">`, y `<I18nProvider locale="es-GT">` en `main.tsx`: React Aria formatea fechas y
+  números con el idioma del navegador, no con el `lang`, y sin él `InputDate` sale mm/dd/yyyy en un
+  equipo en inglés.
+- **El catálogo trae textos fijos en inglés**, y como el paquete no se edita desde la app, se apagan por
+  props o se compone con otras piezas del catálogo:
 
   | Componente | Qué hacer |
   | --- | --- |
@@ -655,7 +676,7 @@ sesión y un realce al pasar el ratón; en el panel de acceso puede flotar. Todo
   | `DateRangePicker` | dos `InputDate` encadenados con `minValue`/`maxValue` |
   | `DropZone` y los ítems de `file-upload` | `FileTrigger` + `Button` y una ficha propia |
   | `Toaster` de `sonner` | `containerAriaLabel="Notificaciones"` (por defecto, «Notifications») |
-  | `not-found.tsx` del starter | `src/pages/no-encontrada.tsx` |
+  | La ruta `*` (404) | `src/pages/no-encontrada.tsx` |
 
 - **Antes de usar un componente nuevo del catálogo, busca su texto fijo.**
 - **Fechas con `formatearFecha`** («dd/mm/aaaa», sin pasar por `Date`) y montos con `formatearMonto` y
