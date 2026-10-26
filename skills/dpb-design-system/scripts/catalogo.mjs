@@ -1,12 +1,12 @@
 // Lee el catálogo de @desarrollospaloblanco/ui que usa un proyecto, sin cargarlo entero al contexto.
-// Uso: node scripts/catalogo.mjs <raíz-del-proyecto> [indice [texto] | ver <ruta-o-nombre> | version]
-//   indice   (por defecto) una línea por componente: su ruta de import y lo que exporta; con texto, filtra
-//   ver      el detalle de uno: la línea de import y sus tipos (.d.ts), con el JSDoc de cada prop
+// Uso: node scripts/catalogo.mjs <raíz-del-proyecto> [indice [texto] | ver <ruta-o-nombre> [--dts] | version]
+//   indice   (por defecto) una línea por componente: su ruta de import, lo que exporta y cuántos ejemplos trae
+//   ver      el detalle de uno: import, props y ejemplos del catálogo ai/; con --dts (o sin ai/), sus tipos .d.ts
 //   version  la versión instalada contra la última publicada, y si el proyecto la baja del registry correcto
 //
-// La fuente son los .d.ts del paquete instalado: dicen exactamente qué exporta y qué props acepta ESA versión.
-// Los manifiestos de Storybook no se usan todavía: con las stories actuales del paquete salen por archivo de
-// stories, con nombres de demos y un import que no existe (ver SKILL.md, «Fuente de verdad y versiones»).
+// Las fuentes son del paquete instalado, así que describen ESA versión. El índice sale de los .d.ts, que tienen
+// todo lo que se exporta. El detalle prefiere ai/components.json (desde la 0.3.0): trae las props heredadas de
+// React Aria, que los .d.ts no muestran, y ejemplos de uso sacados de Storybook.
 import { spawnSync } from 'node:child_process'
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -17,11 +17,13 @@ const REGISTRY = 'https://npm.pkg.github.com'
 // Sin esta bandera, fuera de un proyecto configurado npm buscaría el paquete en npmjs.com.
 const SCOPE = `--@desarrollospaloblanco:registry=${REGISTRY}`
 
-const [raiz, accion = 'indice', ...resto] = process.argv.slice(2)
+const [raiz, accion = 'indice', ...argumentos] = process.argv.slice(2)
 const ACCIONES = new Set(['indice', 'ver', 'version'])
+const soloDts = argumentos.includes('--dts')
+const resto = argumentos.filter((arg) => arg !== '--dts')
 
 if (!raiz || !ACCIONES.has(accion)) {
-  console.error('Uso: node scripts/catalogo.mjs <raíz-del-proyecto> [indice [texto] | ver <ruta-o-nombre> | version]')
+  console.error('Uso: node scripts/catalogo.mjs <raíz-del-proyecto> [indice [texto] | ver <ruta-o-nombre> [--dts] | version]')
   console.error('Si la ruta tiene espacios, ponla entre comillas.')
   process.exit(1)
 }
@@ -134,14 +136,52 @@ const importados = (ruta, texto) =>
     return partes.join('/').replace(/^components\//, '')
   })
 
+// El catálogo ai/components.json por ruta de import. Una ruta puede tener varios componentes (`Badge` y
+// `BadgeWithDot` viven en badges.tsx), y cada uno se queda con los ejemplos que lo renderizan a él.
+const cargarAi = (dir) => {
+  const archivo = join(dir, 'ai', 'components.json')
+  if (!existsSync(archivo)) return null
+  const porRuta = new Map()
+  for (const componente of Object.values(leerJson(archivo).components ?? {})) {
+    for (const pieza of [componente, ...(componente.subcomponents ?? [])]) {
+      const ejemplos = (componente.stories ?? []).filter(({ snippet }) => new RegExp(`<${pieza.name}[\\s/>.]`).test(snippet))
+      porRuta.set(pieza.route, [...(porRuta.get(pieza.route) ?? []), { ...pieza, ejemplos }])
+    }
+  }
+  return porRuta
+}
+
+const primeraLinea = (texto) => texto.split('\n')[0].trim()
+const recortar = (texto, largo) => (texto.length > largo ? `${texto.slice(0, largo - 1)}…` : texto)
+
+// Una línea por prop: «nombre?: tipo = defecto — descripción». Sin «?» es obligatoria.
+const imprimirPieza = ({ import: linea, description, props = {}, ejemplos }) => {
+  console.log(`\n${linea}`)
+  if (description) console.log(`// ${primeraLinea(description)}`)
+  console.log('Props (con las heredadas de React Aria):')
+  for (const prop of Object.values(props)) {
+    const defecto = prop.defaultValue != null ? ` = ${prop.defaultValue}` : ''
+    const ayuda = prop.description ? ` — ${recortar(primeraLinea(prop.description), 100)}` : ''
+    console.log(`  ${prop.name}${prop.required ? '' : '?'}: ${recortar(prop.type ?? 'unknown', 90)}${defecto}${ayuda}`)
+  }
+  if (!ejemplos.length) return
+  console.log('Ejemplos:')
+  for (const { name, snippet } of ejemplos) console.log(`  // ${name}\n${snippet.replace(/^/gm, '  ')}`)
+}
+
 const indice = ({ dir }) => {
   const { version } = leerJson(join(dir, 'package.json'))
+  const ai = cargarAi(dir)
   const filtro = resto.join(' ').toLowerCase()
   const entradas = catalogo(dir).filter(({ nombres }) => nombres.length).filter(
     ({ ruta, nombres }) => !filtro || ruta.toLowerCase().includes(filtro) || nombres.some((n) => n.toLowerCase().includes(filtro)),
   )
   console.log(`${PAQUETE}@${version} · import desde "${PAQUETE}/<ruta>" · detalle: «ver <ruta>»`)
-  for (const { ruta, nombres } of entradas) console.log(`${ruta}  ${nombres.join(', ')}`)
+  console.log(ai ? 'Con catálogo ai/: «ver» trae props (con las heredadas) y ejemplos.' : 'Sin catálogo ai/ (antes de la 0.3.0): «ver» muestra los tipos .d.ts.')
+  for (const { ruta, nombres } of entradas) {
+    const ejemplos = (ai?.get(ruta) ?? []).reduce((total, pieza) => total + pieza.ejemplos.length, 0)
+    console.log(`${ruta}  ${nombres.join(', ')}${ejemplos ? `  · ${ejemplos} ${ejemplos === 1 ? 'ejemplo' : 'ejemplos'}` : ''}`)
+  }
   if (!entradas.length) console.log(`Nada coincide con «${filtro}». Si el componente no existe, se propone al equipo del design system.`)
 }
 
@@ -171,6 +211,16 @@ const ver = ({ dir }) => {
 
   const [{ ruta: elegida, archivo, nombres }] = candidatas
   const { version } = leerJson(join(dir, 'package.json'))
+
+  // Con catálogo ai/, su detalle; pedido por nombre, solo ese componente de la ruta.
+  const piezas = soloDts ? [] : (cargarAi(dir)?.get(elegida) ?? [])
+  const mostrar = pedido.includes('/') ? piezas : piezas.filter((pieza) => pieza.name === pedido)
+  if (mostrar.length) {
+    console.log(`// ${PAQUETE}@${version} · ${elegida} · catálogo ai/ (los tipos: «ver ${elegida.replace(/^components\//, '')} --dts»)`)
+    for (const pieza of mostrar) imprimirPieza(pieza)
+    return
+  }
+
   const texto = readFileSync(archivo, 'utf8')
   console.log(`// ${PAQUETE}@${version} · ${elegida}`)
   console.log(

@@ -40,8 +40,9 @@ Las dos reglas duras, y su porqué:
 
 - **Usa el paquete y copia la plantilla; no los reescribas.** Escrita desde una descripción, cada app
   sale un poco distinta, y la consistencia es justo lo que se pidió. Además, las plantillas ya esquivan
-  trampas reales del catálogo (el `Dialog` que desplaza también la cabecera y el pie, el `size` que
-  `Table` ignora, textos fijos en inglés): al reinventarlas, las vuelves a pisar.
+  trampas reales del catálogo (el `Dialog` que desplaza también la cabecera y el pie, el encabezado de la
+  tabla que se va con las filas, el `Toggle` que abre un scroll horizontal): al reinventarlas, las vuelves
+  a pisar.
 - **El paquete no se toca desde la app.** Ni componentes del catálogo copiados a `src/components/`, ni
   un `@theme` que redefina sus tokens (`brand-*`, `accent-*`, la fuente, los semánticos). Esa app se
   separaría de las demás y la corrección no llegaría a ninguna otra. Lo que falte o esté mal se pide
@@ -261,19 +262,25 @@ node "<base-de-la-skill>/scripts/catalogo.mjs" "<raíz-del-proyecto>" indice sel
 node "<base-de-la-skill>/scripts/catalogo.mjs" "<raíz-del-proyecto>" ver Select        # el detalle de uno: import y tipos con su JSDoc
 ```
 
-Sin texto, `indice` da el catálogo entero en ~135 líneas; con texto, solo lo que coincide. `ver`
-acepta la ruta (`base/select/select`) o el nombre exportado, y al final dice qué otros archivos del
-paquete aportan tipos (`ver base/select/select-shared`), también los que solo exportan tipos. Lee de
-`node_modules` (la versión exacta del lockfile); si el proyecto aún no declara el paquete, baja
-`@latest` a una carpeta temporal y avisa; si tampoco puede, se detiene y dice qué falta. Las reglas:
+Sin texto, `indice` da el catálogo entero en ~135 líneas, con cuántos ejemplos trae cada componente;
+con texto, solo lo que coincide. `ver` acepta la ruta (`base/select/select`) o el nombre exportado. Lee
+de `node_modules` (la versión exacta del lockfile); si el proyecto aún no declara el paquete, baja
+`@latest` a una carpeta temporal y avisa; si tampoco puede, se detiene y dice qué falta.
+
+Desde la 0.3.0, el paquete trae `ai/components.json`, el catálogo para agentes que sale de Storybook, y
+`ver` lo prefiere: da el import, cada prop en una línea (tipo, si es obligatoria, valor por defecto y
+para qué sirve, incluidas las heredadas de React Aria) y los ejemplos de uso de las stories. Con
+`ver <ruta> --dts`, o con un paquete anterior, muestra los tipos `.d.ts` y qué otros archivos aportan
+tipos (`ver base/select/select-shared`). Las reglas:
 
 - **Importa exactamente como dice `ver`** (`@desarrollospaloblanco/ui/components/<ruta>`). El paquete
   no tiene un import desde la raíz.
-- **Usa solo props que existen en esa versión.** Las propias están en los tipos que muestra `ver`; las
-  heredadas (`extends Aria…Props`: `value`, `onChange`, `onBlur`…) son las de la versión instalada de
-  `react-aria-components` y no salen ahí. El typecheck confirma unas y otras.
-- **La JSDoc es la de Untitled UI.** Si contradice a `references/trampas.md` (la de `Table` dice que
-  `size` controla la densidad, y el catálogo lo ignora), manda trampas.md.
+- **Usa solo props que existen en esa versión.** Con `ai/` salen todas. Con los `.d.ts` salen las
+  propias, y las heredadas (`extends Aria…Props`: `value`, `onChange`, `onBlur`…) son las de la versión
+  instalada de `react-aria-components`. El typecheck confirma unas y otras.
+- **Copia la forma de los ejemplos,** no solo las props: muestran cómo se arma el componente (el `Select`
+  con su `Select.Item`). Hoy los traen `Button`, `Input`, `Select`, `Badge` y `Toggle`.
+- **La JSDoc es la de Untitled UI.** Si contradice a `references/trampas.md`, manda trampas.md.
 - **Si falta un componente, propónlo al equipo del design system** (issue en
   `desarrollospaloblanco/dpb-ui`). No crees uno paralelo ni lo traigas del CLI. Si la pantalla no
   puede esperar, se compone a mano con tokens en `src/features/` y se propone al paquete.
@@ -309,8 +316,9 @@ Lo que esta skill suma a las reglas de `eecheverria-untitled-ui`:
 4. **Lienzo y superficies.** Fondo `bg-canvas`; tarjetas `rounded-xl bg-primary ring-1
    ring-secondary`; bloques internos `bg-secondary`. Sombras: `shadow-md` en las tarjetas del shell,
    `shadow-xl` en diálogos, `shadow-lg` en toasts y ninguna en bloques internos.
-5. **Todo en español.** Si un componente del catálogo trae texto fijo en inglés, apágalo por props o
-   recompónlo (la `Paginacion` existe por eso). Fechas, montos y mensajes, en español de Guatemala.
+5. **Todo en español.** Desde la 0.3.0 el catálogo trae sus textos en español; con la 0.2.0, o si algo
+   quedó en inglés, apágalo por props o recompónlo (ver «Idioma» en `references/patrones.md`). Fechas,
+   montos y mensajes, en español de Guatemala.
    React Aria formatea con el idioma del navegador, no con el `lang` del html: por eso `main.tsx`
    envuelve la app en `<I18nProvider locale="es-GT">`, y sin él `InputDate` sale en inglés.
 6. **La marca.** Isotipo DPB por defecto; una app puede tener marca propia (como el Portal de
@@ -373,16 +381,17 @@ con un comentario de qué es y qué trampa esquiva; la anatomía y el cuándo us
   desde su `.tgz` (la máquina de prueba no tenía token del registry), sobre create-vite 9.3.1: React
   19.3.1, `react-aria-components` 1.22.1, Tailwind 4.3.3, Vite 8.3.5, TypeScript 6.0.3 (estricto por
   defecto), `react-router` 8.5.0 y `sonner` 2.0.8. Typecheck, build y revisión en el navegador en claro,
-  oscuro, a 320 y a 440 px, y `npm run lint` sin advertencias en la plantilla. **Sin probar
-  todavía:** la instalación real desde `npm.pkg.github.com`, el
+  oscuro, a 320 y a 440 px, y `npm run lint` sin advertencias en la plantilla. `catalogo.mjs` con
+  `ai/`, contra la 0.3.0 compilada de `main` de `dpb-ui` (`7616909`), que debería ser el código publicado
+  (no se pudo comparar con el registry: la máquina de prueba no tenía token).
+  **Sin probar todavía:** la instalación real desde `npm.pkg.github.com`, el
   respaldo de `catalogo.mjs` que baja `@latest` (sí su error sin token) y la receta de
   `references/migracion.md` sobre app-presupuestos.
-- **Los manifiestos de Storybook todavía no sirven de catálogo.** Con `componentsManifest` activado
-  sobre las stories actuales del paquete salen 31 entradas, una por archivo de stories, con nombres de
-  demos, sin props y un `import` desde la raíz del paquete, que no existe. Por eso `catalogo.mjs` lee
-  los `.d.ts`, que son exactos para la versión instalada. Cuando el paquete publique un
-  `ai/components.json` útil (stories con `component` apuntando al componente real, e import por
-  subruta), el script puede preferirlo.
+- **El catálogo para agentes (`ai/components.json`) es un piloto.** Desde la 0.3.0 trae 26 componentes
+  con su import por subruta y sus props, pero solo 5 con ejemplos (`Button`, `Input`, `Select`, `Badge`,
+  `Toggle`): los demás llegan a medida que el paquete pase sus stories de demos a `args`. Sale del
+  manifiesto de Storybook, que sigue en preview, y el paquete lo limpia en `scripts/manifests.mjs`. Si
+  un componente no está en `ai/` (`Dropdown`, `Carousel`, `RadioGroup`), `ver` cae a los `.d.ts`.
 - **Cuando cambie el paquete**, vuelve a probar las plantillas y revisa `references/trampas.md`: varias
   trampas dependen del código del catálogo y de su versión.
 - **Actualizar las piezas de un proyecto que ya las tiene** es una decisión del usuario: corre el
@@ -395,7 +404,9 @@ con un comentario de qué es y qué trampa esquiva; la anatomía y el cuándo us
   shell, `TarjetaDialogo`, `Paginacion`, `Notificaciones` y `formato` vivieran en
   `@desarrollospaloblanco/ui`, las apps se actualizarían con `npm install` y esta skill dejaría de copiar
   plantillas (quedarían las costuras y las recetas). Es decisión del equipo del design system.
-- **Manifiestos útiles en `ai/`**: ver "Fuente de verdad y versiones".
+- **Más ejemplos en `ai/`.** Que el paquete pase más stories a `args` (empezando por `Table`, `Tabs`,
+  `DatePicker` y `Checkbox`), y que `Dropdown` y `Carousel` entren al catálogo. Ver "Fuente de verdad y
+  versiones".
 - **Login con MSAL como pieza opcional.** Hoy la plantilla trae solo la pantalla (`PantallaAcceso`)
   y la costura (`use-cuenta.ts`, más el comentario de dónde montar la auth en `main.tsx`); el botón
   «Iniciar sesión con Microsoft» no hace nada. Todas las apps de DPB repiten lo mismo: el
@@ -418,7 +429,7 @@ con un comentario de qué es y qué trampa esquiva; la anatomía y el cuándo us
 | "Ya salió una versión nueva del paquete; la instalo de paso" | En `0.x` cada minor puede romper. Avisa; actualiza el usuario, con el changelog delante. |
 | "Uso Open Sans, que es la fuente de la marca" | En las apps manda el paquete: Inter. Open Sans es para documentos (`dpbranding`). |
 | "Es un modal sencillo, lo escribo desde cero" | El `Dialog` del catálogo desplaza todo su contenido, cabecera y botones incluidos. `TarjetaDialogo`, como hijo directo del `Dialog`, deja fijos la cabecera y el pie y solo desplaza el cuerpo. |
-| "Uso la paginación del catálogo" | Trae texto fijo en inglés. Para eso existe `Paginacion`. |
+| "Uso la paginación del catálogo" | La de DPB es `Paginacion`: sin números de página, con el foco cuidado en los límites y compacta en el celular (y en la 0.2.0, la del catálogo sale en inglés). |
 | "El error lo pinto con el rojo de la marca" | El rojo DPB es acento, no semántica. Errores con `error-*`. |
 | "Engroso el contorno del isotipo para que se vea a 24 px" | Es la marca: no se deforma. Llévalo a 32 px o más. |
 | "Uso el toast de Untitled UI" | Es PRO y no está en el paquete. `notificar.exito/error` con sonner hace lo mismo con el estilo DPB. |

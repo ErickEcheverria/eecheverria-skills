@@ -1,7 +1,7 @@
 {
   "name": "pb-skills",
   "description": "Skills estándar de Desarrollos Palo Blanco: capa base senior-dev que delega en transversales, stack y producto, más agentes revisores de contexto fresco.",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "author": {
     "name": "Erick Echeverría",
     "email": "eecheverria@paloblanco.com"

@@ -268,7 +268,7 @@ navegador contra el paquete. Cuándo revalidar cada capa:
 
 ## Tablas y filas
 
-### `<Table size="sm">` no cambia el alto de las filas · catálogo · revalidada
+### `<Table size="sm">` no cambia el alto de las filas · catálogo · hasta la 0.2.0
 
 - **Síntoma:** todas las filas salen de 72 px (`h-18`) aunque pidas `sm`; con `size="sm"` y `h-11` en
   cada fila, salen de 54 px.
@@ -279,7 +279,8 @@ navegador contra el paquete. Cuándo revalidar cada capa:
   lleva `h-11 *:py-2`: la `h-11` gana a la `h-14` del componente (`cx` es tailwind-merge), y `*:py-2`
   baja el relleno de las celdas sin tocar el `px-6` que las alinea con `Table.Head` (`size="sm"` en cada
   celda las desalinea).
-- **Ya resuelto en:** `FILA` (`tabla.ts`).
+- **Ya resuelto en:** `FILA` (`tabla.ts`), y en el paquete 0.3.0, donde `<Table size="sm">` ya se
+  aplica. Aun así la fila DPB es `FILA`: el `sm` del catálogo mide 56 px y pasa las celdas a `px-5`.
 
 ### Una celda muestra un dato viejo o un botón no se deshabilita · RAC
 
@@ -398,7 +399,7 @@ navegador contra el paquete. Cuándo revalidar cada capa:
 
 ## Catálogo: textos en inglés y piezas PRO
 
-### Textos fijos en inglés que no se pueden editar · catálogo
+### Textos fijos en inglés que no se pueden editar · catálogo · hasta la 0.2.0
 
 - **Síntoma:** «Previous», «Next» y «Page 1 of 10», el pie del `MultiSelect` («Reset», «Select all»), el
   `DropZone`, el `DateRangePicker` y el «Notifications» que anuncia el lector de pantalla. Revalidados con
@@ -408,7 +409,9 @@ navegador contra el paquete. Cuándo revalidar cada capa:
 - **Arreglo:** apágalo por props o compón con otras piezas del catálogo (la tabla de salidas está en
   [Idioma](patrones.md#idioma)). Sin salida: el placeholder «Search» del buscador del `MultiSelect`. Si
   un texto se repite en varias apps, pide al paquete que lo traduzca.
-- **Ya resuelto en:** `paginacion.tsx` y `notificaciones.tsx`.
+- **Ya resuelto en:** el paquete 0.3.0, que trae en español los textos del catálogo (quedan en inglés las
+  variantes de ejemplo `dropdown-*` y la navegación de demo, que DPB no usa); y en la plantilla,
+  `paginacion.tsx` y `notificaciones.tsx`, este por el «Notifications» de `sonner`.
 
 ### El toast del catálogo pide `login` · catálogo · revalidada
 

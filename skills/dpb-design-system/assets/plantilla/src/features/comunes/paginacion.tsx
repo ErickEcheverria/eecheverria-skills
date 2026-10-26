@@ -20,8 +20,9 @@ interface PaginacionProps {
 }
 
 /**
- * Compuesto con dos `Button` del catálogo en vez de `PaginationPageDefault`, que trae «Previous»,
- * «Next» y «Page 1 of 10» fijos en inglés dentro del paquete, que no se edita desde la app.
+ * Compuesto con dos `Button` del catálogo en vez de `PaginationPageDefault`: es la paginación de DPB,
+ * con el foco cuidado en los límites y compacta en el celular. Hasta la 0.2.0 del paquete, además, la del
+ * catálogo traía «Previous», «Next» y «Page 1 of 10» fijos en inglés.
  *
  * Sin numeritos de página: en un listado que se filtra por búsqueda nadie salta a la página once. Lo
  * que se usa es avanzar, retroceder y saber dónde se está.
