@@ -29,16 +29,16 @@ export const ENCABEZADO_FIJO = "sticky top-0 z-10";
 export const AREA_TABLA_PROPIA = "relative min-h-0 flex-1 overflow-auto rounded-xl ring-1 ring-secondary";
 
 /**
- * La fila compacta: `<Table.Row {...FILA}>`, y `size={FILA.size}` también en `Table.Header`.
+ * La fila compacta de DPB, 44 px: `<Table.Row {...FILA}>`, y `size={FILA.size}` también en
+ * `Table.Header`. Sin `size` en `<Table>`.
  *
- * El `size` de `<Table>` NO llega a las filas: `TableRoot` lo resuelve con `context?.size ?? size` y el
- * contexto tiene por defecto `{ size: "md" }`, así que el `??` nunca mira la prop y todas salían con
- * `h-18`. `Table.Header` y `Table.Row` sí respetan la suya. La `h-11` (44 px) gana sobre la `h-14` del
- * componente porque `cx` es tailwind-merge.
+ * Es más baja que el `sm` del catálogo (56 px, `h-14`). La `h-11` gana sobre la `h-14` del componente
+ * porque `cx` es tailwind-merge. Hasta la 0.2.0 del paquete, el `size` de `<Table>` ni siquiera llegaba a
+ * las filas (su contexto traía `md` por defecto); desde la 0.3.0 sí llega, y pasa las celdas a `px-5`.
  *
- * `Table.Cell` tampoco ve el `size` de la fila: lo toma del mismo contexto (`md` → `py-4`) y la fila
- * crecía a 54 px aunque pidiera `h-11`. `*:py-2` baja el relleno vertical de sus celdas sin tocar el
- * `px-6`, que es lo que las alinea con `Table.Head`; pasar `size="sm"` a cada celda las desalineaba.
+ * `Table.Cell` toma su relleno del contexto de la tabla (`md` → `py-4`), no de la fila, y la fila crecía
+ * a 54 px aunque pidiera `h-11`. `*:py-2` baja el relleno vertical de sus celdas sin tocar el `px-6`, que
+ * es lo que las alinea con `Table.Head`; pasar `size="sm"` a cada celda las desalineaba.
  * Si la fila usa `claseFila`, pásale `FILA.className` como base.
  */
 export const FILA = { size: "sm", className: "h-11 *:py-2" } as const;

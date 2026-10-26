@@ -328,9 +328,10 @@ Cuándo sí y cuándo no. El código está en la plantilla; no lo repitas a mano
 - **Área con encabezado fijo.** Envuelve el `Table` del catálogo en `<div className={AREA_TABLA}>` y
   pasa `ENCABEZADO_FIJO` al `Table.Header`. El área es la única que se desplaza (también en
   horizontal), lleva el contorno y es `relative`. La paginación va fuera de ella.
-- **`size` en el header y en cada fila**, nunca solo en `<Table>`, donde se ignora: `{...FILA}`
-  (`size: "sm"`, `h-11 *:py-2`) en cada `Table.Row` y `size={FILA.size}` en `Table.Header`, 44 px reales
-  y casi el doble de filas a la vista. El `*:py-2` es por `Table.Cell`, que toma su relleno del contexto
+- **`FILA` en el header y en cada fila, sin `size` en `<Table>`:** `{...FILA}` (`size: "sm"`,
+  `h-11 *:py-2`) en cada `Table.Row` y `size={FILA.size}` en `Table.Header`, 44 px reales y casi el doble
+  de filas a la vista. El `sm` de `<Table>` mide 56 px y pasa las celdas a `px-5` (hasta la 0.2.0 ni se
+  aplicaba). El `*:py-2` es por `Table.Cell`, que toma su relleno del contexto
   (ver [Tablas y filas](trampas.md#tablas-y-filas)). Todas las filas van con `FILA`, también las que
   navegan, para que el `Esqueleto` (`altoFila="h-11"`) coincida: la que navega se distingue por su
   cursor y su enlace, no por su alto.
@@ -665,18 +666,21 @@ sesión y un realce al pasar el ratón; en el panel de acceso puede flotar. Todo
   `<html lang="es">`, y `<I18nProvider locale="es-GT">` en `main.tsx`: React Aria formatea fechas y
   números con el idioma del navegador, no con el `lang`, y sin él `InputDate` sale mm/dd/yyyy en un
   equipo en inglés.
-- **El catálogo trae textos fijos en inglés**, y como el paquete no se edita desde la app, se apagan por
-  props o se compone con otras piezas del catálogo:
+- **Desde la 0.3.0, el catálogo trae sus textos en español:** paginación, selects, fechas, carga de
+  archivos, menús y etiquetas para el lector de pantalla. Siguen en inglés las variantes de ejemplo
+  `dropdown-*` y la navegación de demo, que en DPB no se usan, y el `Toaster` de `sonner`, que va con
+  `containerAriaLabel="Notificaciones"` (ya lo hace `notificaciones.tsx`). La paginación de DPB sigue siendo
+  `Paginacion` de la plantilla, por su diseño.
+- **Con la 0.2.0, el catálogo trae textos fijos en inglés**, y como el paquete no se edita desde la app,
+  se apagan por props o se compone con otras piezas del catálogo (o se actualiza el paquete):
 
-  | Componente | Qué hacer |
+  | Componente (0.2.0) | Qué hacer |
   | --- | --- |
   | `Select` | `placeholder` en español (por defecto, «Select») |
   | `MultiSelect` | `showFooter={false}`. El placeholder «Search» de su buscador no tiene salida: se acepta si perder la búsqueda es peor |
   | `PaginationPageDefault` | `Paginacion` de la plantilla (dos `Button` del catálogo) |
   | `DateRangePicker` | dos `InputDate` encadenados con `minValue`/`maxValue` |
   | `DropZone` y los ítems de `file-upload` | `FileTrigger` + `Button` y una ficha propia |
-  | `Toaster` de `sonner` | `containerAriaLabel="Notificaciones"` (por defecto, «Notifications») |
-  | La ruta `*` (404) | `src/pages/no-encontrada.tsx` |
 
 - **Antes de usar un componente nuevo del catálogo, busca su texto fijo.**
 - **Fechas con `formatearFecha`** («dd/mm/aaaa», sin pasar por `Date`) y montos con `formatearMonto` y
