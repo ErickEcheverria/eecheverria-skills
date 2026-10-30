@@ -18,6 +18,18 @@
         "email": "eecheverria@paloblanco.com"
       },
       "homepage": "https://github.com/ErickEcheverria/eecheverria-skills"
+    },
+    {
+      "name": "git-branches",
+      "source": "./plugins/git-branches",
+      "version": "0.5.1",
+      "category": "productivity",
+      "description": "Botón ⎇ branches en el pie: muestra en el chat la rama actual de cada proyecto git de la carpeta, despliega todas sus ramas y permite cambiar de rama o hacer pull (solo con el proyecto limpio y en avance rápido).",
+      "author": {
+        "name": "Oscar Mazariegos",
+        "email": "omazariegos@paloblanco.com"
+      },
+      "homepage": "https://github.com/ErickEcheverria/eecheverria-skills/tree/main/plugins/git-branches"
     }
   ]
 }
