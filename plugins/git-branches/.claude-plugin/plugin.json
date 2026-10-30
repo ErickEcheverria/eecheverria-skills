@@ -1,0 +1,12 @@
+{
+  "name": "git-branches",
+  "version": "0.5.1",
+  "description": "Un botón en el pie que muestra, como mensaje en el chat, en qué rama está cada proyecto git de la carpeta (ella y sus subcarpetas directas), con todas sus ramas, cambio de rama y pull a un clic.",
+  "author": {
+    "name": "Oscar Mazariegos",
+    "email": "omazariegos@paloblanco.com"
+  },
+  "homepage": "https://github.com/ErickEcheverria/eecheverria-skills/tree/main/plugins/git-branches",
+  "repository": "https://github.com/ErickEcheverria/eecheverria-skills",
+  "types": "./types/index.d.ts"
+}

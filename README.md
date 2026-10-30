@@ -129,6 +129,21 @@ Para lanzarlos a mano: `@agent-pb-skills:revisor-seguridad revisa el diff de est
 
 ---
 
+## 🧩 Plugins aparte
+
+Además de `pb-skills`, el marketplace `paloblanco` lista plugins que se instalan por separado, cada uno en
+`plugins/<nombre>/`. No llegan con `pb-skills`: se elige cuáles instalar.
+
+| Plugin | Qué hace |
+|---|---|
+| **`git-branches`** | Botón **⎇ branches** en el pie de Claude Code: muestra en el chat la rama actual de cada proyecto git de la carpeta (ella y sus subcarpetas directas), despliega todas sus ramas y permite cambiar de rama o hacer pull a un clic, solo con el proyecto limpio. [Más detalle](plugins/git-branches/README.md). |
+
+```bash
+claude plugin install git-branches@paloblanco
+```
+
+---
+
 ## 💻 Uso en una computadora nueva
 
 ```bash
@@ -179,6 +194,8 @@ agents/
 └── revisor-*.md       un archivo por agente
 skills/
 └── <skill>/           una carpeta por skill: SKILL.md (+ references/, scripts/, assets/ si los usa)
+plugins/
+└── <plugin>/          un plugin aparte por carpeta, con su propio .claude-plugin/plugin.json
 ```
 
 Claude Code descubre las skills en `<raíz-del-plugin>/skills/` y los agentes en
@@ -200,6 +217,9 @@ local del plugin.
 > tiene el plugin instalado **no recibe la actualización** aunque corra `claude plugin marketplace
 > update paloblanco`. El catálogo se refresca, pero su copia local del plugin se queda como estaba y la
 > única salida es desinstalar y reinstalar. Ya pasó al mergear los PRs #2 y #3.
+
+Un plugin aparte bajo `plugins/` sigue la misma regla con su propia versión: su `plugin.json` y su entrada
+en `marketplace.json`. Cambiarlo no obliga a subir la de `pb-skills`.
 
 Un mismo marketplace admite varios plugins, así que más adelante esto se puede partir
 (`pb-core` / `pb-frontend` / `pb-backend`) sin que nadie cambie su comando de instalación.

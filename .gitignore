@@ -1,4 +1,4 @@
-# Lista blanca: versionar solo README, los manifiestos del plugin, los agentes y las skills.
+# Lista blanca: versionar solo README, los manifiestos del plugin, los agentes, las skills y los plugins aparte.
 /*
 
 !.gitignore
@@ -7,6 +7,7 @@
 !.claude-plugin/
 !agents/
 !skills/
+!plugins/
 
 # skill-creator queda fuera: es de Anthropic, no del usuario.
 skills/skill-creator/
@@ -16,3 +17,6 @@ skills/skill-creator/
 **/__pycache__/
 **/.DS_Store
 **/*-workspace/
+
+# Tipos que Claude Code escribe junto a cada mod al cargarlo:
+plugins/*/.claude-plugin/types/
