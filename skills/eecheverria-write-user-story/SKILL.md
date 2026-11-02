@@ -316,6 +316,8 @@ Si el usuario no dio los tiempos, **pídelos**: los bloques exactos, o el total 
 
 > **`X-Auth-Token` ya no sirve**: devuelve `401 {"message":"Token is not valid","code":4017}`. Verificado el 21/09/2026.
 
+> **Límite del plan Free: 30 requests por hora para TODO el workspace**, compartidos con el equipo (`429 "limit of 30 requests per hour"`). No hay creación masiva de entradas ni de tareas: una semana típica (~70 entradas + ~65 tareas nuevas) son ~140 requests, unas **5 horas** que además dejan sin cuota al resto del equipo. Presupuesta las llamadas antes de empezar; si no alcanzan, registra por la interfaz web (§7.6).
+
 - Quién soy: `GET /user` → devuelve `id` (usuario) y `activeWorkspace`
 - Leer: `GET /workspaces/{ws}/user/{usr}/time-entries?start=&end=&page-size=200&hydrated=true`
   (`hydrated=true` es lo que trae `project` y `task` con su nombre; sin él solo vienen los ids)
@@ -335,6 +337,20 @@ Si el usuario no dio los tiempos, **pídelos**: los bloques exactos, o el total 
 ### 7.5 Preview antes de escribir
 
 Igual que con Jira (§6.1): muestra las entradas (día, franja, duración, descripción, proyecto, etiquetas) y espera el ok. Solo después escribe.
+
+### 7.6 Registro por la interfaz web (Chrome MCP)
+
+Cuando la API no alcanza (§7.4), el usuario prefiere registrar **por la interfaz de `app.clockify.me` con Claude in Chrome**. Las reglas de §7.1–7.5 no cambian: patrón del histórico, sin solapes, preview aprobada antes de escribir. Gotchas verificados al cargar la semana 44 de 2026 (71 entradas y 65 tareas):
+
+- **Tareas primero.** Se crean en *Proyectos → proyecto → Tareas*: campo «Añadir tarea» + Enter, una por key. Para saber cuáles existen usa «Buscar por nombre» (`DPB-38`); la lista sale ordenada por nombre y muestra máximo 50. Los huecos de numeración suelen ser tareas de compañeros, no las tuyas.
+- **El selector de proyecto del Rastreador NO busca tareas** (ni por nombre ni con `@`). Filtra por el proyecto («Desarrollo - Palo»), expande «N Tareas» y haz scroll del contenedor (`ng-scroll-viewport`), que carga de 50 en 50, hasta que aparezca el key: unas 30 cargas para llegar a `DPB-38xx`. Luego haz clic en el nombre.
+- **La trampa del «+1».** Si el inicio queda después del fin, Clockify pasa el fin al día siguiente y desde ahí ignora lo que se teclea: las horas quedan invertidas y la duración en ~23 h. Ocurre con cualquier entrada posterior a la hora real del día en que registras. **Orden que funciona:** fecha → inicio `00:01` → fin real → inicio real. Cambiar el inicio no mueve el fin.
+- **Enfoca los campos por JS, no por coordenadas.** Usa `input.focus(); input.select()` y espera ~200 ms antes de teclear: la barra se corre cuando aparece la etiqueta o el «+1». Los inputs de la barra van en este orden: descripción, inicio, fin, fecha (se puede escribir `dd/mm/aaaa`) y duración. El campo enfocado muestra la hora sin `:` («1300»), así que compara solo los dígitos.
+- **Verifica antes y después de cada AÑADIR.** Antes: descripción, tarea, etiqueta, fecha, horas y duración. Después: que la fila exista. Y antes de llenar, comprueba que la entrada no esté ya en ese día, para que un reintento no duplique.
+- **Agrupación.** Dos entradas del mismo día con la misma descripción (una historia partida en el almuerzo) se muestran como una sola fila «2 [DPB-…]: …» que abarca ambas.
+- **El Rastreador pagina de 50 en 50** (`?page=2&limit=50`), y el día nuevo no aparece hasta recargar. Para la verificación final recorre las páginas y compara día por día contra el plan: filas, total del día y total semanal.
+- **«Browser extension is not connected»** puede llegar mientras el lote sigue corriendo dentro de Chrome. Inspecciona antes de reintentar.
+- **Delega la carga** en subagentes en segundo plano de unas 15 entradas cada uno (≈160 k tokens por agente), **uno a la vez** porque comparten la pestaña. Un `browser_batch` por entrada, con la verificación del formulario antes de guardar.
 
 ---
 
@@ -374,6 +390,7 @@ Igual que con Jira (§6.1): muestra las entradas (día, franja, duración, descr
 - [ ] Cada entrada lleva su `taskId`; las tareas que faltaban se crearon con el key como nombre.
 - [ ] Se preguntó el proyecto destino.
 - [ ] Preview aprobada antes de escribir, y verificación leyendo de vuelta.
+- [ ] Se presupuestaron los requests de la API (30/hora para todo el workspace); si no alcanzaban, se registró por la interfaz web (§7.6) y se verificó día por día contra el plan.
 
 ---
 
