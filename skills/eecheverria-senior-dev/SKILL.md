@@ -298,6 +298,7 @@ tarea entra en un dominio con skill propia, delega ahí sin perder la disciplina
 | Generar/redactar historias de usuario (HU) de un feature o fix (proyecto DPB) | `eecheverria-write-user-story` |
 | Redactar la solicitud de despliegue para DevOps: changelog funcional, commits por repo y scripts consolidados para el DBA | `changelog-deploy` |
 | Presumir en video lo construido: video de lanzamiento corto de un proyecto o una URL, con música y copy para redes | `eecheverria-launch-video` |
+| Generar el manual de usuario en PDF de una app web a partir de capturas reales, con pasos numerados | `manual-usuario` |
 
 Cómo se combinan: esta skill decide *cómo* abordas el trabajo (orientarte, cuidar contexto, respetar
 convenciones, cerrar limpio); la skill de stack decide *qué patrón concreto* usas. Si trabajas React,

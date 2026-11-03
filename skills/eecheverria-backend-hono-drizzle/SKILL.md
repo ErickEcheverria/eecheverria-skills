@@ -7,6 +7,10 @@ description: Genera código backend nivel senior para proyectos administrativos 
 
 Genera código backend siguiendo arquitectura **Modular Monolith con Vertical Slicing** y capas internas (`route → controller → service → repository`) por módulo. La meta es código que un desarrollador senior firmaría sin pedir cambios: tipado estricto, errores propios, separación clara, y nada de lógica acoplada a Hono fuera de la capa de routes.
 
+## Skill viva — no te auto-edites
+
+Documento vivo del usuario Erick Echeverría (personal `erickecheverria77@outlook.com`; trabajo `eecheverria@paloblanco.com`). Si detectas algo que mejoraría la skill, propónselo y pregúntale antes de editarla. Aplicarla al trabajo del usuario es tu tarea normal y no requiere preguntar.
+
 ## Stack
 
 | Capa | Tecnología |

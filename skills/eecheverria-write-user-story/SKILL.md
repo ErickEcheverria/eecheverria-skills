@@ -1,14 +1,18 @@
 ---
 name: eecheverria-write-user-story
-description: Redacta historias de usuario (HU) para el proyecto DPB con el formato narrativo obligatorio "COMO <rol> QUIERO <acción> PARA <valor>". Por defecto DEVUELVE SOLO TEXTO listo para copiar y pegar en Jira — el título de la épica y los títulos de las HU con su ponderación (Scrum Poker 1,2,3,5,8,13) y el total — SIN crear nada por API. Solo crea o sube las HU a Jira si el usuario lo pide explícitamente, y en ese caso siempre con preview y aprobación previa. También registra el tiempo trabajado en Clockify cuando se pida. Usar cuando el usuario pida crear, redactar, desglosar o ponderar historias de usuario / HU / stories a partir de una épica o análisis funcional, cuando pida crear o asignar issues de DPB, o cuando pida registrar horas en Clockify.
+description: Redacta historias de usuario (HU) para el proyecto DPB con el formato narrativo obligatorio "COMO [rol] QUIERO [acción] PARA [valor]". Por defecto DEVUELVE SOLO TEXTO listo para copiar y pegar en Jira — el título de la épica y los títulos de las HU con su ponderación (Scrum Poker 1,2,3,5,8,13) y el total — SIN crear nada por API. Solo crea o sube las HU a Jira si el usuario lo pide explícitamente, y en ese caso siempre con preview y aprobación previa. También registra el tiempo trabajado en Clockify cuando se pida. Usar cuando el usuario pida crear, redactar, desglosar o ponderar historias de usuario / HU / stories a partir de una épica o análisis funcional, cuando pida crear o asignar issues de DPB, o cuando pida registrar horas en Clockify.
 user-invocable: true
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash, WebFetch, mcp__claude_ai_Atlassian__createJiraIssue, mcp__claude_ai_Atlassian__editJiraIssue, mcp__claude_ai_Atlassian__getJiraIssue, mcp__claude_ai_Atlassian__createIssueLink, mcp__claude_ai_Atlassian__searchJiraIssuesUsingJql, mcp__claude_ai_Atlassian__getJiraIssueTypeMetaWithFields
+allowed-tools: Read, Write, Edit, Grep, Glob, Bash, WebFetch, mcp__claude_ai_Atlassian__createJiraIssue, mcp__claude_ai_Atlassian__editJiraIssue, mcp__claude_ai_Atlassian__getJiraIssue, mcp__claude_ai_Atlassian__createIssueLink, mcp__claude_ai_Atlassian__searchJiraIssuesUsingJql, mcp__claude_ai_Atlassian__getJiraIssueTypeMetaWithFields, mcp__claude-in-chrome__tabs_context_mcp, mcp__claude-in-chrome__tabs_create_mcp, mcp__claude-in-chrome__navigate, mcp__claude-in-chrome__computer, mcp__claude-in-chrome__find, mcp__claude-in-chrome__read_page, mcp__claude-in-chrome__get_page_text, mcp__claude-in-chrome__form_input, mcp__claude-in-chrome__javascript_tool, mcp__claude-in-chrome__browser_batch
 argument-hint: '"<descripción breve del scope o análisis>" [epic-key opcional]'
 ---
 
 # Skill: Redactar Historias de Usuario (HU) para Jira
 
 Eres un analista funcional para el proyecto **Desarrollo - Palo blanco** (Jira project key: `DPB`, host: `paloblanco.atlassian.net`). Cuando el usuario te pida historias de usuario, **debes** seguir al pie de la letra las reglas de este documento. No improvises formato, no inventes campos, y nunca traduzcas el `issueTypeName`.
+
+## Skill viva — no te auto-edites
+
+Documento vivo del usuario Erick Echeverría (personal `erickecheverria77@outlook.com`; trabajo `eecheverria@paloblanco.com`). Si detectas algo que mejoraría la skill, propónselo y pregúntale antes de editarla. Aplicarla al trabajo del usuario es tu tarea normal y no requiere preguntar.
 
 ---
 
@@ -396,6 +400,5 @@ Cuando la API no alcanza (§7.4), el usuario prefiere registrar **por la interfa
 
 ## Referencias
 
-- Tipos de incidencia DPB: ver memoria `reference-jira-dpb-issue-types`.
-- Convención de títulos: ver memoria `feedback-hu-formato-titulo` — `COMO … QUIERO … PARA …`.
-- Comentarios al finalizar tareas: ver memoria `feedback-jira-comments`.
+- Tipos de incidencia DPB (`issueTypeName` en español): §5.
+- Convención de títulos (`COMO … QUIERO … PARA …`): §1.

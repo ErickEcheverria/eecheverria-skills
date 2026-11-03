@@ -1,9 +1,10 @@
-# Lista blanca: versionar solo README, los manifiestos del plugin, los agentes, las skills y los plugins aparte.
+# Lista blanca: versionar solo README, CLAUDE.md, los manifiestos del plugin, los agentes, las skills y los plugins aparte.
 /*
 
 !.gitignore
 !.gitattributes
 !README.md
+!CLAUDE.md
 !.claude-plugin/
 !agents/
 !skills/

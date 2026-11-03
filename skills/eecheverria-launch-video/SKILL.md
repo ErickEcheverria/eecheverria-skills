@@ -8,7 +8,7 @@ description: >-
   inventar un spot genérico — y antes de construir PROPONE un brief (objetivo, público y canal,
   pantallas a mostrar, tono) y lo confirma con el usuario en vez de suponerlo. Actívate SIEMPRE que el usuario diga frases como "/brag", "brag about
   this", "hazme un video de lanzamiento", "quiero presumir lo que construí", "un video para LinkedIn de
-  este proyecto", "un teaser de este release", "un video promocional de <url>", "anuncia la nueva
+  este proyecto", "un teaser de este release", "un video promocional de [url]", "anuncia la nueva
   feature en video", "un demo en video para redes", o cuando quiera mostrar lo que construyó en formato
   de video. Complementa a eecheverria-senior-dev (disciplina de trabajo, verificar antes de entregar), a
   eecheverria-frontend-react y eecheverria-untitled-ui (de donde salen los componentes reales que se
