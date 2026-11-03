@@ -137,9 +137,11 @@ Además de `pb-skills`, el marketplace `paloblanco` lista plugins que se instala
 | Plugin | Qué hace |
 |---|---|
 | **`git-branches`** | Botón **⎇ branches** en el pie de Claude Code: muestra en el chat la rama actual de cada proyecto git de la carpeta (ella y sus subcarpetas directas), despliega todas sus ramas y permite cambiar de rama o hacer pull a un clic, solo con el proyecto limpio. [Más detalle](plugins/git-branches/README.md). |
+| **`dev-servers`** | Botón **▶ dev** en el pie de Claude Code: levanta, muestra y detiene el servidor dev de cada proyecto de la carpeta (con todo su árbol de procesos, sin dejar puertos ocupados), abre la app en Chrome para validarla con Claude y le pasa los errores al prompt. Nunca instala dependencias. [Más detalle](plugins/dev-servers/README.md). |
 
 ```bash
 claude plugin install git-branches@paloblanco
+claude plugin install dev-servers@paloblanco
 ```
 
 ---

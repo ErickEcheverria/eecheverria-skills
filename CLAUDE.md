@@ -7,11 +7,12 @@ eecheverria: cada máquina las recibe instalando el plugin, no clonando el repo 
 
 | Ruta | Qué es |
 |---|---|
-| `.claude-plugin/marketplace.json` | Catálogo del marketplace: lista `pb-skills` y `git-branches`, cada uno con su versión |
+| `.claude-plugin/marketplace.json` | Catálogo del marketplace: lista `pb-skills`, `git-branches` y `dev-servers`, cada uno con su versión |
 | `.claude-plugin/plugin.json` | Manifiesto de `pb-skills` (el plugin es la raíz del repo) |
 | `skills/<skill>/SKILL.md` | Una carpeta por skill, con `references/`, `scripts/` o `assets/` si los usa |
 | `agents/*.md` | Agentes revisores de contexto fresco (`revisor-adversarial`, `revisor-seguridad`) |
 | `plugins/git-branches/` | Plugin aparte: un mod de Claude Code (`hooks/register.tsx`) con sus tests |
+| `plugins/dev-servers/` | Plugin aparte: el mod ▶ dev, con sus tests y `bin/` (intermedio y guardián que matan el árbol de procesos) |
 
 Todo está en español: skills, agentes, commits y documentación.
 
@@ -19,7 +20,7 @@ Todo está en español: skills, agentes, commits y documentación.
 
 1. **Sube la versión en los dos manifiestos en cada cambio**: `version` de `.claude-plugin/plugin.json`
    y la de la entrada `pb-skills` en `marketplace.json`. Si no cambia, quien ya tiene el plugin no
-   recibe la actualización. `git-branches` lleva su propia versión (su `plugin.json` y su entrada).
+   recibe la actualización. Cada plugin de `plugins/` lleva su propia versión (su `plugin.json` y su entrada).
 2. **`.gitignore` es una lista blanca** (`/*` y luego `!…`). Un archivo o carpeta nueva en la raíz
    necesita su `!` o queda fuera del repo sin avisar.
 3. **Edita en este clon, nunca en `~/.claude/plugins/cache/…`**: Claude Code sobrescribe esa copia en la
@@ -65,8 +66,8 @@ Actualiza también:
 
 ```bash
 claude plugin validate .                       # manifiestos y frontmatter de pb-skills
-claude plugin validate ./plugins/git-branches
-claude plugin test ./plugins/git-branches      # tests del mod (hooks/register.test.tsx)
+claude plugin validate ./plugins/git-branches  # igual con ./plugins/dev-servers
+claude plugin test ./plugins/git-branches      # tests del mod (hooks/register.test.tsx); igual con dev-servers
 claude --plugin-dir .                          # sesión con esta copia local de pb-skills
 ```
 
