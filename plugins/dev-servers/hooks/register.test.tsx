@@ -272,5 +272,7 @@ test('Claude can list, start and stop the servers with its tool', async ($, on) 
 
   const stopped = text(await $.tool.call({ tool: 'mcp__dev-servers__dev', action: 'stop', project: 'tratos-web' }))
   expect(stopped).toMatch(/tratos-web detenido/)
+  // The status line of that same answer already says it stopped, not the state from before.
+  expect(stopped).toMatch(/tratos-web \(next dev -p 4000\): ○ detenido/)
   expect(servers[0]!.isClosed).toBe(true)
 })
