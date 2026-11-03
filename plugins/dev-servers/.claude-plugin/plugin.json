@@ -1,0 +1,12 @@
+{
+  "name": "dev-servers",
+  "version": "0.1.0",
+  "description": "Botón ▶ dev en el pie: levanta, muestra y detiene el servidor dev de cada proyecto de la carpeta (con todo su árbol de procesos), abre la app en Chrome y le pasa los errores a Claude.",
+  "author": {
+    "name": "Erick Echeverría",
+    "email": "eecheverria@paloblanco.com"
+  },
+  "homepage": "https://github.com/ErickEcheverria/eecheverria-skills/tree/main/plugins/dev-servers",
+  "repository": "https://github.com/ErickEcheverria/eecheverria-skills",
+  "types": "./types/index.d.ts"
+}
