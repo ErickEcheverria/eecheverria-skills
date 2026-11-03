@@ -168,7 +168,11 @@ async function stop ($: EngineInterface, path: string): Promise<Notice> {
   // Cerrar el stream mata al intermedio; su guardián se entera y mata el árbol completo.
   void entry.stream.return(undefined as never).catch(() => {})
   const hasEnded = await Promise.race([entry.done.then(() => true), $.clock.sleep(STOP_WAIT_MS).then(() => false)])
-  return hasEnded ? { text: `${name} detenido.`, isError: false } : { text: `${name} se está deteniendo…`, isError: false }
+  if (!hasEnded) return { text: `${name} se está deteniendo…`, isError: false }
+  // El bucle que lee la salida ya lo marcó detenido, pero con el `$` con que se arrancó el servidor: quien
+  // lee con este `$` (la respuesta de la herramienta de Claude) aún no lo ve. Se escribe también desde aquí.
+  await patch($, path, () => ({ status: 'stopped', exitCode: null }))
+  return { text: `${name} detenido.`, isError: false }
 }
 
 /** Abre la app en Chrome con Claude in Chrome, en su grupo de pestañas, y se lo dice a Claude para validarla. */
