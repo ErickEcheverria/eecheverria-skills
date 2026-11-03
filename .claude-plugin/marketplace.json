@@ -30,6 +30,18 @@
         "email": "omazariegos@paloblanco.com"
       },
       "homepage": "https://github.com/ErickEcheverria/eecheverria-skills/tree/main/plugins/git-branches"
+    },
+    {
+      "name": "dev-servers",
+      "source": "./plugins/dev-servers",
+      "version": "0.1.0",
+      "category": "productivity",
+      "description": "Botón ▶ dev en el pie: levanta, muestra y detiene el servidor dev de cada proyecto de la carpeta (con todo su árbol de procesos, sin dejar puertos ocupados), abre la app en Chrome y le pasa los errores a Claude.",
+      "author": {
+        "name": "Erick Echeverría",
+        "email": "eecheverria@paloblanco.com"
+      },
+      "homepage": "https://github.com/ErickEcheverria/eecheverria-skills/tree/main/plugins/dev-servers"
     }
   ]
 }
