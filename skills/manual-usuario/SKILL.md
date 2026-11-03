@@ -21,6 +21,10 @@ capítulo por módulo y, en cada página, **una pantalla real** de la app con c�
 y debajo los pasos con el mismo número. Lo más simple posible: una idea por página, botones con su
 texto exacto en negrita.
 
+## Skill viva — no te auto-edites
+
+Documento vivo del usuario Erick Echeverría (personal `erickecheverria77@outlook.com`; trabajo `eecheverria@paloblanco.com`). Si detectas algo que mejoraría la skill, propónselo y pregúntale antes de editarla. Aplicarla al trabajo del usuario es tu tarea normal y no requiere preguntar.
+
 ## Cuándo NO usarla
 
 - Un **video** (promo, tutorial animado): `eecheverria-launch-video` o los flujos de HyperFrames.

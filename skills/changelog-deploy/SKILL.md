@@ -8,6 +8,10 @@ description: Redacta el mensaje de solicitud de despliegue para DevOps (changelo
 Produce **un mensaje pegable** (Teams/Slack) que le pide a DevOps desplegar y al DBA correr
 los scripts. Es el formato que usa el equipo; no lo reinventes.
 
+## Skill viva — no te auto-edites
+
+Documento vivo del usuario Erick Echeverría (personal `erickecheverria77@outlook.com`; trabajo `eecheverria@paloblanco.com`). Si detectas algo que mejoraría la skill, propónselo y pregúntale antes de editarla. Aplicarla al trabajo del usuario es tu tarea normal y no requiere preguntar.
+
 ## Datos que hay que recolectar ANTES de escribir
 
 Por cada repo que entra al despliegue:
